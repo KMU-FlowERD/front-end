@@ -3,12 +3,11 @@ import nextJest from 'next/jest';
 
 const createJestConfig = nextJest({
   // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
-  dir: './',
+  dir: './'
 });
 
 // Add any custom config to be passed to Jest
 const config: Config = {
-  verbose: true,
   coverageProvider: 'v8',
   testEnvironment: 'jsdom',
   // Add more setup options before each test is run
