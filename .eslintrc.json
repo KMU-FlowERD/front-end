@@ -1,5 +1,10 @@
 {
-  "ignorePatterns": ["src/__test__/*", ".next", "jest.config.ts", "babel.config.js"],
+  "ignorePatterns": [
+    "src/__test__/*",
+    ".next",
+    "jest.config.ts",
+    "babel.config.js"
+  ],
   "extends": [
     "airbnb",
     "airbnb-typescript",
@@ -10,14 +15,24 @@
     "plugin:@typescript-eslint/recommended",
     "prettier"
   ],
-  "plugins": ["@typescript-eslint", "react"],
+  "plugins": [
+    "@typescript-eslint",
+    "react",
+    "@tanstack/query"
+  ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "./tsconfig.json"
   },
   "rules": {
-    "semi": ["error", "always"],
-    "max-depth": ["error", 3],
+    "semi": [
+      "error",
+      "always"
+    ],
+    "max-depth": [
+      "error",
+      3
+    ],
     "import/prefer-default-export": "off",
     "import/no-default-export": "error",
     "@typescript-eslint/no-floating-promises": "off",
@@ -30,11 +45,24 @@
         "IIFEs": true
       }
     ],
-    "react/jsx-max-depth": ["error", { "max": 3 }],
+    "react/jsx-max-depth": [
+      "error",
+      {
+        "max": 3
+      }
+    ],
     "import/order": [
       "error",
       {
-        "groups": ["builtin", "external", ["parent", "sibling"], "index"],
+        "groups": [
+          "builtin",
+          "external",
+          [
+            "parent",
+            "sibling"
+          ],
+          "index"
+        ],
         "pathGroups": [
           {
             "pattern": "react",
@@ -59,32 +87,47 @@
         "tsx": "never"
       }
     ],
-    "react/jsx-filename-extension": ["error", { "extensions": [".tsx"] }],
+    "react/jsx-filename-extension": [
+      "error",
+      {
+        "extensions": [
+          ".tsx"
+        ]
+      }
+    ],
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": "off",
     "@next/next/no-img-element": "off"
   },
   "overrides": [
     {
-      "files": ["src/**/*.tsx"],
+      "files": [
+        "src/**/*.tsx"
+      ],
       "rules": {
         "max-lines-per-function": "off"
       }
     },
     {
-      "files": ["src/app/**/*.tsx"],
+      "files": [
+        "src/app/**/*.tsx"
+      ],
       "rules": {
         "import/no-default-export": "off"
       }
     },
     {
-      "files": ["src/app/layout.tsx"],
+      "files": [
+        "src/app/layout.tsx"
+      ],
       "rules": {
         "react/jsx-max-depth": "off"
       }
     },
     {
-      "files": ["src/__tests__/**/*"],
+      "files": [
+        "src/__tests__/**/*"
+      ],
       "env": {
         "jest": true
       }
