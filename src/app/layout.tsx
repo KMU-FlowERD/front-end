@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+
 import './globals.css';
+import { TanStackQueryProvider } from '@/providers';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -16,7 +18,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='ko-kr'>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <TanStackQueryProvider>{children}</TanStackQueryProvider>
+      </body>
     </html>
   );
 }

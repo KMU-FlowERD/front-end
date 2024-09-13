@@ -12,6 +12,8 @@
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "@tanstack/react-query": "^5.56.2",
+    "@tanstack/react-query-devtools": "^5.56.2",
     "axios": "^1.7.7",
     "next": "14.2.7",
     "react": "^18",
@@ -21,6 +23,7 @@
   "devDependencies": {
     "@eslint/js": "^9.9.1",
     "@jest/globals": "^29.7.0",
+    "@tanstack/eslint-plugin-query": "^5.56.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",
