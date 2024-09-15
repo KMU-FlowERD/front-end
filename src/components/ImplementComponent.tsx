@@ -1,15 +1,30 @@
 'use client';
 
 import styled from '@emotion/styled';
-import { ArrowIcon, PointerIcon, TableIcon, MemoIcon } from './implements-icon';
+import {
+  ArrowIcon,
+  PointerIcon,
+  TableIcon,
+  MemoIcon,
+  IconComponent,
+} from './implements-icon';
 
 export function ImplementComponent() {
   return (
     <styles.container>
-      <PointerIcon />
-      <ArrowIcon />
-      <TableIcon />
-      <MemoIcon />
+      <IconComponent iconShape={PointerIcon} />
+      <IconComponent iconShape={ArrowIcon} />
+      <div
+        style={{
+          width: '1px',
+          height: '40px',
+          background: '#444',
+          marginRight: '7px',
+        }}
+      />
+      <IconComponent iconShape={TableIcon} />
+      <IconComponent iconShape={MemoIcon} />
+      <div style={{ width: '1px', height: '40px', background: '#444' }} />
     </styles.container>
   );
 }

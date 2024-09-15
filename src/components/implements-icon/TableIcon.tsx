@@ -1,8 +1,6 @@
 'use client';
 
-import styled from '@emotion/styled';
-
-function Icon() {
+export function TableIcon(fill: string) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -43,37 +41,9 @@ function Icon() {
           c-1.718,1.709-3.908,2.568-6.571,2.568h-91.354c-2.673,0-4.862-0.859-6.57-2.568c-1.711-1.715-2.56-3.901-2.56-6.567V118.77
           c0-2.666,0.849-4.856,2.56-6.567c1.708-1.713,3.897-2.568,6.57-2.568h91.354c2.663,0,4.854,0.855,6.571,2.568
           c1.707,1.711,2.562,3.901,2.562,6.567V173.587z'
-          fill='white'
+          fill={fill}
         />
       </g>
     </svg>
   );
 }
-
-export function TableIcon() {
-  return (
-    <styles.container>
-      <Icon />
-    </styles.container>
-  );
-}
-
-const styles = {
-  container: styled.div`
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    cursor: pointer;
-    border-radius: 8px;
-    width: 31px;
-    height: 31px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    &:hover {
-      background: #606060;
-    }
-  `,
-};
