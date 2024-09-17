@@ -2,19 +2,13 @@
 
 import styled from '@emotion/styled';
 
-import {
-  ArrowIcon,
-  PointerIcon,
-  TableIcon,
-  MemoIcon,
-  IconComponent,
-} from './implements-icon';
+import { IconComponent, IconType } from './implements-icon';
 
 export function ImplementComponent() {
   return (
     <styles.container>
-      <IconComponent iconShape={PointerIcon} />
-      <IconComponent iconShape={ArrowIcon} />
+      <IconComponent type={IconType.Pointer} />
+      <IconComponent type={IconType.Arrow} />
       <div
         style={{
           width: '1px',
@@ -23,9 +17,16 @@ export function ImplementComponent() {
           marginRight: '7px',
         }}
       />
-      <IconComponent iconShape={TableIcon} />
-      <IconComponent iconShape={MemoIcon} />
+      <IconComponent type={IconType.Table} />
+      <IconComponent type={IconType.Memo} />
       <div style={{ width: '1px', height: '40px', background: '#444' }} />
+      <IconComponent type={IconType.IdentifyOneByOne} />
+      <IconComponent type={IconType.IdentifyOneByMany} />
+      <IconComponent type={IconType.IdentifyManyByMany} />
+      <div style={{ width: '1px', height: '40px', background: '#444' }} />
+      <IconComponent type={IconType.NonIdentifyOneByOne} />
+      <IconComponent type={IconType.NonIdentifyOneByMany} />
+      <IconComponent type={IconType.NonIdentifyManyByMany} />
     </styles.container>
   );
 }
@@ -35,7 +36,7 @@ const styles = {
     display: flex;
     height: 111px;
     padding: 16px;
-    justify-content: start;
+    justify-content: center;
     align-items: center;
     gap: 16px;
     flex: 1 0 0;
