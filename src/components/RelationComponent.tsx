@@ -3,7 +3,7 @@
 import styled from '@emotion/styled';
 
 export function RelationComponent() {
-  return <styles.container></styles.container>;
+  return <styles.container />;
 }
 
 const styles = {
