@@ -14,7 +14,7 @@ interface ColumnType {
   nullable: boolean;
 }
 
-export function Table({
+export function TableComponent({
   pos,
   name,
   mainColumn,

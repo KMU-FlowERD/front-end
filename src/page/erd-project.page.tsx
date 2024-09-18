@@ -1,16 +1,17 @@
 'use client';
 
+import styled from '@emotion/styled';
+
 import {
-  TableComponent,
+  TableMenuComponent,
   ImplementComponent,
   RelationComponent,
 } from '@/components';
-import styled from '@emotion/styled';
 
 export function ErdProjectPage() {
   return (
     <styles.container>
-      <TableComponent />
+      <TableMenuComponent />
       <ImplementComponent />
       <RelationComponent />
     </styles.container>
