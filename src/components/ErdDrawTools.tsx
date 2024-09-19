@@ -2,13 +2,19 @@
 
 import styled from '@emotion/styled';
 
-import { IconComponent, IconType } from './implements-icon';
+import {
+  ArrowIcon,
+  MemoIcon,
+  PointerIcon,
+  RelationshipIcons,
+  TableIcon,
+} from './implements-icon';
 
-export function ImplementComponent() {
+export function ErdDrawTools() {
   return (
     <styles.container>
-      <IconComponent type={IconType.Pointer} />
-      <IconComponent type={IconType.Arrow} />
+      <PointerIcon fill='#aaa' />
+      <ArrowIcon fill='#aaa' />
       <div
         style={{
           width: '1px',
@@ -17,16 +23,16 @@ export function ImplementComponent() {
           marginRight: '7px',
         }}
       />
-      <IconComponent type={IconType.Table} />
-      <IconComponent type={IconType.Memo} />
+      <TableIcon fill='#aaa' />
+      <MemoIcon fill='#aaa' />
       <div style={{ width: '1px', height: '40px', background: '#444' }} />
-      <IconComponent type={IconType.IdentifyOneByOne} />
-      <IconComponent type={IconType.IdentifyOneByMany} />
-      <IconComponent type={IconType.IdentifyManyByMany} />
+      <RelationshipIcons type='IOBO' fill='#aaa' />
+      <RelationshipIcons type='IOBM' fill='#aaa' />
+      <RelationshipIcons type='IMBM' fill='#aaa' />
       <div style={{ width: '1px', height: '40px', background: '#444' }} />
-      <IconComponent type={IconType.NonIdentifyOneByOne} />
-      <IconComponent type={IconType.NonIdentifyOneByMany} />
-      <IconComponent type={IconType.NonIdentifyManyByMany} />
+      <RelationshipIcons type='NIOBO' fill='#aaa' />
+      <RelationshipIcons type='NIOBM' fill='#aaa' />
+      <RelationshipIcons type='NIMBM' fill='#aaa' />
     </styles.container>
   );
 }

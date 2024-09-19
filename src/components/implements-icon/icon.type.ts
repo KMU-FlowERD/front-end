@@ -1,12 +1,2 @@
-export enum IconType {
-  Arrow,
-  Pointer,
-  Table,
-  Memo,
-  IdentifyOneByOne,
-  IdentifyOneByMany,
-  IdentifyManyByMany,
-  NonIdentifyOneByOne,
-  NonIdentifyOneByMany,
-  NonIdentifyManyByMany,
-}
+// 식별 1:1, 1:n, m,n, 비식별 1:1, 1:n, m,n
+export type IconType = 'IOBO' | 'IOBM' | 'IMBM' | 'NIOBO' | 'NIOBM' | 'NIMBM';

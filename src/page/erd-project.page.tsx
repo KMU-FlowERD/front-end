@@ -2,18 +2,14 @@
 
 import styled from '@emotion/styled';
 
-import {
-  TableMenuComponent,
-  ImplementComponent,
-  RelationComponent,
-} from '@/components';
+import { TableMenu, ErdDrawTools, RelationshipMenu } from '@/components';
 
 export function ErdProjectPage() {
   return (
     <styles.container>
-      <TableMenuComponent />
-      <ImplementComponent />
-      <RelationComponent />
+      <TableMenu />
+      <ErdDrawTools />
+      <RelationshipMenu />
     </styles.container>
   );
 }
