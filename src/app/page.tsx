@@ -1,3 +1,5 @@
+import { ErdProjectPage } from '@/page';
+
 export default function Home() {
-  return <></>;
+  return <ErdProjectPage />;
 }
