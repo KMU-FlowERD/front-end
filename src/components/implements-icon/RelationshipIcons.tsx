@@ -16,37 +16,37 @@ export function RelationshipIcons({
 
 function Icon(type: IconType, fill: string) {
   switch (type) {
-    case 'IOBO':
+    case 'IdentifyOneToOne':
       return (
         <svg width='24' height='24'>
           <rect width='24' height='24' fill={fill} />
         </svg>
       );
-    case 'IOBM':
+    case 'IdentifyOneToMany':
       return (
         <svg width='24' height='24'>
           <rect width='24' height='24' fill={fill} />
         </svg>
       );
-    case 'IMBM':
+    case 'IdentifyManyToMany':
       return (
         <svg width='24' height='24'>
           <rect width='24' height='24' fill={fill} />
         </svg>
       );
-    case 'NIOBO':
+    case 'NonIdentifyOneToOne':
       return (
         <svg width='24' height='24'>
           <rect width='24' height='24' fill={fill} />
         </svg>
       );
-    case 'NIOBM':
+    case 'NonIdentifyOneToMany':
       return (
         <svg width='24' height='24'>
           <rect width='24' height='24' fill={fill} />
         </svg>
       );
-    case 'NIMBM':
+    case 'NonIdentifyManyToMany':
       return (
         <svg width='24' height='24'>
           <rect width='24' height='24' fill={fill} />
