@@ -96,7 +96,13 @@
     ],
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": "off",
-    "@next/next/no-img-element": "off"
+    "@next/next/no-img-element": "off",
+    "no-param-reassign": [
+      "error",
+      {
+        "props": false
+      }
+    ]
   },
   "overrides": [
     {
