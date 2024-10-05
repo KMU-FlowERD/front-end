@@ -102,6 +102,29 @@ describe('ERD Project Store', () => {
 
       expect(store.getState().tables.length).toBe(0);
     });
+
+    test('테이블을 삭제하는 것은, 다른 테이블에 영향을 미칠 수 있습니다.', () => {
+      const store = createERDProjectStore();
+      store.getState().createTable(table1);
+      store.getState().createTable(table2);
+      store.getState().createColumn(table1, true);
+      store.getState().createRelation(relation);
+
+      const beforeTable2 = store
+        .getState()
+        .tables.find((table) => table.id === relation.to);
+
+      expect(beforeTable2?.columns.length).toBe(1);
+
+      store.getState().deleteTable(table1.id);
+
+      const afterTable2 = store
+        .getState()
+        .tables.find((table) => table.id === relation.to);
+
+      expect(store.getState().tables.length).toBe(1);
+      expect(afterTable2?.columns.length).toBe(0);
+    });
   });
 
   describe('컬럼 관련 액션', () => {

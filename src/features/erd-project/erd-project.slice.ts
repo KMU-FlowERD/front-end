@@ -122,6 +122,32 @@ export const createERDProjectStore = (
 
       deleteTable: (tableId) =>
         set((state) => {
+          const target = state.tables.find((v) => v.id === tableId);
+          if (!target) return;
+
+          const visited: Record<ERDTable['id'], boolean> = {};
+
+          const dfs = (curr: ERDTable) => {
+            if (visited[curr.id]) return;
+
+            visited[curr.id] = true;
+
+            state.relations[curr.id]
+              ?.filter((relation) => relation.from === curr.id)
+              ?.forEach((relation) => {
+                const next = state.tables.find((t) => t.id === relation.to);
+                if (!next) return;
+
+                next.columns = next.columns.filter(
+                  (col) => !curr.columns.some((c) => c.id === col.id),
+                );
+
+                dfs(next);
+              });
+          };
+
+          dfs(target);
+
           state.tables = state.tables.filter((v) => v.id !== tableId);
         }),
 
