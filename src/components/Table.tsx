@@ -1,89 +1,97 @@
 'use client';
 
 import styled from '@emotion/styled';
+import { useRef, useState, useEffect } from 'react';
+
+import { ERDTable } from '@/features/erd-project';
 
 interface Position {
-  x: number;
-  y: number;
-}
-
-interface ColumnType {
-  name: string;
-  pk: boolean;
-  fk: boolean;
-  nullable: boolean;
+  left: number;
+  top: number;
 }
 
 export function Table({
-  pos,
-  name,
-  mainColumn,
-  childColumns,
+  table,
+  rounded,
+  onClick,
+  onPositionChange,
 }: {
-  pos: Position;
-  name: string;
-  mainColumn: ColumnType;
-  childColumns: Array<ColumnType>;
+  table: ERDTable;
+  rounded: boolean;
+  onClick: (table: ERDTable) => void;
+  onPositionChange: (id: string, pos: Position) => void;
 }) {
+  const boxRef = useRef<HTMLDivElement | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const [offset, setOffset] = useState<Position>({ left: 0, top: 0 });
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (boxRef.current) {
+      const rect = boxRef.current.getBoundingClientRect();
+      setDragging(true);
+      setOffset({
+        left: e.clientX - rect.left,
+        top: e.clientY - rect.top,
+      });
+    }
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (dragging) {
+        const newPos = {
+          left: e.clientX - offset.left,
+          top: e.clientY - offset.top,
+        };
+        onPositionChange(table.id, newPos);
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (dragging) {
+        setDragging(false);
+      }
+    };
+
+    if (dragging) {
+      // 전역적으로 이벤트 리스너를 추가
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      // cleanup 함수에서 이벤트 리스너 제거
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [dragging, offset.left, offset.top, onPositionChange, table.id]);
+
   return (
-    <styles.displayWrapper draggable $name={name} $pos={pos}>
-      <Column column={mainColumn} title />
-      {childColumns.map((column) => (
-        <Column key={column.name} column={column} title={false} />
-      ))}
-    </styles.displayWrapper>
-  );
-}
-
-function Column({ column, title }: { column: ColumnType; title: boolean }) {
-  const pk = (isIn: boolean) => {
-    if (isIn) return <styles.pkStyle>pk</styles.pkStyle>;
-    return <styles.pkStyle />;
-  };
-
-  const fk = (isIn: boolean) => {
-    if (isIn) return <styles.fkStyle>fk</styles.fkStyle>;
-    return <styles.fkStyle />;
-  };
-
-  const nullable = (isIn: boolean) => {
-    if (isIn) return <styles.nullableStyle>nullable</styles.nullableStyle>;
-    return <styles.nullableStyle />;
-  };
-
-  if (title) {
-    return (
-      <styles.mainColumnWrapper>
-        {column.name}
-        <styles.extraWrapper>
-          {pk(column.pk)}
-          {fk(column.fk)}
-          {nullable(column.nullable)}
-        </styles.extraWrapper>
-      </styles.mainColumnWrapper>
-    );
-  }
-
-  return (
-    <styles.childColumnWrapper>
-      {column.name}
-      <styles.extraWrapper>
-        {pk(column.pk)}
-        {fk(column.fk)}
-        {nullable(column.nullable)}
-      </styles.extraWrapper>
-    </styles.childColumnWrapper>
+    <styles.displayWrapper
+      ref={boxRef}
+      onMouseDown={handleMouseDown}
+      onClick={() => onClick(table)}
+      $name={table.id}
+      $pos={{ left: table.left, top: table.top }}
+      $rounded={rounded}
+    />
   );
 }
 
 const styles = {
-  displayWrapper: styled.div<{ $name: string; $pos: Position }>`
+  displayWrapper: styled.div<{
+    $name: string;
+    $pos: Position;
+    $rounded: boolean;
+  }>`
+    min-width: 100px;
+    min-height: 50px;
     position: absolute;
-    left: ${({ $pos }) => `${$pos.x}px`};
-    top: ${({ $pos }) => `${$pos.y}px`};
+    left: ${({ $pos }) => `${$pos.left}px`};
+    top: ${({ $pos }) => `${$pos.top}px`};
     display: inline flex;
-    border-radius: 16px;
     border: 0.5px solid #606060;
+    border-radius: ${({ $rounded }) => ($rounded ? `8px` : `0px`)};
     background: rgba(34, 34, 34, 0.7);
     flex-direction: column;
     padding: 5px;
@@ -101,30 +109,5 @@ const styles = {
     &:hover {
       color: #fff;
     }
-  `,
-  mainColumnWrapper: styled.div`
-    display: flex;
-    border-bottom: 1px solid #ededed;
-    padding-bottom: 4px;
-    margin: 2px;
-  `,
-  childColumnWrapper: styled.div`
-    display: flex;
-    margin: 2px;
-  `,
-  extraWrapper: styled.div`
-    display: flex;
-    flex-grow: 1;
-    align-items: right;
-    margin-left: 40px;
-  `,
-  pkStyle: styled.div`
-    width: 20px;
-  `,
-  fkStyle: styled.div`
-    width: 20px;
-  `,
-  nullableStyle: styled.div`
-    width: 60px;
   `,
 };

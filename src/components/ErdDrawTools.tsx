@@ -13,8 +13,8 @@ import {
 export function ErdDrawTools() {
   return (
     <styles.container>
-      <PointerIcon fill='#aaa' />
-      <ArrowIcon fill='#aaa' />
+      <PointerIcon />
+      <ArrowIcon />
       <div
         style={{
           width: '1px',
@@ -23,8 +23,8 @@ export function ErdDrawTools() {
           marginRight: '7px',
         }}
       />
-      <TableIcon fill='#aaa' />
-      <MemoIcon fill='#aaa' />
+      <TableIcon />
+      <MemoIcon />
       <div style={{ width: '1px', height: '40px', background: '#444' }} />
       <RelationshipIcons type='IdentifyOneToOne' fill='#aaa' />
       <RelationshipIcons type='IdentifyOneToMany' fill='#aaa' />

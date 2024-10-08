@@ -2,19 +2,19 @@
 
 import styled from '@emotion/styled';
 
-import { IconType } from './icon.type';
+import { MappingType } from './icon.type';
 
 export function RelationshipIcons({
   type,
   fill,
 }: {
-  type: IconType;
+  type: MappingType;
   fill: string;
 }) {
   return <styles.container>{Icon(type, fill)}</styles.container>;
 }
 
-function Icon(type: IconType, fill: string) {
+function Icon(type: MappingType, fill: string) {
   switch (type) {
     case 'IdentifyOneToOne':
       return (
@@ -58,7 +58,7 @@ function Icon(type: IconType, fill: string) {
 }
 
 const styles = {
-  container: styled.div`
+  container: styled.rect`
     user-select: none;
     cursor: pointer;
     display: flex;
