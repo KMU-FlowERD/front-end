@@ -5,7 +5,9 @@ import styled from '@emotion/styled';
 import { useDrawToolsStore } from '@/features/draw-tools';
 
 export function TableIcon() {
-  const { entity, setEntity } = useDrawToolsStore();
+  const entity = useDrawToolsStore((state) => state.entity);
+  const setEntity = useDrawToolsStore((state) => state.setEntity);
+
   const fill = entity === 'table' ? '#ddd' : '#aaa';
 
   return (

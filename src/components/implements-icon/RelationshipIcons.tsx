@@ -5,7 +5,9 @@ import styled from '@emotion/styled';
 import { MappingType, useDrawToolsStore } from '@/features/draw-tools';
 
 export function RelationshipIcons({ type }: { type: MappingType }) {
-  const { mapping, setMapping } = useDrawToolsStore();
+  const mapping = useDrawToolsStore((state) => state.mapping);
+  const setMapping = useDrawToolsStore((state) => state.setMapping);
+
   const fill = mapping === type ? '#ddd' : '#aaa';
 
   return (

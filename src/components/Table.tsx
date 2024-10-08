@@ -5,6 +5,8 @@ import { useRef, useState, useEffect } from 'react';
 
 import { ERDTable } from '@/features/erd-project';
 
+// import { ERDTable } from '@/features/erd-project';
+
 interface Position {
   left: number;
   top: number;
@@ -12,13 +14,13 @@ interface Position {
 
 export function Table({
   table,
-  rounded,
-  onClick,
+  // rounded,
+  // onClick,
   onPositionChange,
 }: {
   table: ERDTable;
-  rounded: boolean;
-  onClick: (table: ERDTable) => void;
+  // rounded: boolean;
+  // onClick: (table: ERDTable) => void;
   onPositionChange: (id: string, pos: Position) => void;
 }) {
   const boxRef = useRef<HTMLDivElement | null>(null);
@@ -70,10 +72,10 @@ export function Table({
     <styles.displayWrapper
       ref={boxRef}
       onMouseDown={handleMouseDown}
-      onClick={() => onClick(table)}
+      // onClick={() => onClick(table)}
       $name={table.id}
       $pos={{ left: table.left, top: table.top }}
-      $rounded={rounded}
+      // $rounded={rounded}
     />
   );
 }
@@ -82,7 +84,7 @@ const styles = {
   displayWrapper: styled.div<{
     $name: string;
     $pos: Position;
-    $rounded: boolean;
+    // $rounded: boolean;
   }>`
     min-width: 100px;
     min-height: 50px;
@@ -91,7 +93,6 @@ const styles = {
     top: ${({ $pos }) => `${$pos.top}px`};
     display: inline flex;
     border: 0.5px solid #606060;
-    border-radius: ${({ $rounded }) => ($rounded ? `8px` : `0px`)};
     background: rgba(34, 34, 34, 0.7);
     flex-direction: column;
     padding: 5px;

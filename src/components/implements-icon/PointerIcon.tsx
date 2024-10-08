@@ -5,7 +5,9 @@ import styled from '@emotion/styled';
 import { useDrawToolsStore } from '@/features/draw-tools';
 
 export function PointerIcon() {
-  const { cursor, setCursor } = useDrawToolsStore();
+  const cursor = useDrawToolsStore((state) => state.cursor);
+  const setCursor = useDrawToolsStore((state) => state.setCursor);
+
   const fill = cursor === 'pointer' ? '#ddd' : '#aaa';
 
   return (
