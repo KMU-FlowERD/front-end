@@ -2,16 +2,21 @@
 
 import styled from '@emotion/styled';
 
-import { MappingType } from './icon.type';
+import { MappingType, useDrawToolsStore } from '@/features/draw-tools';
 
-export function RelationshipIcons({
-  type,
-  fill,
-}: {
-  type: MappingType;
-  fill: string;
-}) {
-  return <styles.container>{Icon(type, fill)}</styles.container>;
+export function RelationshipIcons({ type }: { type: MappingType }) {
+  const { mapping, setMapping } = useDrawToolsStore();
+  const fill = mapping === type ? '#ddd' : '#aaa';
+
+  return (
+    <styles.container
+      onClick={() => {
+        setMapping(type);
+      }}
+    >
+      {Icon(type, fill)}
+    </styles.container>
+  );
 }
 
 function Icon(type: MappingType, fill: string) {
@@ -19,37 +24,37 @@ function Icon(type: MappingType, fill: string) {
     case 'IdentifyOneToOne':
       return (
         <svg width='24' height='24'>
-          <rect width='24' height='24' fill={fill} />
+          <styles.pathStyle width='24' height='24' fill={fill} />
         </svg>
       );
     case 'IdentifyOneToMany':
       return (
         <svg width='24' height='24'>
-          <rect width='24' height='24' fill={fill} />
+          <styles.pathStyle width='24' height='24' fill={fill} />
         </svg>
       );
     case 'IdentifyManyToMany':
       return (
         <svg width='24' height='24'>
-          <rect width='24' height='24' fill={fill} />
+          <styles.pathStyle width='24' height='24' fill={fill} />
         </svg>
       );
     case 'NonIdentifyOneToOne':
       return (
         <svg width='24' height='24'>
-          <rect width='24' height='24' fill={fill} />
+          <styles.pathStyle width='24' height='24' fill={fill} />
         </svg>
       );
     case 'NonIdentifyOneToMany':
       return (
         <svg width='24' height='24'>
-          <rect width='24' height='24' fill={fill} />
+          <styles.pathStyle width='24' height='24' fill={fill} />
         </svg>
       );
     case 'NonIdentifyManyToMany':
       return (
         <svg width='24' height='24'>
-          <rect width='24' height='24' fill={fill} />
+          <styles.pathStyle width='24' height='24' fill={fill} />
         </svg>
       );
     default:
@@ -64,5 +69,10 @@ const styles = {
     display: flex;
     justify-content: center;
     align-items: center;
+  `,
+  pathStyle: styled.rect`
+    &:hover {
+      fill: #ddd;
+    }
   `,
 };
