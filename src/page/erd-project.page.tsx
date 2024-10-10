@@ -5,15 +5,24 @@ import { useStore } from 'zustand';
 
 import { TableMenu, ErdDrawTools, RelationshipMenu, Table } from '@/components';
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { createERDProjectStore, ERDTable } from '@/features/erd-project';
+import {
+  createERDProjectStore,
+  ERDColumn,
+  ERDTable,
+} from '@/features/erd-project';
 
 const store = createERDProjectStore();
 
 export function ErdProjectPage() {
   const tables = useStore(store, (state) => state.tables);
+
   const createTable = useStore(store, (state) => state.createTable);
+  const deleteTable = useStore(store, (state) => state.deleteTable);
   const updateTable = useStore(store, (state) => state.updateTable);
+
   const createColumn = useStore(store, (state) => state.createColumn);
+  const deleteColumn = useStore(store, (state) => state.deleteColumn);
+  const updateColumn = useStore(store, (state) => state.updateColumn);
 
   const entity = useDrawToolsStore((state) => state.entity);
   const setEntity = useDrawToolsStore((state) => state.setEntity);
@@ -54,7 +63,14 @@ export function ErdProjectPage() {
       <TableMenu />
       <ErdDrawTools />
       <RelationshipMenu />
-      {getTable(tables, onPositionChange, createColumn)}
+      {getTable(
+        tables,
+        onPositionChange,
+        deleteTable,
+        createColumn,
+        updateColumn,
+        deleteColumn,
+      )}
     </styles.container>
   );
 }
@@ -65,7 +81,10 @@ function getTable(
   // crowFoot: boolean,
   // onClick: (table: ERDTable) => void,
   onPositionChange: (id: string, pos: { left: number; top: number }) => void,
+  deleteTable: (tableId: ERDTable['id']) => void,
   createColumn: (table: ERDTable, isPK: boolean) => void,
+  updateColumn: (table: ERDTable, column: ERDColumn) => void,
+  deleteColumn: (table: ERDTable, column: ERDColumn) => void,
 ) {
   return tables.map((table) => (
     <Table
@@ -73,7 +92,10 @@ function getTable(
       table={table}
       // onClick={onClick}
       onPositionChange={onPositionChange}
+      deleteTable={deleteTable}
       createColumn={createColumn}
+      updateColumn={updateColumn}
+      deleteColumn={deleteColumn}
       // rounded={childTables.has(table.id) && !crowFoot}
     />
   ));

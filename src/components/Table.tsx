@@ -107,8 +107,13 @@ export function Table({
     };
   }, [dragging, offset.left, offset.top, onPositionChange, table.id]);
 
-  const handleMenuItemClick = (action: 'add/pk' | 'add' | 'edit') => {
+  const handleMenuItemClick = (
+    action: 'delete' | 'add/pk' | 'add' | 'edit',
+  ) => {
     switch (action) {
+      case 'delete':
+        deleteTable(table.id);
+        break;
       case 'add/pk':
         createColumn(table, true);
         break;
@@ -141,7 +146,9 @@ export function Table({
               {column.keyType.toUpperCase()}
             </styles.columnKeyType>
           )}
-          {column.nullable && <styles.columnNullable />}
+          {column.nullable && (
+            <styles.columnNullable>NULL</styles.columnNullable>
+          )}
         </styles.columnWrapper>
       ))}
       {pfkColumns.map((column) => (
@@ -153,7 +160,9 @@ export function Table({
               {column.keyType.toUpperCase()}
             </styles.columnKeyType>
           )}
-          {column.nullable && <styles.columnNullable />}
+          {column.nullable && (
+            <styles.columnNullable>NULL</styles.columnNullable>
+          )}
         </styles.columnWrapper>
       ))}
       {(pkColumns.length > 0 || pfkColumns.length > 0) &&
@@ -167,7 +176,9 @@ export function Table({
               {column.keyType.toUpperCase()}
             </styles.columnKeyType>
           )}
-          {column.nullable && <styles.columnNullable />}
+          {column.nullable && (
+            <styles.columnNullable>NULL</styles.columnNullable>
+          )}
         </styles.columnWrapper>
       ))}
       {fkColumns.map((column) => (
@@ -179,7 +190,9 @@ export function Table({
               {column.keyType.toUpperCase()}
             </styles.columnKeyType>
           )}
-          {column.nullable && <styles.columnNullable />}
+          {column.nullable && (
+            <styles.columnNullable>NULL</styles.columnNullable>
+          )}
         </styles.columnWrapper>
       ))}
       <styles.menuIcon onClick={toggleMenu}>
@@ -190,6 +203,9 @@ export function Table({
 
       {menuOpen && (
         <styles.menu ref={menuRef}>
+          <styles.menuItem onClick={() => handleMenuItemClick('delete')}>
+            delete table
+          </styles.menuItem>
           <styles.menuItem onClick={() => handleMenuItemClick('add/pk')}>
             add Primary Key
           </styles.menuItem>
@@ -202,7 +218,13 @@ export function Table({
         </styles.menu>
       )}
       {isEditingColumns && (
-        <ColumnEditMenu ref={editRef} tableColumns={table.columns} />
+        <ColumnEditMenu
+          ref={editRef}
+          tableColumns={table.columns}
+          table={table}
+          updateColumn={updateColumn}
+          deleteColumn={deleteColumn}
+        />
       )}
     </styles.displayWrapper>
   );
@@ -265,13 +287,13 @@ const styles = {
   columnKeyType: styled.div`
     color: #ddff00;
     flex-grow: 1;
-    align-items: end;
+    display: flex;
+    justify-content: flex-end;
     margin-right: 10px;
   `,
   columnNullable: styled.div`
     color: #ff6200;
     margin-right: 10px;
-    content: 'NULL';
   `,
   menuIcon: styled.div`
     position: absolute;
