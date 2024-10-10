@@ -3,7 +3,9 @@
 import styled from '@emotion/styled';
 import { useRef, useState, useEffect } from 'react';
 
-import { ERDTable } from '@/features/erd-project';
+import { ColumnEditMenu } from './ColumnEditMenu';
+
+import { ERDColumn, ERDTable } from '@/features/erd-project';
 
 interface Position {
   left: number;
@@ -13,16 +15,31 @@ interface Position {
 export function Table({
   table,
   onPositionChange,
+  deleteTable,
+  createColumn,
+  updateColumn,
+  deleteColumn,
 }: {
   table: ERDTable;
   onPositionChange: (id: string, pos: Position) => void;
+  deleteTable: (tableId: ERDTable['id']) => void;
+  createColumn: (table: ERDTable, isPK: boolean) => void;
+  updateColumn: (table: ERDTable, column: ERDColumn) => void;
+  deleteColumn: (table: ERDTable, column: ERDColumn) => void;
 }) {
   const boxRef = useRef<HTMLDivElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const editRef = useRef<HTMLDivElement | null>(null);
 
   const [dragging, setDragging] = useState(false);
   const [offset, setOffset] = useState<Position>({ left: 0, top: 0 });
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isEditingColumns, setIsEditingColumns] = useState(false);
+
+  const pkColumns = table.columns.filter((val) => val.keyType === 'pk');
+  const pfkColumns = table.columns.filter((val) => val.keyType === 'pk/fk');
+  const fkColumns = table.columns.filter((val) => val.keyType === 'fk');
+  const columns = table.columns.filter((val) => val.keyType === undefined);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (boxRef.current) {
@@ -42,15 +59,16 @@ export function Table({
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
-        menuRef.current &&
-        !menuRef.current.contains(e.target as Node) &&
-        !boxRef.current?.contains(e.target as Node)
+        !menuRef.current?.contains(e.target as Node) &&
+        !boxRef.current?.contains(e.target as Node) &&
+        !editRef.current?.contains(e.target as Node)
       ) {
+        setIsEditingColumns(false);
         setMenuOpen(false);
       }
     };
 
-    if (menuOpen) {
+    if (menuOpen || isEditingColumns) {
       window.addEventListener('mousedown', handleClickOutside);
     } else {
       window.removeEventListener('mousedown', handleClickOutside);
@@ -59,7 +77,7 @@ export function Table({
     return () => {
       window.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [menuOpen]);
+  }, [isEditingColumns, menuOpen]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -89,8 +107,21 @@ export function Table({
     };
   }, [dragging, offset.left, offset.top, onPositionChange, table.id]);
 
-  const handleMenuItemClick = (action: string) => {
-    console.log(action);
+  const handleMenuItemClick = (action: 'add/pk' | 'add' | 'edit') => {
+    switch (action) {
+      case 'add/pk':
+        createColumn(table, true);
+        break;
+      case 'add':
+        createColumn(table, false);
+        break;
+      case 'edit':
+        setIsEditingColumns(true);
+        break;
+      default:
+        break;
+    }
+
     setMenuOpen(false);
   };
 
@@ -101,21 +132,77 @@ export function Table({
       $name={table.title}
       $pos={{ left: table.left, top: table.top }}
     >
-      <styles.MenuIcon onClick={toggleMenu}>
+      {pkColumns.map((column) => (
+        <styles.columnWrapper key={column.id}>
+          <styles.columnName>{column.name}</styles.columnName>
+          {column.type && <styles.columnType>{column.type}</styles.columnType>}
+          {column.keyType && (
+            <styles.columnKeyType>
+              {column.keyType.toUpperCase()}
+            </styles.columnKeyType>
+          )}
+          {column.nullable && <styles.columnNullable />}
+        </styles.columnWrapper>
+      ))}
+      {pfkColumns.map((column) => (
+        <styles.columnWrapper key={column.id}>
+          <styles.columnName>{column.name}</styles.columnName>
+          {column.type && <styles.columnType>{column.type}</styles.columnType>}
+          {column.keyType && (
+            <styles.columnKeyType>
+              {column.keyType.toUpperCase()}
+            </styles.columnKeyType>
+          )}
+          {column.nullable && <styles.columnNullable />}
+        </styles.columnWrapper>
+      ))}
+      {(pkColumns.length > 0 || pfkColumns.length > 0) &&
+        (fkColumns.length > 0 || columns.length > 0) && <styles.contour />}
+      {columns.map((column) => (
+        <styles.columnWrapper key={column.id}>
+          <styles.columnName>{column.name}</styles.columnName>
+          {column.type && <styles.columnType>{column.type}</styles.columnType>}
+          {column.keyType && (
+            <styles.columnKeyType>
+              {column.keyType.toUpperCase()}
+            </styles.columnKeyType>
+          )}
+          {column.nullable && <styles.columnNullable />}
+        </styles.columnWrapper>
+      ))}
+      {fkColumns.map((column) => (
+        <styles.columnWrapper key={column.id}>
+          <styles.columnName>{column.name}</styles.columnName>
+          {column.type && <styles.columnType>{column.type}</styles.columnType>}
+          {column.keyType && (
+            <styles.columnKeyType>
+              {column.keyType.toUpperCase()}
+            </styles.columnKeyType>
+          )}
+          {column.nullable && <styles.columnNullable />}
+        </styles.columnWrapper>
+      ))}
+      <styles.menuIcon onClick={toggleMenu}>
         <svg width='18' height='18' viewBox='0 0 24 24'>
           <path d={ellipsisIconPath} fill='#ededed' />
         </svg>
-      </styles.MenuIcon>
+      </styles.menuIcon>
 
       {menuOpen && (
-        <styles.Menu ref={menuRef}>
-          <styles.MenuItem onClick={() => handleMenuItemClick('컬럼 추가')}>
-            컬럼 추가
-          </styles.MenuItem>
-          <styles.MenuItem onClick={() => handleMenuItemClick('컬럼 수정')}>
-            컬럼 수정
-          </styles.MenuItem>
-        </styles.Menu>
+        <styles.menu ref={menuRef}>
+          <styles.menuItem onClick={() => handleMenuItemClick('add/pk')}>
+            add Primary Key
+          </styles.menuItem>
+          <styles.menuItem onClick={() => handleMenuItemClick('add')}>
+            add column
+          </styles.menuItem>
+          <styles.menuItem onClick={() => handleMenuItemClick('edit')}>
+            edit columns
+          </styles.menuItem>
+        </styles.menu>
+      )}
+      {isEditingColumns && (
+        <ColumnEditMenu ref={editRef} tableColumns={table.columns} />
       )}
     </styles.displayWrapper>
   );
@@ -130,8 +217,11 @@ const styles = {
     $name: string;
     $pos: Position;
   }>`
-    min-width: 100px;
-    min-height: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 50px;
+    min-height: 30px;
     position: absolute;
     left: ${({ $pos }) => `${$pos.left}px`};
     top: ${({ $pos }) => `${$pos.top}px`};
@@ -139,7 +229,7 @@ const styles = {
     border: 0.5px solid #606060;
     background: rgba(34, 34, 34, 0.7);
     flex-direction: column;
-    padding: 5px;
+    padding: 10px;
     font-size: 12px;
     color: #ededed;
     cursor: pointer;
@@ -155,25 +245,54 @@ const styles = {
       color: #fff;
     }
   `,
-  MenuIcon: styled.div`
+  contour: styled.div`
+    width: 100%;
+    height: 1px;
+    background-color: #ccc;
+  `,
+  columnWrapper: styled.div`
+    display: flex;
+    font-size: 12px;
+    color: #ededed;
+  `,
+  columnName: styled.div`
+    margin-left: 5px;
+    margin-right: 10px;
+  `,
+  columnType: styled.div`
+    margin-right: 10px;
+  `,
+  columnKeyType: styled.div`
+    color: #ddff00;
+    flex-grow: 1;
+    align-items: end;
+    margin-right: 10px;
+  `,
+  columnNullable: styled.div`
+    color: #ff6200;
+    margin-right: 10px;
+    content: 'NULL';
+  `,
+  menuIcon: styled.div`
     position: absolute;
     top: -20px;
     right: -5px;
     cursor: pointer;
   `,
-  Menu: styled.div`
+  menu: styled.div`
     position: absolute;
-    top: 25px;
+    top: 0px;
     right: 5px;
     background-color: #333;
     border: 1px solid #444;
     border-radius: 4px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-    z-index: 100;
+    z-index: 1;
   `,
-  MenuItem: styled.div`
+  menuItem: styled.div`
     padding: 8px 16px;
     color: #fff;
+    white-space: nowrap;
     cursor: pointer;
 
     &:hover {
