@@ -11,12 +11,14 @@ export function ColumnEditMenu({
   tableColumns,
   updateColumn,
   deleteColumn,
+  updateTable,
 }: {
   editRef: MutableRefObject<HTMLDivElement | null>;
   table: ERDTable;
   tableColumns: ERDColumn[];
   updateColumn: (table: ERDTable, column: ERDColumn) => void;
   deleteColumn: (table: ERDTable, column: ERDColumn) => void;
+  updateTable: (table: ERDTable) => void;
 }) {
   const pkColumns = tableColumns.filter((val) => val.keyType === 'pk');
   const pfkColumns = tableColumns.filter((val) => val.keyType === 'pk/fk');
@@ -29,6 +31,16 @@ export function ColumnEditMenu({
 
   const nullableClick = (column: ERDColumn) => {
     updateColumn(table, { ...column, nullable: !column.nullable });
+  };
+
+  const enterTitleEdit = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    orginTable: ERDTable,
+    title: string,
+  ) => {
+    if (e.key === 'Enter') {
+      updateTable({ ...orginTable, title });
+    }
   };
 
   const enterNameEdit = (
@@ -51,6 +63,10 @@ export function ColumnEditMenu({
     }
   };
 
+  const blurTitleEdit = (orginTable: ERDTable, title: string) => {
+    updateTable({ ...orginTable, title });
+  };
+
   const blurNameEdit = (column: ERDColumn, name: string) => {
     updateColumn(table, { ...column, name });
   };
@@ -61,6 +77,13 @@ export function ColumnEditMenu({
 
   return (
     <styles.wrapper ref={editRef}>
+      <styles.input
+        type='text'
+        placeholder='table title'
+        defaultValue={table.title}
+        onBlur={(e) => blurTitleEdit(table, e.target.value)}
+        onKeyDown={(e) => enterTitleEdit(e, table, e.currentTarget.value)}
+      />
       {pkColumns.map((column) => (
         <styles.columnRow key={column.id}>
           <styles.input

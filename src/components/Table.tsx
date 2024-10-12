@@ -242,6 +242,7 @@ export function Table({
           table={table}
           updateColumn={updateColumn}
           deleteColumn={deleteColumn}
+          updateTable={updateTable}
         />
       )}
     </styles.displayWrapper>
@@ -275,10 +276,12 @@ const styles = {
     cursor: pointer;
 
     &::before {
+      display: inline-block;
+      margin-right: 10px;
       content: ${({ $name }) => `"${$name}"`};
-      position: absolute;
-      left: 3px;
-      top: -20px;
+      position: relative;
+      left: -10px;
+      top: -30px;
     }
 
     &:hover {
