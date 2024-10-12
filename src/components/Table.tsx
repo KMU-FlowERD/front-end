@@ -1,7 +1,7 @@
 'use client';
 
 import styled from '@emotion/styled';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useLayoutEffect } from 'react';
 
 import { ColumnEditMenu } from './ColumnEditMenu';
 
@@ -14,14 +14,18 @@ interface Position {
 
 export function Table({
   table,
+  onClick,
   onPositionChange,
+  updateTable,
   deleteTable,
   createColumn,
   updateColumn,
   deleteColumn,
 }: {
   table: ERDTable;
+  onClick: (table: ERDTable) => void;
   onPositionChange: (id: string, pos: Position) => void;
+  updateTable: (table: ERDTable) => void;
   deleteTable: (tableId: ERDTable['id']) => void;
   createColumn: (table: ERDTable, isPK: boolean) => void;
   updateColumn: (table: ERDTable, column: ERDColumn) => void;
@@ -55,6 +59,19 @@ export function Table({
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
   };
+
+  useLayoutEffect(() => {
+    if (boxRef.current) {
+      const { width, height } = boxRef.current.getBoundingClientRect();
+      if (width !== table.width || height !== table.height) {
+        updateTable({
+          ...table,
+          width,
+          height,
+        });
+      }
+    }
+  }, [boxRef.current?.getBoundingClientRect()]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -133,6 +150,7 @@ export function Table({
   return (
     <styles.displayWrapper
       ref={boxRef}
+      onClick={() => onClick(table)}
       onMouseDown={handleMouseDown}
       $name={table.title}
       $pos={{ left: table.left, top: table.top }}
@@ -204,22 +222,22 @@ export function Table({
       {menuOpen && (
         <styles.menu ref={menuRef}>
           <styles.menuItem onClick={() => handleMenuItemClick('delete')}>
-            delete table
+            테이블 삭제
           </styles.menuItem>
           <styles.menuItem onClick={() => handleMenuItemClick('add/pk')}>
-            add Primary Key
+            컬럼 추가(pk)
           </styles.menuItem>
           <styles.menuItem onClick={() => handleMenuItemClick('add')}>
-            add column
+            컬럼 추가
           </styles.menuItem>
           <styles.menuItem onClick={() => handleMenuItemClick('edit')}>
-            edit columns
+            컬럼 수정
           </styles.menuItem>
         </styles.menu>
       )}
       {isEditingColumns && (
         <ColumnEditMenu
-          ref={editRef}
+          editRef={editRef}
           tableColumns={table.columns}
           table={table}
           updateColumn={updateColumn}

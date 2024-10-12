@@ -1,9 +1,11 @@
 'use client';
 
 import styled from '@emotion/styled';
+import { useState } from 'react';
 import { useStore } from 'zustand';
 
 import { TableMenu, ErdDrawTools, RelationshipMenu, Table } from '@/components';
+import { Relationship } from '@/components/Relationship';
 import { useDrawToolsStore } from '@/features/draw-tools';
 import {
   createERDProjectStore,
@@ -15,17 +17,25 @@ const store = createERDProjectStore();
 
 export function ErdProjectPage() {
   const tables = useStore(store, (state) => state.tables);
+  const relations = useStore(store, (state) => state.relations);
 
   const createTable = useStore(store, (state) => state.createTable);
   const deleteTable = useStore(store, (state) => state.deleteTable);
   const updateTable = useStore(store, (state) => state.updateTable);
 
+  const createRelation = useStore(store, (state) => state.createRelation);
+
   const createColumn = useStore(store, (state) => state.createColumn);
   const deleteColumn = useStore(store, (state) => state.deleteColumn);
   const updateColumn = useStore(store, (state) => state.updateColumn);
 
+  const mapping = useDrawToolsStore((state) => state.mapping);
+  const setMapping = useDrawToolsStore((state) => state.setMapping);
+
   const entity = useDrawToolsStore((state) => state.entity);
   const setEntity = useDrawToolsStore((state) => state.setEntity);
+
+  const [lastTable, setLastTable] = useState<ERDTable | undefined>(undefined);
 
   const onPositionChange = (id: string, pos: { left: number; top: number }) => {
     const table = tables.find((t) => t.id === id);
@@ -51,27 +61,50 @@ export function ErdProjectPage() {
         title: 'table',
         top: pageY,
         left: pageX,
-        width: 100,
-        height: 50,
+        width: 50,
+        height: 30,
         columns: [],
       });
     }
   };
 
+  const TableClick = (table: ERDTable) => {
+    if (mapping !== undefined && mapping.type !== 'many-to-many') {
+      if (lastTable) {
+        createRelation({
+          id: Math.random().toString(36).slice(2),
+          from: lastTable.id,
+          to: table.id,
+          type: mapping.type,
+          identify: lastTable.id === table.id ? false : mapping.identify,
+        });
+        setLastTable(undefined);
+        setMapping(undefined);
+      } else {
+        setLastTable(table);
+      }
+    }
+  };
+
   return (
-    <styles.container onClick={displayClicked}>
-      <TableMenu />
-      <ErdDrawTools />
-      <RelationshipMenu />
-      {getTable(
-        tables,
-        onPositionChange,
-        deleteTable,
-        createColumn,
-        updateColumn,
-        deleteColumn,
-      )}
-    </styles.container>
+    <styles.displayWrapper onClick={displayClicked}>
+      <Relationship tables={tables} relations={relations} />
+      <styles.container>
+        <TableMenu />
+        <ErdDrawTools />
+        <RelationshipMenu />
+        {getTable(
+          tables,
+          TableClick,
+          onPositionChange,
+          updateTable,
+          deleteTable,
+          createColumn,
+          updateColumn,
+          deleteColumn,
+        )}
+      </styles.container>
+    </styles.displayWrapper>
   );
 }
 
@@ -79,8 +112,9 @@ function getTable(
   tables: ERDTable[],
   // childTables: Set<string>,
   // crowFoot: boolean,
-  // onClick: (table: ERDTable) => void,
+  onClick: (table: ERDTable) => void,
   onPositionChange: (id: string, pos: { left: number; top: number }) => void,
+  updateTable: (table: ERDTable) => void,
   deleteTable: (tableId: ERDTable['id']) => void,
   createColumn: (table: ERDTable, isPK: boolean) => void,
   updateColumn: (table: ERDTable, column: ERDColumn) => void,
@@ -90,8 +124,9 @@ function getTable(
     <Table
       key={table.id}
       table={table}
-      // onClick={onClick}
+      onClick={onClick}
       onPositionChange={onPositionChange}
+      updateTable={updateTable}
       deleteTable={deleteTable}
       createColumn={createColumn}
       updateColumn={updateColumn}
@@ -102,6 +137,11 @@ function getTable(
 }
 
 const styles = {
+  displayWrapper: styled.div`
+    position: relative;
+    width: 100%;
+    height: 100%;
+  `,
   container: styled.div`
     display: flex;
     width: 100%;

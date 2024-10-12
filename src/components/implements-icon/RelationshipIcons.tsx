@@ -21,47 +21,45 @@ export function RelationshipIcons({ type }: { type: MappingType }) {
   );
 }
 
-function Icon(type: MappingType, fill: string) {
-  switch (type) {
-    case 'IdentifyOneToOne':
-      return (
-        <svg width='24' height='24'>
-          <styles.pathStyle width='24' height='24' fill={fill} />
-        </svg>
-      );
-    case 'IdentifyOneToMany':
-      return (
-        <svg width='24' height='24'>
-          <styles.pathStyle width='24' height='24' fill={fill} />
-        </svg>
-      );
-    case 'IdentifyManyToMany':
-      return (
-        <svg width='24' height='24'>
-          <styles.pathStyle width='24' height='24' fill={fill} />
-        </svg>
-      );
-    case 'NonIdentifyOneToOne':
-      return (
-        <svg width='24' height='24'>
-          <styles.pathStyle width='24' height='24' fill={fill} />
-        </svg>
-      );
-    case 'NonIdentifyOneToMany':
-      return (
-        <svg width='24' height='24'>
-          <styles.pathStyle width='24' height='24' fill={fill} />
-        </svg>
-      );
-    case 'NonIdentifyManyToMany':
-      return (
-        <svg width='24' height='24'>
-          <styles.pathStyle width='24' height='24' fill={fill} />
-        </svg>
-      );
-    default:
-      break;
-  }
+function Icon(mapping: MappingType, fill: string) {
+  const { identify, type } = mapping;
+
+  if (identify && type === 'one-to-one')
+    return (
+      <svg width='24' height='24'>
+        <styles.pathStyle width='24' height='24' fill={fill} />
+      </svg>
+    );
+  if (identify && type === 'one-to-many')
+    return (
+      <svg width='24' height='24'>
+        <styles.pathStyle width='24' height='24' fill={fill} />
+      </svg>
+    );
+  if (identify && type === 'many-to-many')
+    return (
+      <svg width='24' height='24'>
+        <styles.pathStyle width='24' height='24' fill={fill} />
+      </svg>
+    );
+  if (!identify && type === 'one-to-one')
+    return (
+      <svg width='24' height='24'>
+        <styles.pathStyle width='24' height='24' fill={fill} />
+      </svg>
+    );
+  if (!identify && type === 'one-to-many')
+    return (
+      <svg width='24' height='24'>
+        <styles.pathStyle width='24' height='24' fill={fill} />
+      </svg>
+    );
+  if (!identify && type === 'many-to-many')
+    return (
+      <svg width='24' height='24'>
+        <styles.pathStyle width='24' height='24' fill={fill} />
+      </svg>
+    );
 }
 
 const styles = {

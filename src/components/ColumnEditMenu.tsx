@@ -6,13 +6,13 @@ import { MutableRefObject } from 'react';
 import { ERDColumn, ERDTable } from '@/features/erd-project';
 
 export function ColumnEditMenu({
-  ref,
+  editRef,
   table,
   tableColumns,
   updateColumn,
   deleteColumn,
 }: {
-  ref: MutableRefObject<HTMLDivElement | null>;
+  editRef: MutableRefObject<HTMLDivElement | null>;
   table: ERDTable;
   tableColumns: ERDColumn[];
   updateColumn: (table: ERDTable, column: ERDColumn) => void;
@@ -60,7 +60,7 @@ export function ColumnEditMenu({
   };
 
   return (
-    <styles.wrapper ref={ref}>
+    <styles.wrapper ref={editRef}>
       {pkColumns.map((column) => (
         <styles.columnRow key={column.id}>
           <styles.input

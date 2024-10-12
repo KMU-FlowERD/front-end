@@ -26,13 +26,13 @@ export function ErdDrawTools() {
       <TableIcon />
       <MemoIcon />
       <div style={{ width: '1px', height: '40px', background: '#444' }} />
-      <RelationshipIcons type='IdentifyOneToOne' />
-      <RelationshipIcons type='IdentifyOneToMany' />
-      <RelationshipIcons type='IdentifyManyToMany' />
+      <RelationshipIcons type={{ type: 'one-to-one', identify: true }} />
+      <RelationshipIcons type={{ type: 'one-to-many', identify: true }} />
+      <RelationshipIcons type={{ type: 'many-to-many', identify: true }} />
       <div style={{ width: '1px', height: '40px', background: '#444' }} />
-      <RelationshipIcons type='NonIdentifyOneToOne' />
-      <RelationshipIcons type='NonIdentifyOneToMany' />
-      <RelationshipIcons type='NonIdentifyManyToMany' />
+      <RelationshipIcons type={{ type: 'one-to-one', identify: false }} />
+      <RelationshipIcons type={{ type: 'one-to-many', identify: false }} />
+      <RelationshipIcons type={{ type: 'many-to-many', identify: false }} />
     </styles.container>
   );
 }
@@ -49,5 +49,6 @@ const styles = {
     border-radius: 16px;
     border: 0.5px solid #606060;
     background: #222;
+    z-index: 1;
   `,
 };

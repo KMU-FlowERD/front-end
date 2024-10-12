@@ -19,5 +19,6 @@ const styles = {
     border-radius: 16px;
     border: 0.5px solid #606060;
     background: #222;
+    z-index: 1;
   `,
 };
