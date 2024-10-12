@@ -8,7 +8,10 @@ export function RelationshipIcons({ type }: { type: MappingType }) {
   const mapping = useDrawToolsStore((state) => state.mapping);
   const setMapping = useDrawToolsStore((state) => state.setMapping);
 
-  const fill = mapping === type ? '#ddd' : '#aaa';
+  const fill =
+    mapping?.identify === type.identify && mapping.type === type.type
+      ? '#ddd'
+      : '#aaa';
 
   return (
     <styles.container
