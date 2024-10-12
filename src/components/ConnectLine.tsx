@@ -2,11 +2,7 @@
 
 import React, { JSX } from 'react';
 
-import {
-  createERDProjectStore,
-  ERDRelation,
-  ERDTable,
-} from '@/features/erd-project';
+import { ERDRelation, ERDTable } from '@/features/erd-project';
 import {
   getDrawLines,
   getDrawLinesMineMapping,
@@ -22,8 +18,6 @@ import {
   getStartIEOneLine,
   TableDirectionChild,
 } from '@/features/table-mapping';
-
-export const useERDProjectStore = createERDProjectStore();
 
 export function ConnectLine({
   // crowFoot,
