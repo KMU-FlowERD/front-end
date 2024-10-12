@@ -431,21 +431,29 @@ function getVerticalDrawLines(
   }[] = [];
 
   const delta = { x: to.x - from.x, y: to.y - from.y };
-  const chagne = [
+  const change = [
     { x: from.x, y: from.y },
     { x: from.x, y: from.y + delta.y / 2 },
     { x: to.x, y: from.y + delta.y / 2 },
     { x: to.x, y: to.y },
   ];
 
-  chagne.slice(0, -1).forEach((_, i) =>
-    drawLines.push({
-      fromX: chagne[i].x,
-      fromY: chagne[i].y,
-      toX: chagne[i + 1].x,
-      toY: chagne[i + 1].y,
-    }),
-  );
+  change.slice(0, -1).forEach((_, i) => {
+    if (i === change.length - 2)
+      drawLines.push({
+        fromX: change[i + 1].x,
+        fromY: change[i + 1].y,
+        toX: change[i].x,
+        toY: change[i].y,
+      });
+    else
+      drawLines.push({
+        fromX: change[i].x,
+        fromY: change[i].y,
+        toX: change[i + 1].x,
+        toY: change[i + 1].y,
+      });
+  });
 
   return drawLines;
 }
@@ -462,7 +470,7 @@ function getVerticalDifferntDrawLines(
   }[] = [];
   const delta = { x: to.x - from.x, y: to.y - from.y };
 
-  const chagne = [
+  const change = [
     { x: from.x, y: from.y },
     { x: from.x, y: from.y + delta.y / 2 },
     { x: from.x + delta.x / 2, y: from.y + delta.y / 2 },
@@ -470,14 +478,22 @@ function getVerticalDifferntDrawLines(
     { x: to.x, y: to.y },
   ];
 
-  chagne.slice(0, -1).forEach((_, i) =>
-    drawLines.push({
-      fromX: chagne[i].x,
-      fromY: chagne[i].y,
-      toX: chagne[i + 1].x,
-      toY: chagne[i + 1].y,
-    }),
-  );
+  change.slice(0, -1).forEach((_, i) => {
+    if (i === change.length - 2)
+      drawLines.push({
+        fromX: change[i + 1].x,
+        fromY: change[i + 1].y,
+        toX: change[i].x,
+        toY: change[i].y,
+      });
+    else
+      drawLines.push({
+        fromX: change[i].x,
+        fromY: change[i].y,
+        toX: change[i + 1].x,
+        toY: change[i + 1].y,
+      });
+  });
 
   return drawLines;
 }
@@ -494,21 +510,29 @@ function getHorizontalDrawLines(
   }[] = [];
   const delta = { x: to.x - from.x, y: to.y - from.y };
 
-  const chagne = [
+  const change = [
     { x: from.x, y: from.y },
     { x: from.x + delta.x / 2, y: from.y },
     { x: from.x + delta.x / 2, y: to.y },
     { x: to.x, y: to.y },
   ];
 
-  chagne.slice(0, -1).forEach((_, i) =>
-    drawLines.push({
-      fromX: chagne[i].x,
-      fromY: chagne[i].y,
-      toX: chagne[i + 1].x,
-      toY: chagne[i + 1].y,
-    }),
-  );
+  change.slice(0, -1).forEach((_, i) => {
+    if (i === change.length - 2)
+      drawLines.push({
+        fromX: change[i + 1].x,
+        fromY: change[i + 1].y,
+        toX: change[i].x,
+        toY: change[i].y,
+      });
+    else
+      drawLines.push({
+        fromX: change[i].x,
+        fromY: change[i].y,
+        toX: change[i + 1].x,
+        toY: change[i + 1].y,
+      });
+  });
 
   return drawLines;
 }
@@ -525,7 +549,7 @@ function getHorizontalDifferentDrawLines(
   }[] = [];
   const delta = { x: to.x - from.x, y: to.y - from.y };
 
-  const chagne = [
+  const change = [
     { x: from.x, y: from.y },
     { x: from.x + delta.x / 2, y: from.y },
     { x: from.x + delta.x / 2, y: from.y + delta.y / 2 },
@@ -533,14 +557,22 @@ function getHorizontalDifferentDrawLines(
     { x: to.x, y: to.y },
   ];
 
-  chagne.slice(0, -1).forEach((_, i) =>
-    drawLines.push({
-      fromX: chagne[i].x,
-      fromY: chagne[i].y,
-      toX: chagne[i + 1].x,
-      toY: chagne[i + 1].y,
-    }),
-  );
+  change.slice(0, -1).forEach((_, i) => {
+    if (i === change.length - 2)
+      drawLines.push({
+        fromX: change[i + 1].x,
+        fromY: change[i + 1].y,
+        toX: change[i].x,
+        toY: change[i].y,
+      });
+    else
+      drawLines.push({
+        fromX: change[i].x,
+        fromY: change[i].y,
+        toX: change[i + 1].x,
+        toY: change[i + 1].y,
+      });
+  });
 
   return drawLines;
 }
