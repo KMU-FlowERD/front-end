@@ -226,7 +226,6 @@ export const createERDProjectStore = (
                       nextCol.name = column.name;
                       nextCol.type = column.type;
                       nextCol.keyType = keyType;
-                      nextCol.nullable = column.nullable;
                     }
                   });
 
