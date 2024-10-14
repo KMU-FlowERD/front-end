@@ -3,15 +3,14 @@
 import styled from '@emotion/styled';
 import { useRef, useState, useEffect, useLayoutEffect } from 'react';
 
+import { Columns } from './Columns';
+import { FkColumns } from './FkColumns';
+import { PkColumns } from './PkColumns';
+import { PkFkColumns } from './PkFkColumns';
+import { TableMenu } from './TableMenu';
+
 import { ColumnEditMenu } from '@/components/ColumnEditMenu';
 import { MenuIcon } from '@/components/implements-icon';
-import {
-  Columns,
-  PkColumns,
-  PkFkColumns,
-  FkColumns,
-  TableMenu,
-} from '@/components/table';
 import { ERDColumn, ERDTable } from '@/features/erd-project';
 
 interface Position {
