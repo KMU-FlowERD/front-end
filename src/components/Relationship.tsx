@@ -83,7 +83,7 @@ export function Relationship({
     }
   });
 
-  tableDir.keys().forEach((tableID) => {
+Object.keys(tableDir).forEach((tableID) => {
     tableDir
       .get(tableID)
       ?.get('top')
