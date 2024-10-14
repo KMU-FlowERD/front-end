@@ -21,7 +21,7 @@ export function ColumnEditMenu({
   updateTable: (table: ERDTable) => void;
 }) {
   const pkColumns = tableColumns.filter((val) => val.keyType === 'pk');
-  const pfkColumns = tableColumns.filter((val) => val.keyType === 'pk/fk');
+  const pkfkColumns = tableColumns.filter((val) => val.keyType === 'pk/fk');
   const fkColumns = tableColumns.filter((val) => val.keyType === 'fk');
   const columns = tableColumns.filter((val) => val.keyType === undefined);
 
@@ -77,7 +77,7 @@ export function ColumnEditMenu({
 
   return (
     <styles.wrapper ref={editRef}>
-      <styles.input
+      <styles.title
         type='text'
         placeholder='table title'
         defaultValue={table.title}
@@ -105,7 +105,7 @@ export function ColumnEditMenu({
           </styles.deleteButton>
         </styles.columnRow>
       ))}
-      {pfkColumns.map((column) => (
+      {pkfkColumns.map((column) => (
         <styles.columnRow key={column.id}>
           <styles.input
             type='text'
@@ -123,7 +123,7 @@ export function ColumnEditMenu({
           />
         </styles.columnRow>
       ))}
-      {(pkColumns.length > 0 || pfkColumns.length > 0) &&
+      {(pkColumns.length > 0 || pkfkColumns.length > 0) &&
         (fkColumns.length > 0 || columns.length > 0) && <styles.contour />}
       {columns.map((column) => (
         <styles.columnRow key={column.id}>
@@ -191,6 +191,19 @@ const styles = {
     padding-bottom: 8px;
   `,
 
+  title: styled.input`
+    background: #444;
+    border: none;
+    padding: 8px;
+    color: #ededed;
+    width: 150px;
+    margin-bottom: 8px;
+
+    &::placeholder {
+      color: #888;
+    }
+  `,
+
   input: styled.input`
     background: #444;
     border: none;
@@ -203,6 +216,7 @@ const styles = {
       color: #888;
     }
   `,
+
   notNullText: styled.div`
     white-space: nowrap;
     margin-left: auto;
@@ -210,12 +224,14 @@ const styles = {
     font-size: 14px;
     margin-right: 5px;
   `,
+
   contour: styled.div`
     width: 100%;
     height: 1px;
     background-color: #ccc;
     margin-bottom: 8px;
   `,
+
   deleteButton: styled.button`
     display: flex;
     justify-content: flex-end;

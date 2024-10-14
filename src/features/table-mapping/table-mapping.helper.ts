@@ -1,9 +1,6 @@
-import { ERDTable } from '@/features/erd-project';
+import { Direction, TableDirectionChild } from './table-mapping.type';
 
-export type TableDirectionChild = Map<
-  Direction,
-  { top: number; tableID: ERDTable['id'] }[]
->;
+import { ERDTable } from '@/features/erd-project';
 
 export function getStartEndDirection(fromTable: ERDTable, toTable: ERDTable) {
   const { fromX, fromY, toX, toY } = calculateMiddlePosition(
@@ -298,28 +295,6 @@ export function getStartIENullableCircle(
   return startCircle[startDirection];
 }
 
-export function getStartIDEFNullablePolygon(
-  startDirection: Direction,
-  from: { x: number; y: number },
-) {
-  const startPolygon = {
-    left: {
-      positions: `${from.x},${from.y} ${from.x - 4},${from.y - 4} ${from.x - 8},${from.y} ${from.x - 4},${from.y + 4}`,
-    },
-    right: {
-      positions: `${from.x},${from.y} ${from.x + 4},${from.y - 4} ${from.x + 8},${from.y} ${from.x + 4},${from.y + 4}`,
-    },
-    top: {
-      positions: `${from.x},${from.y} ${from.x - 4},${from.y - 4} ${from.x},${from.y - 8} ${from.x + 4},${from.y - 4}`,
-    },
-    bottom: {
-      positions: `${from.x},${from.y} ${from.x - 4},${from.y + 4} ${from.x},${from.y + 8} ${from.x + 4},${from.y + 4}`,
-    },
-  };
-
-  return startPolygon[startDirection];
-}
-
 export function getManyLines(
   endDirection: Direction,
   to: { x: number; y: number },
@@ -349,7 +324,6 @@ export function getManyLines(
 
   const endLinesDirection = endLines[endDirection];
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   return endLinesDirection.slice(0, -1).map((_, i) => ({
     fromX: to.x + endLinesDirection[i].x,
     fromY: to.y + endLinesDirection[i].y,
@@ -400,20 +374,6 @@ export function getEndIENullableCircle(
     right: { x: to.x + 13, y: to.y, radius: 3 },
     top: { x: to.x, y: to.y - 13, radius: 3 },
     bottom: { x: to.x, y: to.y + 13, radius: 3 },
-  };
-
-  return endCircle[endDirection];
-}
-
-export function getEndIDEFCircle(
-  endDirection: Direction,
-  to: { x: number; y: number },
-) {
-  const endCircle = {
-    left: { x: to.x - 4, y: to.y, radius: 4 },
-    right: { x: to.x + 4, y: to.y, radius: 4 },
-    top: { x: to.x, y: to.y - 4, radius: 4 },
-    bottom: { x: to.x, y: to.y + 4, radius: 4 },
   };
 
   return endCircle[endDirection];
@@ -686,5 +646,3 @@ function calculateAngle(line: {
 function getRadian(degree: number): number {
   return (degree * Math.PI) / 180;
 }
-
-type Direction = 'top' | 'bottom' | 'left' | 'right';

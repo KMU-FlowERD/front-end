@@ -2,6 +2,13 @@
 
 import styled from '@emotion/styled';
 
+import { IdentifyManyToManyIcon } from './IdentifyManyToManyIcon';
+import { IdentifyOneToManyIcon } from './IdentifyOneToManyIcon';
+import { IdentifyOneToOneIcon } from './IdentifyOneToOneIcon';
+import { NonIdentifyManyToManyIcon } from './NonIdentifyManyToManyIcon';
+import { NonIdentifyOneToManyIcon } from './NonIdentifyOneToManyIcon';
+import { NonIdentifyOneToOneIcon } from './NonIdentifyOneToOneIcon';
+
 import { MappingType, useDrawToolsStore } from '@/features/draw-tools';
 
 export function RelationshipIcons({ type }: { type: MappingType }) {
@@ -19,50 +26,26 @@ export function RelationshipIcons({ type }: { type: MappingType }) {
         setMapping(type);
       }}
     >
-      {Icon(type, fill)}
+      <Icon mapping={type} fill={fill} />
     </styles.container>
   );
 }
 
-function Icon(mapping: MappingType, fill: string) {
+function Icon({ mapping, fill }: { mapping: MappingType; fill: string }) {
   const { identify, type } = mapping;
 
   if (identify && type === 'one-to-one')
-    return (
-      <svg width='24' height='24'>
-        <styles.pathStyle width='24' height='24' fill={fill} />
-      </svg>
-    );
+    return <IdentifyOneToOneIcon fill={fill} />;
   if (identify && type === 'one-to-many')
-    return (
-      <svg width='24' height='24'>
-        <styles.pathStyle width='24' height='24' fill={fill} />
-      </svg>
-    );
+    return <IdentifyOneToManyIcon fill={fill} />;
   if (identify && type === 'many-to-many')
-    return (
-      <svg width='24' height='24'>
-        <styles.pathStyle width='24' height='24' fill={fill} />
-      </svg>
-    );
+    return <IdentifyManyToManyIcon fill={fill} />;
   if (!identify && type === 'one-to-one')
-    return (
-      <svg width='24' height='24'>
-        <styles.pathStyle width='24' height='24' fill={fill} />
-      </svg>
-    );
+    return <NonIdentifyOneToOneIcon fill={fill} />;
   if (!identify && type === 'one-to-many')
-    return (
-      <svg width='24' height='24'>
-        <styles.pathStyle width='24' height='24' fill={fill} />
-      </svg>
-    );
+    return <NonIdentifyOneToManyIcon fill={fill} />;
   if (!identify && type === 'many-to-many')
-    return (
-      <svg width='24' height='24'>
-        <styles.pathStyle width='24' height='24' fill={fill} />
-      </svg>
-    );
+    return <NonIdentifyManyToManyIcon fill={fill} />;
 }
 
 const styles = {
@@ -72,10 +55,5 @@ const styles = {
     display: flex;
     justify-content: center;
     align-items: center;
-  `,
-  pathStyle: styled.rect`
-    &:hover {
-      fill: #ddd;
-    }
   `,
 };

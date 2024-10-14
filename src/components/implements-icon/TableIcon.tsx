@@ -16,12 +16,12 @@ export function TableIcon() {
         setEntity('table');
       }}
     >
-      {Icon(fill)}
+      <Icon fill={fill} />
     </styles.container>
   );
 }
 
-function Icon(fill: string) {
+function Icon({ fill }: { fill: string }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -77,6 +77,7 @@ const styles = {
     justify-content: center;
     align-items: center;
   `,
+
   pathStyle: styled.path`
     &:hover {
       fill: #ddd;

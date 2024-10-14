@@ -2,7 +2,7 @@
 
 import styled from '@emotion/styled';
 
-export function RelationshipMenu() {
+export function RelationshipInformation() {
   return <styles.container />;
 }
 

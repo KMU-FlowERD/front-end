@@ -4,14 +4,15 @@ import styled from '@emotion/styled';
 import { useState } from 'react';
 import { useStore } from 'zustand';
 
-import { TableMenu, ErdDrawTools, RelationshipMenu, Table } from '@/components';
-import { Relationship } from '@/components/Relationship';
-import { useDrawToolsStore } from '@/features/draw-tools';
 import {
-  createERDProjectStore,
-  ERDColumn,
-  ERDTable,
-} from '@/features/erd-project';
+  TableInformation,
+  ErdDrawTools,
+  RelationshipInformation,
+} from '@/components';
+import { Relationship } from '@/components/Relationship';
+import { Table } from '@/components/table';
+import { useDrawToolsStore } from '@/features/draw-tools';
+import { createERDProjectStore, ERDTable } from '@/features/erd-project';
 
 const store = createERDProjectStore();
 
@@ -55,7 +56,6 @@ export function ErdProjectPage() {
       const { pageX, pageY } = event;
       const tableCount = tables.length;
 
-      // 테이블 생성
       createTable({
         id: tableCount.toString(),
         title: 'table',
@@ -90,50 +90,25 @@ export function ErdProjectPage() {
     <styles.displayWrapper onClick={displayClicked}>
       <Relationship tables={tables} relations={relations} />
       <styles.container>
-        <TableMenu />
+        <TableInformation />
         <ErdDrawTools />
-        <RelationshipMenu />
-        {getTable(
-          tables,
-          TableClick,
-          onPositionChange,
-          updateTable,
-          deleteTable,
-          createColumn,
-          updateColumn,
-          deleteColumn,
-        )}
+        <RelationshipInformation />
+        {tables.map((table) => (
+          <Table
+            key={table.id}
+            table={table}
+            onClick={TableClick}
+            onPositionChange={onPositionChange}
+            updateTable={updateTable}
+            deleteTable={deleteTable}
+            createColumn={createColumn}
+            updateColumn={updateColumn}
+            deleteColumn={deleteColumn}
+          />
+        ))}
       </styles.container>
     </styles.displayWrapper>
   );
-}
-
-function getTable(
-  tables: ERDTable[],
-  // childTables: Set<string>,
-  // crowFoot: boolean,
-  onClick: (table: ERDTable) => void,
-  onPositionChange: (id: string, pos: { left: number; top: number }) => void,
-  updateTable: (table: ERDTable) => void,
-  deleteTable: (tableId: ERDTable['id']) => void,
-  createColumn: (table: ERDTable, isPK: boolean) => void,
-  updateColumn: (table: ERDTable, column: ERDColumn) => void,
-  deleteColumn: (table: ERDTable, column: ERDColumn) => void,
-) {
-  return tables.map((table) => (
-    <Table
-      key={table.id}
-      table={table}
-      onClick={onClick}
-      onPositionChange={onPositionChange}
-      updateTable={updateTable}
-      deleteTable={deleteTable}
-      createColumn={createColumn}
-      updateColumn={updateColumn}
-      deleteColumn={deleteColumn}
-      // rounded={childTables.has(table.id) && !crowFoot}
-    />
-  ));
 }
 
 const styles = {
@@ -142,6 +117,7 @@ const styles = {
     width: 100%;
     height: 100%;
   `,
+
   container: styled.div`
     display: flex;
     width: 100%;

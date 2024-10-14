@@ -18,7 +18,6 @@ export function Relationship({
   relations: Record<ERDTable['id'], ERDRelation[]>;
 }) {
   const relationDuplicate: ERDRelation[] = [];
-  const childTables: Set<string> = new Set<string>();
 
   const tableDir: Map<ERDTable['id'], TableDirectionChild> = new Map();
 
@@ -26,8 +25,6 @@ export function Relationship({
 
   tables.forEach((table) => {
     relations[table.id]?.forEach((relation) => {
-      childTables.add(relation.to);
-
       if (!relationDuplicate.includes(relation))
         relationDuplicate.push(relation);
     });
@@ -102,16 +99,6 @@ export function Relationship({
       ?.sort((a, b) => a.top - b.top);
   });
 
-  return getRelation(tables, relationDuplicate, tableDir, mineMapping);
-}
-
-function getRelation(
-  tables: ERDTable[],
-  relations: ERDRelation[],
-  tableDir: Map<ERDTable['id'], TableDirectionChild>,
-  // crowFoot: boolean,
-  mineMapping: Map<ERDTable['id'], number>,
-) {
   return (
     <styles.wrapper
       width='100%'
@@ -119,11 +106,10 @@ function getRelation(
       version='1.1'
       xmlns='http://www.w3.org/2000/svg'
     >
-      {relations.map((relation) => (
+      {relationDuplicate.map((relation) => (
         <ConnectLine
           key={Math.random().toString(36).slice(2)}
           tables={tables}
-          // crowFoot={crowFoot}
           relation={relation}
           tableDir={tableDir}
           mineMapping={mineMapping}

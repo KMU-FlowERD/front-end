@@ -2,7 +2,7 @@
 
 import styled from '@emotion/styled';
 
-export function TableMenu() {
+export function TableInformation() {
   return <styles.container />;
 }
 
