@@ -58,24 +58,24 @@ export function Relationship({
         tableDir
           .get(fromTable.id)
           ?.get(fromDirection)
-          ?.push({ top: toTable.top, tableID: toTable.id });
+          ?.push({ sortVal: toTable.top, tableID: toTable.id });
       } else {
         tableDir
           .get(fromTable.id)
           ?.get(fromDirection)
-          ?.push({ top: toTable.left, tableID: toTable.id });
+          ?.push({ sortVal: toTable.left, tableID: toTable.id });
       }
 
       if (toDirection === 'left' || toDirection === 'right') {
         tableDir
           .get(toTable.id)
           ?.get(toDirection)
-          ?.push({ top: fromTable.top, tableID: fromTable.id });
+          ?.push({ sortVal: fromTable.top, tableID: fromTable.id });
       } else {
         tableDir
           .get(toTable.id)
           ?.get(toDirection)
-          ?.push({ top: fromTable.left, tableID: fromTable.id });
+          ?.push({ sortVal: fromTable.left, tableID: fromTable.id });
       }
     }
   });
@@ -84,19 +84,19 @@ export function Relationship({
     tableDir
       .get(tableID)
       ?.get('top')
-      ?.sort((a, b) => a.top - b.top);
+      ?.sort((a, b) => a.sortVal - b.sortVal);
     tableDir
       .get(tableID)
       ?.get('bottom')
-      ?.sort((a, b) => a.top - b.top);
+      ?.sort((a, b) => a.sortVal - b.sortVal);
     tableDir
       .get(tableID)
       ?.get('left')
-      ?.sort((a, b) => a.top - b.top);
+      ?.sort((a, b) => a.sortVal - b.sortVal);
     tableDir
       .get(tableID)
       ?.get('right')
-      ?.sort((a, b) => a.top - b.top);
+      ?.sort((a, b) => a.sortVal - b.sortVal);
   });
 
   return (
