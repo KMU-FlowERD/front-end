@@ -9,7 +9,7 @@ import { PkColumns } from './PkColumns';
 import { PkFkColumns } from './PkFkColumns';
 import { TableMenu } from './TableMenu';
 
-import { ColumnEditMenu } from '@/components/ColumnEditMenu';
+import { ColumnEditMenu } from '@/components/column-edit';
 import { MenuIcon } from '@/components/implements-icon';
 import { ERDColumn, ERDTable } from '@/features/erd-project';
 
