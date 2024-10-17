@@ -13,8 +13,8 @@ import {
 export function ErdDrawTools() {
   return (
     <styles.container>
-      <PointerIcon fill='#aaa' />
-      <ArrowIcon fill='#aaa' />
+      <PointerIcon />
+      <ArrowIcon />
       <div
         style={{
           width: '1px',
@@ -23,16 +23,16 @@ export function ErdDrawTools() {
           marginRight: '7px',
         }}
       />
-      <TableIcon fill='#aaa' />
-      <MemoIcon fill='#aaa' />
+      <TableIcon />
+      <MemoIcon />
       <div style={{ width: '1px', height: '40px', background: '#444' }} />
-      <RelationshipIcons type='IdentifyOneToOne' fill='#aaa' />
-      <RelationshipIcons type='IdentifyOneToMany' fill='#aaa' />
-      <RelationshipIcons type='IdentifyManyToMany' fill='#aaa' />
+      <RelationshipIcons type={{ type: 'one-to-one', identify: true }} />
+      <RelationshipIcons type={{ type: 'one-to-many', identify: true }} />
+      <RelationshipIcons type={{ type: 'many-to-many', identify: true }} />
       <div style={{ width: '1px', height: '40px', background: '#444' }} />
-      <RelationshipIcons type='NonIdentifyOneToOne' fill='#aaa' />
-      <RelationshipIcons type='NonIdentifyOneToMany' fill='#aaa' />
-      <RelationshipIcons type='NonIdentifyManyToMany' fill='#aaa' />
+      <RelationshipIcons type={{ type: 'one-to-one', identify: false }} />
+      <RelationshipIcons type={{ type: 'one-to-many', identify: false }} />
+      <RelationshipIcons type={{ type: 'many-to-many', identify: false }} />
     </styles.container>
   );
 }
@@ -49,5 +49,6 @@ const styles = {
     border-radius: 16px;
     border: 0.5px solid #606060;
     background: #222;
+    z-index: 1;
   `,
 };

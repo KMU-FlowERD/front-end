@@ -2,11 +2,26 @@
 
 import styled from '@emotion/styled';
 
-export function TableIcon({ fill }: { fill: string }) {
-  return <styles.container>{Icon(fill)}</styles.container>;
+import { useDrawToolsStore } from '@/features/draw-tools';
+
+export function TableIcon() {
+  const entity = useDrawToolsStore((state) => state.entity);
+  const setEntity = useDrawToolsStore((state) => state.setEntity);
+
+  const fill = entity === 'table' ? '#ddd' : '#aaa';
+
+  return (
+    <styles.container
+      onClick={() => {
+        setEntity('table');
+      }}
+    >
+      <Icon fill={fill} />
+    </styles.container>
+  );
 }
 
-function Icon(fill: string) {
+function Icon({ fill }: { fill: string }) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -16,7 +31,7 @@ function Icon(fill: string) {
       fill='none'
     >
       <g>
-        <path
+        <styles.pathStyle
           d='M461.667,49.963c-8.949-8.947-19.698-13.418-32.265-13.418H45.682c-12.562,0-23.317,4.471-32.264,13.418
         C4.473,58.912,0,69.663,0,82.228V392.86c0,12.566,4.473,23.309,13.418,32.261c8.947,8.949,19.701,13.415,32.264,13.415h383.72
         c12.566,0,23.315-4.466,32.265-13.415c8.945-8.952,13.415-19.701,13.415-32.261V82.228
@@ -61,5 +76,11 @@ const styles = {
     display: flex;
     justify-content: center;
     align-items: center;
+  `,
+
+  pathStyle: styled.path`
+    &:hover {
+      fill: #ddd;
+    }
   `,
 };

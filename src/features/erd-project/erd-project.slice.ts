@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
-type KeyType = 'pk' | 'fk' | 'pk/fk';
+export type KeyType = 'pk' | 'fk' | 'pk/fk';
 
 export interface ERDColumn {
   id: string;

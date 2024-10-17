@@ -2,63 +2,54 @@
 
 import styled from '@emotion/styled';
 
-import { IconType } from './icon.type';
+import { IdentifyManyToManyIcon } from './IdentifyManyToManyIcon';
+import { IdentifyOneToManyIcon } from './IdentifyOneToManyIcon';
+import { IdentifyOneToOneIcon } from './IdentifyOneToOneIcon';
+import { NonIdentifyManyToManyIcon } from './NonIdentifyManyToManyIcon';
+import { NonIdentifyOneToManyIcon } from './NonIdentifyOneToManyIcon';
+import { NonIdentifyOneToOneIcon } from './NonIdentifyOneToOneIcon';
 
-export function RelationshipIcons({
-  type,
-  fill,
-}: {
-  type: IconType;
-  fill: string;
-}) {
-  return <styles.container>{Icon(type, fill)}</styles.container>;
+import { MappingType, useDrawToolsStore } from '@/features/draw-tools';
+
+export function RelationshipIcons({ type }: { type: MappingType }) {
+  const mapping = useDrawToolsStore((state) => state.mapping);
+  const setMapping = useDrawToolsStore((state) => state.setMapping);
+
+  const fill =
+    mapping?.identify === type.identify && mapping.type === type.type
+      ? '#ddd'
+      : '#aaa';
+
+  return (
+    <styles.container
+      onClick={() => {
+        setMapping(type);
+      }}
+    >
+      <Icon mapping={type} fill={fill} />
+    </styles.container>
+  );
 }
 
-function Icon(type: IconType, fill: string) {
-  switch (type) {
-    case 'IdentifyOneToOne':
-      return (
-        <svg width='24' height='24'>
-          <rect width='24' height='24' fill={fill} />
-        </svg>
-      );
-    case 'IdentifyOneToMany':
-      return (
-        <svg width='24' height='24'>
-          <rect width='24' height='24' fill={fill} />
-        </svg>
-      );
-    case 'IdentifyManyToMany':
-      return (
-        <svg width='24' height='24'>
-          <rect width='24' height='24' fill={fill} />
-        </svg>
-      );
-    case 'NonIdentifyOneToOne':
-      return (
-        <svg width='24' height='24'>
-          <rect width='24' height='24' fill={fill} />
-        </svg>
-      );
-    case 'NonIdentifyOneToMany':
-      return (
-        <svg width='24' height='24'>
-          <rect width='24' height='24' fill={fill} />
-        </svg>
-      );
-    case 'NonIdentifyManyToMany':
-      return (
-        <svg width='24' height='24'>
-          <rect width='24' height='24' fill={fill} />
-        </svg>
-      );
-    default:
-      break;
-  }
+function Icon({ mapping, fill }: { mapping: MappingType; fill: string }) {
+  const { identify, type } = mapping;
+
+  if (identify && type === 'one-to-one')
+    return <IdentifyOneToOneIcon fill={fill} />;
+  if (identify && type === 'one-to-many')
+    return <IdentifyOneToManyIcon fill={fill} />;
+  if (identify && type === 'many-to-many')
+    return <IdentifyManyToManyIcon fill={fill} />;
+  if (!identify && type === 'one-to-one')
+    return <NonIdentifyOneToOneIcon fill={fill} />;
+  if (!identify && type === 'one-to-many')
+    return <NonIdentifyOneToManyIcon fill={fill} />;
+  if (!identify && type === 'many-to-many')
+    return <NonIdentifyManyToManyIcon fill={fill} />;
 }
 
 const styles = {
-  container: styled.div`
+  container: styled.rect`
     user-select: none;
     cursor: pointer;
     display: flex;
