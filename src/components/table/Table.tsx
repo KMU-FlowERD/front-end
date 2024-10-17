@@ -4,9 +4,6 @@ import styled from '@emotion/styled';
 import { useRef, useState, useEffect, useLayoutEffect } from 'react';
 
 import { Columns } from './Columns';
-import { FkColumns } from './FkColumns';
-import { PkColumns } from './PkColumns';
-import { PkFkColumns } from './PkFkColumns';
 import { TableMenu } from './TableMenu';
 
 import { ColumnEditMenu } from '@/components/column-edit';
@@ -143,12 +140,12 @@ export function Table({
         onClick={() => onClick(table)}
         onMouseDown={handleMouseDown}
       >
-        <PkColumns pkColumns={pkColumns} />
-        <PkFkColumns pkfkColumns={pkfkColumns} />
+        <Columns columns={pkColumns} />
+        <Columns columns={pkfkColumns} />
         {(pkColumns.length > 0 || pkfkColumns.length > 0) &&
           (fkColumns.length > 0 || columns.length > 0) && <styles.contour />}
         <Columns columns={columns} />
-        <FkColumns fkColumns={fkColumns} />
+        <Columns columns={fkColumns} />
 
         {menuOpen && (
           <TableMenu
