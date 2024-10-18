@@ -10,7 +10,17 @@ import {
   TableIcon,
 } from './implements-icon';
 
+import { useDrawToolsStore } from '@/features/draw-tools';
+
 export function ErdDrawTools() {
+  const notation = useDrawToolsStore((state) => state.notation);
+  const setNotation = useDrawToolsStore((state) => state.setNotation);
+
+  const notationChange = () => {
+    if (notation === 'IE') setNotation('IDEF1X');
+    else setNotation('IE');
+  };
+
   return (
     <styles.container>
       <PointerIcon />
@@ -33,6 +43,10 @@ export function ErdDrawTools() {
       <RelationshipIcons type={{ type: 'one-to-one', identify: false }} />
       <RelationshipIcons type={{ type: 'one-to-many', identify: false }} />
       <RelationshipIcons type={{ type: 'many-to-many', identify: false }} />
+      <div style={{ width: '1px', height: '40px', background: '#444' }} />
+      <styles.notationChange onClick={notationChange}>
+        {notation} ↕️
+      </styles.notationChange>
     </styles.container>
   );
 }
@@ -50,5 +64,11 @@ const styles = {
     border: 0.5px solid #606060;
     background: #222;
     z-index: 1;
+  `,
+
+  notationChange: styled.div`
+    cursor: pointer;
+    font-size: 16px;
+    color: #ededed;
   `,
 };
