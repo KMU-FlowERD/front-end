@@ -6,7 +6,7 @@ import { useDrawToolsStore } from '@/features/draw-tools';
 import { ERDRelation, ERDTable } from '@/features/erd-project';
 import {
   getDrawLines,
-  getDrawLinesMineMapping,
+  getDrawLinesselfReferenceMapping,
   getEndIDEFCircle,
   getEndIENotNullOneLine,
   getEndIENullableCircle,
@@ -24,21 +24,21 @@ interface ConnectLineProps {
   tables: ERDTable[];
   relation: ERDRelation;
   tableDirection: Map<ERDTable['id'], TableDirectionChild>;
-  mineMapping: Map<ERDTable['id'], number>;
+  selfReferenceMapping: Map<ERDTable['id'], number>;
 }
 
 export function ConnectLine({
   tables,
   relation,
   tableDirection,
-  mineMapping,
+  selfReferenceMapping,
 }: ConnectLineProps) {
   return (
     <SvgComponent
       tables={tables}
       relation={relation}
       tableDirection={tableDirection}
-      mineMapping={mineMapping}
+      selfReferenceMapping={selfReferenceMapping}
     />
   );
 }
@@ -47,7 +47,7 @@ function SvgComponent({
   tables,
   relation,
   tableDirection,
-  mineMapping,
+  selfReferenceMapping,
 }: ConnectLineProps) {
   const notation = useDrawToolsStore((state) => state.notation);
 
@@ -72,16 +72,16 @@ function SvgComponent({
         ),
       );
     } else {
-      const mineMappingCount = mineMapping.get(fromTable.id);
-      if (mineMappingCount !== undefined)
-        mineMapping.set(fromTable.id, mineMappingCount + 1);
+      const selfReferenceMappingCount = selfReferenceMapping.get(fromTable.id);
+      if (selfReferenceMappingCount !== undefined)
+        selfReferenceMapping.set(fromTable.id, selfReferenceMappingCount + 1);
 
       navigateLines.push(
-        ...getDrawLinesMineMapping(
+        ...getDrawLinesselfReferenceMapping(
           lastFromPosition,
           lastToPosition,
           fromTable.height / 2,
-          mineMapping.get(fromTable.id),
+          selfReferenceMapping.get(fromTable.id),
         ),
       );
     }

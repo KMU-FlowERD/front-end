@@ -146,11 +146,11 @@ export function getDrawLines(
   return getHorizontalDifferentDrawLines(from, to);
 }
 
-export function getDrawLinesMineMapping(
+export function getDrawLinesselfReferenceMapping(
   from: { x: number; y: number },
   to: { x: number; y: number },
   minHeight: number,
-  mineMappingCount?: number,
+  selfReferenceMappingCount?: number,
 ) {
   const drawLines: {
     fromX: number;
@@ -168,7 +168,7 @@ export function getDrawLinesMineMapping(
         from.y +
         minHeight +
         15 +
-        (mineMappingCount ? mineMappingCount * 15 : 0),
+        (selfReferenceMappingCount ? selfReferenceMappingCount * 15 : 0),
     },
     {
       x: to.x,
@@ -176,7 +176,7 @@ export function getDrawLinesMineMapping(
         from.y +
         minHeight +
         15 +
-        (mineMappingCount ? mineMappingCount * 15 : 0),
+        (selfReferenceMappingCount ? selfReferenceMappingCount * 15 : 0),
     },
     { x: to.x, y: to.y },
   ];
@@ -588,12 +588,12 @@ function getDirection(
   angle: number,
   fromSize: { width: number; height: number },
   toSize: { width: number; height: number },
-  mine: boolean,
+  selfReference: boolean,
 ) {
   let fromDirection: Direction;
   let toDirection: Direction;
 
-  if (mine) {
+  if (selfReference) {
     fromDirection = 'RIGHT';
     toDirection = 'BOTTOM';
     return { fromDirection, toDirection };

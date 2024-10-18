@@ -22,7 +22,7 @@ export function Relationship({
 
   const tableDirection: Map<ERDTable['id'], TableDirectionChild> = new Map();
 
-  const mineMapping: Map<ERDTable['id'], number> = new Map();
+  const selfReferenceMapping: Map<ERDTable['id'], number> = new Map();
 
   tables.forEach((table) => {
     relations[table.id]?.forEach((relation) => {
@@ -42,22 +42,8 @@ export function Relationship({
       ]),
     );
 
-    mineMapping.set(table.id, 0);
+    selfReferenceMapping.set(table.id, 0);
   });
-
-  const processDirection = (
-    table: ERDTable,
-    direction: Direction,
-    sortVal: number,
-    relatedTableID: ERDTable['id'],
-    relationID: ERDRelation['id'],
-  ) => {
-    tableDirection.get(table.id)?.get(direction)?.push({
-      sortVal,
-      tableID: relatedTableID,
-      relationID,
-    });
-  };
 
   relationDuplicate.forEach((relation) => {
     const fromTable = tables.find((t) => t.id === relation.from);
@@ -69,24 +55,29 @@ export function Relationship({
         toTable,
       );
 
-      processDirection(
-        fromTable,
-        fromDirection,
-        fromDirection === 'LEFT' || fromDirection === 'RIGHT'
-          ? toTable.top
-          : toTable.left,
-        toTable.id,
-        relation.id,
-      );
-      processDirection(
-        toTable,
-        toDirection,
-        toDirection === 'LEFT' || toDirection === 'RIGHT'
-          ? fromTable.top
-          : fromTable.left,
-        fromTable.id,
-        relation.id,
-      );
+      tableDirection
+        .get(fromTable.id)
+        ?.get(fromDirection)
+        ?.push({
+          sortVal:
+            fromDirection === 'LEFT' || fromDirection === 'RIGHT'
+              ? toTable.top
+              : toTable.left,
+          tableID: toTable.id,
+          relationID: relation.id,
+        });
+
+      tableDirection
+        .get(toTable.id)
+        ?.get(toDirection)
+        ?.push({
+          sortVal:
+            toDirection === 'LEFT' || toDirection === 'RIGHT'
+              ? fromTable.top
+              : fromTable.left,
+          tableID: fromTable.id,
+          relationID: relation.id,
+        });
     }
   });
 
@@ -114,7 +105,7 @@ export function Relationship({
           tables={tables}
           relation={relation}
           tableDirection={tableDirection}
-          mineMapping={mineMapping}
+          selfReferenceMapping={selfReferenceMapping}
         />
       ))}
     </styles.wrapper>
