@@ -48,39 +48,43 @@ export function Relationship({
     const fromTable = tables.find((t) => t.id === relation.from);
     const toTable = tables.find((t) => t.id === relation.to);
 
-    if (fromTable && toTable) {
+    if (fromTable && toTable && fromTable.id !== toTable.id) {
       const { fromDirection, toDirection } = getStartEndDirection(
         fromTable,
         toTable,
       );
 
       if (fromDirection === 'left' || fromDirection === 'right') {
-        tableDir
-          .get(fromTable.id)
-          ?.get(fromDirection)
-          ?.push({ sortVal: toTable.top, tableID: toTable.id });
+        tableDir.get(fromTable.id)?.get(fromDirection)?.push({
+          sortVal: toTable.top,
+          tableID: toTable.id,
+          relationID: relation.id,
+        });
       } else {
-        tableDir
-          .get(fromTable.id)
-          ?.get(fromDirection)
-          ?.push({ sortVal: toTable.left, tableID: toTable.id });
+        tableDir.get(fromTable.id)?.get(fromDirection)?.push({
+          sortVal: toTable.left,
+          tableID: toTable.id,
+          relationID: relation.id,
+        });
       }
 
       if (toDirection === 'left' || toDirection === 'right') {
-        tableDir
-          .get(toTable.id)
-          ?.get(toDirection)
-          ?.push({ sortVal: fromTable.top, tableID: fromTable.id });
+        tableDir.get(toTable.id)?.get(toDirection)?.push({
+          sortVal: fromTable.top,
+          tableID: fromTable.id,
+          relationID: relation.id,
+        });
       } else {
-        tableDir
-          .get(toTable.id)
-          ?.get(toDirection)
-          ?.push({ sortVal: fromTable.left, tableID: fromTable.id });
+        tableDir.get(toTable.id)?.get(toDirection)?.push({
+          sortVal: fromTable.left,
+          tableID: fromTable.id,
+          relationID: relation.id,
+        });
       }
     }
   });
 
-  Object.keys(tableDir).forEach((tableID) => {
+  tableDir.keys().forEach((tableID) => {
     tableDir
       .get(tableID)
       ?.get('top')

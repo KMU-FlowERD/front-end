@@ -1,6 +1,6 @@
 import { Direction, TableDirectionChild } from './table-mapping.type';
 
-import { ERDTable } from '@/features/erd-project';
+import { ERDRelation, ERDTable } from '@/features/erd-project';
 
 export function getStartEndDirection(fromTable: ERDTable, toTable: ERDTable) {
   const { fromX, fromY, toX, toY } = calculateMiddlePosition(
@@ -22,6 +22,7 @@ export function getStartEndPosition(
   fromTable: ERDTable,
   toTable: ERDTable,
   tableDir: Map<ERDTable['id'], TableDirectionChild>,
+  relation: ERDRelation,
 ) {
   const { fromX, fromY, toX, toY } = calculateMiddlePosition(
     fromTable,
@@ -54,7 +55,7 @@ export function getStartEndPosition(
     };
 
   const lastFromPosition = getSortPosition(
-    'from',
+    relation,
     fromDirection,
     tableDir,
     updatedFrom,
@@ -62,7 +63,7 @@ export function getStartEndPosition(
     toTable,
   );
   const lastToPosition = getSortPosition(
-    'to',
+    relation,
     toDirection,
     tableDir,
     updatedTo,
@@ -74,7 +75,7 @@ export function getStartEndPosition(
 }
 
 function getSortPosition(
-  startPos: 'from' | 'to',
+  relation: ERDRelation,
   direct: Direction,
   tableDir: Map<ERDTable['id'], TableDirectionChild>,
   pos: { x: number; y: number },
@@ -87,7 +88,9 @@ function getSortPosition(
     const leftCnt = directionOnTable.get(direct)?.length;
     const left = directionOnTable
       .get(direct)
-      ?.findIndex((a) => a.tableID === toTable.id);
+      ?.findIndex(
+        (a) => a.tableID === toTable.id && a.relationID === relation.id,
+      );
 
     const size =
       direct === 'left' || direct === 'right'
