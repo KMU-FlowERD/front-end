@@ -8,12 +8,12 @@ export function TableIcon() {
   const entity = useDrawToolsStore((state) => state.entity);
   const setEntity = useDrawToolsStore((state) => state.setEntity);
 
-  const fill = entity === 'table' ? '#ddd' : '#aaa';
+  const fill = entity === 'TABLE' ? '#ddd' : '#aaa';
 
   return (
     <styles.container
       onClick={() => {
-        setEntity('table');
+        setEntity('TABLE');
       }}
     >
       <Icon fill={fill} />

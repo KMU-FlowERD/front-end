@@ -31,7 +31,7 @@ describe('ERD Project Store', () => {
     id: 'relation1',
     from: 'table1',
     to: 'table2',
-    type: 'one-to-one',
+    type: 'ONE-TO-ONE',
     identify: true,
   };
 
@@ -387,13 +387,13 @@ describe('ERD Project Store', () => {
       store.getState().createTable(table2);
       store.getState().createRelation(relation);
 
-      const updatedRelation: ERDRelation = { ...relation, type: 'one-to-many' };
+      const updatedRelation: ERDRelation = { ...relation, type: 'ONE-TO-MANY' };
       store.getState().updateRelation(updatedRelation);
 
       const updatedRel = store
         .getState()
         .relations[table1.id].find((rel) => rel.id === relation.id);
-      expect(updatedRel?.type).toBe('one-to-many');
+      expect(updatedRel?.type).toBe('ONE-TO-MANY');
     });
 
     test('릴레이션의 식별/비식별이 변경되면, 다른 테이블에 영향을 미치게됩니다. 식별 → 비식별', () => {

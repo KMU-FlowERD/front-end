@@ -6,6 +6,7 @@ import { ConnectLine } from './ConnectLine';
 
 import { ERDRelation, ERDTable } from '@/features/erd-project';
 import {
+  Direction,
   getStartEndDirection,
   TableDirectionChild,
 } from '@/features/table-mapping';
@@ -19,9 +20,9 @@ export function Relationship({
 }) {
   const relationDuplicate: ERDRelation[] = [];
 
-  const tableDir: Map<ERDTable['id'], TableDirectionChild> = new Map();
+  const tableDirection: Map<ERDTable['id'], TableDirectionChild> = new Map();
 
-  const mineMapping: Map<ERDTable['id'], number> = new Map();
+  const selfReferenceMapping: Map<ERDTable['id'], number> = new Map();
 
   tables.forEach((table) => {
     relations[table.id]?.forEach((relation) => {
@@ -31,72 +32,64 @@ export function Relationship({
   });
 
   tables.forEach((table) => {
-    tableDir.set(
+    tableDirection.set(
       table.id,
       new Map([
-        ['left', []],
-        ['right', []],
-        ['top', []],
-        ['bottom', []],
+        ['LEFT', []],
+        ['RIGHT', []],
+        ['TOP', []],
+        ['BOTTOM', []],
       ]),
     );
 
-    mineMapping.set(table.id, 0);
+    selfReferenceMapping.set(table.id, 0);
   });
 
   relationDuplicate.forEach((relation) => {
     const fromTable = tables.find((t) => t.id === relation.from);
     const toTable = tables.find((t) => t.id === relation.to);
 
-    if (fromTable && toTable) {
+    if (fromTable && toTable && fromTable.id !== toTable.id) {
       const { fromDirection, toDirection } = getStartEndDirection(
         fromTable,
         toTable,
       );
 
-      if (fromDirection === 'left' || fromDirection === 'right') {
-        tableDir
-          .get(fromTable.id)
-          ?.get(fromDirection)
-          ?.push({ sortVal: toTable.top, tableID: toTable.id });
-      } else {
-        tableDir
-          .get(fromTable.id)
-          ?.get(fromDirection)
-          ?.push({ sortVal: toTable.left, tableID: toTable.id });
-      }
+      tableDirection
+        .get(fromTable.id)
+        ?.get(fromDirection)
+        ?.push({
+          sortVal:
+            fromDirection === 'LEFT' || fromDirection === 'RIGHT'
+              ? toTable.top
+              : toTable.left,
+          tableID: toTable.id,
+          relationID: relation.id,
+        });
 
-      if (toDirection === 'left' || toDirection === 'right') {
-        tableDir
-          .get(toTable.id)
-          ?.get(toDirection)
-          ?.push({ sortVal: fromTable.top, tableID: fromTable.id });
-      } else {
-        tableDir
-          .get(toTable.id)
-          ?.get(toDirection)
-          ?.push({ sortVal: fromTable.left, tableID: fromTable.id });
-      }
+      tableDirection
+        .get(toTable.id)
+        ?.get(toDirection)
+        ?.push({
+          sortVal:
+            toDirection === 'LEFT' || toDirection === 'RIGHT'
+              ? fromTable.top
+              : fromTable.left,
+          tableID: fromTable.id,
+          relationID: relation.id,
+        });
     }
   });
 
-  Object.keys(tableDir).forEach((tableID) => {
-    tableDir
-      .get(tableID)
-      ?.get('top')
-      ?.sort((a, b) => a.sortVal - b.sortVal);
-    tableDir
-      .get(tableID)
-      ?.get('bottom')
-      ?.sort((a, b) => a.sortVal - b.sortVal);
-    tableDir
-      .get(tableID)
-      ?.get('left')
-      ?.sort((a, b) => a.sortVal - b.sortVal);
-    tableDir
-      .get(tableID)
-      ?.get('right')
-      ?.sort((a, b) => a.sortVal - b.sortVal);
+  const directions: Direction[] = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
+
+  directions.forEach((direction) => {
+    tableDirection.keys().forEach((tableID) =>
+      tableDirection
+        .get(tableID)
+        ?.get(direction)
+        ?.sort((a, b) => a.sortVal - b.sortVal),
+    );
   });
 
   return (
@@ -111,8 +104,8 @@ export function Relationship({
           key={Math.random().toString(36).slice(2)}
           tables={tables}
           relation={relation}
-          tableDir={tableDir}
-          mineMapping={mineMapping}
+          tableDirection={tableDirection}
+          selfReferenceMapping={selfReferenceMapping}
         />
       ))}
     </styles.wrapper>

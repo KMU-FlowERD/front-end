@@ -50,9 +50,7 @@ export function ErdProjectPage() {
   const displayClicked = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
-    if (entity === 'table') {
-      setEntity('none');
-
+    if (entity === 'TABLE') {
       const { pageX, pageY } = event;
       const tableCount = tables.length;
 
@@ -65,11 +63,13 @@ export function ErdProjectPage() {
         height: 30,
         columns: [],
       });
+
+      setEntity('NONE');
     }
   };
 
   const TableClick = (table: ERDTable) => {
-    if (mapping !== undefined && mapping.type !== 'many-to-many') {
+    if (mapping !== undefined && mapping.type !== 'MANY-TO-MANY') {
       if (lastTable) {
         createRelation({
           id: Math.random().toString(36).slice(2),

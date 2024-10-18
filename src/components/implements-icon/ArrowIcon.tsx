@@ -8,12 +8,12 @@ export function ArrowIcon() {
   const cursor = useDrawToolsStore((state) => state.cursor);
   const setCursor = useDrawToolsStore((state) => state.setCursor);
 
-  const fill = cursor === 'arrow' ? '#ddd' : '#aaa';
+  const fill = cursor === 'ARROW' ? '#ddd' : '#aaa';
 
   return (
     <styles.container
       onClick={() => {
-        setCursor('arrow');
+        setCursor('ARROW');
       }}
     >
       <Icon fill={fill} />
