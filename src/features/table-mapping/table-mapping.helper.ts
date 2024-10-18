@@ -382,6 +382,42 @@ export function getEndIENullableCircle(
   return endCircle[endDirection];
 }
 
+export function getStartIDEFNullablePolygon(
+  startDirection: Direction,
+  from: { x: number; y: number },
+) {
+  const startPolygon = {
+    left: {
+      positions: `${from.x},${from.y} ${from.x - 4},${from.y - 4} ${from.x - 8},${from.y} ${from.x - 4},${from.y + 4}`,
+    },
+    right: {
+      positions: `${from.x},${from.y} ${from.x + 4},${from.y - 4} ${from.x + 8},${from.y} ${from.x + 4},${from.y + 4}`,
+    },
+    top: {
+      positions: `${from.x},${from.y} ${from.x - 4},${from.y - 4} ${from.x},${from.y - 8} ${from.x + 4},${from.y - 4}`,
+    },
+    bottom: {
+      positions: `${from.x},${from.y} ${from.x - 4},${from.y + 4} ${from.x},${from.y + 8} ${from.x + 4},${from.y + 4}`,
+    },
+  };
+
+  return startPolygon[startDirection];
+}
+
+export function getEndIDEFCircle(
+  endDirection: Direction,
+  to: { x: number; y: number },
+) {
+  const endCircle = {
+    left: { x: to.x - 4, y: to.y, radius: 4 },
+    right: { x: to.x + 4, y: to.y, radius: 4 },
+    top: { x: to.x, y: to.y - 4, radius: 4 },
+    bottom: { x: to.x, y: to.y + 4, radius: 4 },
+  };
+
+  return endCircle[endDirection];
+}
+
 function getVerticalDrawLines(
   from: { x: number; y: number },
   to: { x: number; y: number },

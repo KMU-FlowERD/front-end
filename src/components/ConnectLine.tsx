@@ -2,41 +2,55 @@
 
 import React, { JSX } from 'react';
 
+import { useDrawToolsStore } from '@/features/draw-tools';
 import { ERDRelation, ERDTable } from '@/features/erd-project';
 import {
   getDrawLines,
   getDrawLinesMineMapping,
+  getEndIDEFCircle,
   getEndIENotNullOneLine,
   getEndIENullableCircle,
   getEndIEOneLine,
   getManyLines,
   getStartEndPosition,
+  getStartIDEFNullablePolygon,
   getStartIENotNullOneLine,
   getStartIENullableCircle,
   getStartIEOneLine,
   TableDirectionChild,
 } from '@/features/table-mapping';
 
+interface ConnectLineProps {
+  tables: ERDTable[];
+  relation: ERDRelation;
+  tableDir: Map<ERDTable['id'], TableDirectionChild>;
+  mineMapping: Map<ERDTable['id'], number>;
+}
+
 export function ConnectLine({
   tables,
   relation,
   tableDir,
   mineMapping,
-}: {
-  tables: ERDTable[];
-  relation: ERDRelation;
-  tableDir: Map<ERDTable['id'], TableDirectionChild>;
-  mineMapping: Map<ERDTable['id'], number>;
-}) {
-  return <>{SvgComponent(tables, relation, tableDir, mineMapping)}</>;
+}: ConnectLineProps) {
+  return (
+    <SvgComponent
+      tables={tables}
+      relation={relation}
+      tableDir={tableDir}
+      mineMapping={mineMapping}
+    />
+  );
 }
 
-function SvgComponent(
-  tables: ERDTable[],
-  relation: ERDRelation,
-  tableDir: Map<ERDTable['id'], TableDirectionChild>,
-  mineMapping: Map<ERDTable['id'], number>,
-) {
+function SvgComponent({
+  tables,
+  relation,
+  tableDir,
+  mineMapping,
+}: ConnectLineProps) {
+  const notation = useDrawToolsStore((state) => state.notation);
+
   const lines: JSX.Element[] = [];
 
   const fromTable = tables.find((t) => t.id === relation.from);
@@ -77,32 +91,47 @@ function SvgComponent(
 
     const drawLines = [];
     const drawCircles = [];
+    const drawPolygons = [];
 
-    drawLines.push(getStartIEOneLine(fromDirection, updatedFrom));
+    if (notation === 'IE') {
+      drawLines.push(getStartIEOneLine(fromDirection, updatedFrom));
 
-    if (relation.type === 'one-to-many')
-      drawLines.push(...getManyLines(toDirection, updatedTo));
-    else if (relation.type === 'one-to-one')
-      drawLines.push(getEndIEOneLine(toDirection, updatedTo));
+      if (relation.type === 'one-to-many')
+        drawLines.push(...getManyLines(toDirection, updatedTo));
+      else if (relation.type === 'one-to-one')
+        drawLines.push(getEndIEOneLine(toDirection, updatedTo));
 
-    if (
-      relation.multiplicity &&
-      relation.multiplicity.to &&
-      relation.multiplicity.to === 'optional'
-    ) {
-      drawCircles.push(getStartIENullableCircle(fromDirection, updatedFrom));
+      if (
+        relation.multiplicity &&
+        relation.multiplicity.to &&
+        relation.multiplicity.to === 'optional'
+      ) {
+        drawCircles.push(getStartIENullableCircle(fromDirection, updatedFrom));
+      } else {
+        drawLines.push(getStartIENotNullOneLine(fromDirection, updatedFrom));
+      }
+
+      if (
+        relation.multiplicity &&
+        relation.multiplicity.from &&
+        relation.multiplicity.from === 'optional'
+      ) {
+        drawCircles.push(getEndIENullableCircle(toDirection, updatedTo));
+      } else {
+        drawLines.push(getEndIENotNullOneLine(toDirection, updatedTo));
+      }
     } else {
-      drawLines.push(getStartIENotNullOneLine(fromDirection, updatedFrom));
-    }
+      drawCircles.push(getEndIDEFCircle(toDirection, updatedTo));
 
-    if (
-      relation.multiplicity &&
-      relation.multiplicity.from &&
-      relation.multiplicity.from === 'optional'
-    ) {
-      drawCircles.push(getEndIENullableCircle(toDirection, updatedTo));
-    } else {
-      drawLines.push(getEndIENotNullOneLine(toDirection, updatedTo));
+      if (
+        relation.multiplicity &&
+        relation.multiplicity.from &&
+        relation.multiplicity.from === 'optional'
+      ) {
+        drawPolygons.push(
+          getStartIDEFNullablePolygon(fromDirection, updatedFrom),
+        );
+      }
     }
 
     navigateLines.forEach((line) => {
@@ -143,6 +172,18 @@ function SvgComponent(
           cy={circle.y}
           stroke='#ededed'
           strokeWidth='1'
+        />,
+      );
+    });
+
+    drawPolygons.forEach((polygon) => {
+      lines.push(
+        <polygon
+          key={Math.random().toString(36).slice(2)}
+          points={polygon.positions}
+          stroke='#ededed'
+          strokeWidth='1'
+          fill='#2f2f2f'
         />,
       );
     });
