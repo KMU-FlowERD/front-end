@@ -8,12 +8,12 @@ export function MemoIcon() {
   const entity = useDrawToolsStore((state) => state.entity);
   const setEntity = useDrawToolsStore((state) => state.setEntity);
 
-  const fill = entity === 'memo' ? '#ddd' : '#aaa';
+  const fill = entity === 'MEMO' ? '#ddd' : '#aaa';
 
   return (
     <styles.container
       onClick={() => {
-        setEntity('memo');
+        setEntity('MEMO');
       }}
     >
       <Icon fill={fill} />

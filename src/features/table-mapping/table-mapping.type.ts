@@ -5,4 +5,4 @@ export type TableDirectionChild = Map<
   { sortVal: number; tableID: ERDTable['id']; relationID: ERDRelation['id'] }[]
 >;
 
-export type Direction = 'top' | 'bottom' | 'left' | 'right';
+export type Direction = 'TOP' | 'BOTTOM' | 'LEFT' | 'RIGHT';

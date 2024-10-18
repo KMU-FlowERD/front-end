@@ -34,17 +34,17 @@ export function RelationshipIcons({ type }: { type: MappingType }) {
 function Icon({ mapping, fill }: { mapping: MappingType; fill: string }) {
   const { identify, type } = mapping;
 
-  if (identify && type === 'one-to-one')
+  if (identify && type === 'ONE-TO-ONE')
     return <IdentifyOneToOneIcon fill={fill} />;
-  if (identify && type === 'one-to-many')
+  if (identify && type === 'ONE-TO-MANY')
     return <IdentifyOneToManyIcon fill={fill} />;
-  if (identify && type === 'many-to-many')
+  if (identify && type === 'MANY-TO-MANY')
     return <IdentifyManyToManyIcon fill={fill} />;
-  if (!identify && type === 'one-to-one')
+  if (!identify && type === 'ONE-TO-ONE')
     return <NonIdentifyOneToOneIcon fill={fill} />;
-  if (!identify && type === 'one-to-many')
+  if (!identify && type === 'ONE-TO-MANY')
     return <NonIdentifyOneToManyIcon fill={fill} />;
-  if (!identify && type === 'many-to-many')
+  if (!identify && type === 'MANY-TO-MANY')
     return <NonIdentifyManyToManyIcon fill={fill} />;
 }
 

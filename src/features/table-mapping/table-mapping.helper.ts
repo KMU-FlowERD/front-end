@@ -21,7 +21,7 @@ export function getStartEndDirection(fromTable: ERDTable, toTable: ERDTable) {
 export function getStartEndPosition(
   fromTable: ERDTable,
   toTable: ERDTable,
-  tableDir: Map<ERDTable['id'], TableDirectionChild>,
+  tableDirection: Map<ERDTable['id'], TableDirectionChild>,
   relation: ERDRelation,
 ) {
   const { fromX, fromY, toX, toY } = calculateMiddlePosition(
@@ -57,7 +57,7 @@ export function getStartEndPosition(
   const lastFromPosition = getSortPosition(
     relation,
     fromDirection,
-    tableDir,
+    tableDirection,
     updatedFrom,
     fromTable,
     toTable,
@@ -65,7 +65,7 @@ export function getStartEndPosition(
   const lastToPosition = getSortPosition(
     relation,
     toDirection,
-    tableDir,
+    tableDirection,
     updatedTo,
     toTable,
     fromTable,
@@ -77,15 +77,15 @@ export function getStartEndPosition(
 function getSortPosition(
   relation: ERDRelation,
   direct: Direction,
-  tableDir: Map<ERDTable['id'], TableDirectionChild>,
+  tableDirection: Map<ERDTable['id'], TableDirectionChild>,
   pos: { x: number; y: number },
   fromTable: ERDTable,
   toTable: ERDTable,
 ) {
-  const directionOnTable = tableDir.get(fromTable.id);
+  const directionOnTable = tableDirection.get(fromTable.id);
 
   if (directionOnTable) {
-    const leftCnt = directionOnTable.get(direct)?.length;
+    const leftCount = directionOnTable.get(direct)?.length;
     const left = directionOnTable
       .get(direct)
       ?.findIndex(
@@ -93,21 +93,21 @@ function getSortPosition(
       );
 
     const size =
-      direct === 'left' || direct === 'right'
+      direct === 'LEFT' || direct === 'RIGHT'
         ? fromTable.height
         : fromTable.width;
 
-    if (leftCnt !== undefined && leftCnt > 0 && left !== undefined) {
-      if (direct === 'left' || direct === 'right') {
+    if (leftCount !== undefined && leftCount > 0 && left !== undefined) {
+      if (direct === 'LEFT' || direct === 'RIGHT') {
         const lastPos = {
           x: pos.x,
-          y: pos.y - size / 2 + (size / (leftCnt + 1)) * (left + 1),
+          y: pos.y - size / 2 + (size / (leftCount + 1)) * (left + 1),
         };
 
         return lastPos;
       }
       const lastPos = {
-        x: pos.x - size / 2 + (size / (leftCnt + 1)) * (left + 1),
+        x: pos.x - size / 2 + (size / (leftCount + 1)) * (left + 1),
         y: pos.y,
       };
 
@@ -125,20 +125,20 @@ export function getDrawLines(
   to: { x: number; y: number },
 ) {
   if (
-    (startDirection === 'top' && endDirection === 'bottom') ||
-    (startDirection === 'bottom' && endDirection === 'top')
+    (startDirection === 'TOP' && endDirection === 'BOTTOM') ||
+    (startDirection === 'BOTTOM' && endDirection === 'TOP')
   ) {
     return getVerticalDrawLines(from, to);
   }
   if (
-    (startDirection === 'top' && endDirection === 'bottom') ||
-    (startDirection === 'bottom' && endDirection === 'top')
+    (startDirection === 'TOP' && endDirection === 'BOTTOM') ||
+    (startDirection === 'BOTTOM' && endDirection === 'TOP')
   ) {
     return getVerticalDifferntDrawLines(from, to);
   }
   if (
-    (startDirection === 'left' && endDirection === 'right') ||
-    (startDirection === 'right' && endDirection === 'left')
+    (startDirection === 'LEFT' && endDirection === 'RIGHT') ||
+    (startDirection === 'RIGHT' && endDirection === 'LEFT')
   ) {
     return getHorizontalDrawLines(from, to);
   }
@@ -150,7 +150,7 @@ export function getDrawLinesMineMapping(
   from: { x: number; y: number },
   to: { x: number; y: number },
   minHeight: number,
-  mineMappingCnt?: number,
+  mineMappingCount?: number,
 ) {
   const drawLines: {
     fromX: number;
@@ -164,11 +164,19 @@ export function getDrawLinesMineMapping(
     { x: from.x + 40, y: from.y },
     {
       x: from.x + 40,
-      y: from.y + minHeight + 15 + (mineMappingCnt ? mineMappingCnt * 15 : 0),
+      y:
+        from.y +
+        minHeight +
+        15 +
+        (mineMappingCount ? mineMappingCount * 15 : 0),
     },
     {
       x: to.x,
-      y: from.y + minHeight + 15 + (mineMappingCnt ? mineMappingCnt * 15 : 0),
+      y:
+        from.y +
+        minHeight +
+        15 +
+        (mineMappingCount ? mineMappingCount * 15 : 0),
     },
     { x: to.x, y: to.y },
   ];
@@ -190,19 +198,19 @@ export function getStartIEOneLine(
   from: { x: number; y: number },
 ) {
   const startLine = {
-    left: [
+    LEFT: [
       { x: -5, y: -5 },
       { x: -5, y: +5 },
     ],
-    right: [
+    RIGHT: [
       { x: +5, y: -5 },
       { x: +5, y: +5 },
     ],
-    top: [
+    TOP: [
       { x: -5, y: -5 },
       { x: +5, y: -5 },
     ],
-    bottom: [
+    BOTTOM: [
       { x: -5, y: +5 },
       { x: +5, y: +5 },
     ],
@@ -223,19 +231,19 @@ export function getEndIEOneLine(
   to: { x: number; y: number },
 ) {
   const endLine = {
-    left: [
+    LEFT: [
       { x: -5, y: -5 },
       { x: -5, y: +5 },
     ],
-    right: [
+    RIGHT: [
       { x: +5, y: -5 },
       { x: +5, y: +5 },
     ],
-    top: [
+    TOP: [
       { x: -5, y: -5 },
       { x: +5, y: -5 },
     ],
-    bottom: [
+    BOTTOM: [
       { x: -5, y: +5 },
       { x: +5, y: +5 },
     ],
@@ -256,19 +264,19 @@ export function getStartIENotNullOneLine(
   from: { x: number; y: number },
 ) {
   const startLine = {
-    left: [
+    LEFT: [
       { x: -10, y: -5 },
       { x: -10, y: +5 },
     ],
-    right: [
+    RIGHT: [
       { x: +10, y: -5 },
       { x: +10, y: +5 },
     ],
-    top: [
+    TOP: [
       { x: -5, y: -10 },
       { x: +5, y: -10 },
     ],
-    bottom: [
+    BOTTOM: [
       { x: -5, y: +10 },
       { x: +5, y: +10 },
     ],
@@ -289,10 +297,10 @@ export function getStartIENullableCircle(
   from: { x: number; y: number },
 ) {
   const startCircle = {
-    left: { x: from.x - 13, y: from.y, radius: 3 },
-    right: { x: from.x + 13, y: from.y, radius: 3 },
-    top: { x: from.x, y: from.y - 13, radius: 3 },
-    bottom: { x: from.x, y: from.y + 13, radius: 3 },
+    LEFT: { x: from.x - 13, y: from.y, radius: 3 },
+    RIGHT: { x: from.x + 13, y: from.y, radius: 3 },
+    TOP: { x: from.x, y: from.y - 13, radius: 3 },
+    BOTTOM: { x: from.x, y: from.y + 13, radius: 3 },
   };
 
   return startCircle[startDirection];
@@ -303,22 +311,22 @@ export function getManyLines(
   to: { x: number; y: number },
 ) {
   const endLines = {
-    left: [
+    LEFT: [
       { x: 0, y: 5 },
       { x: -10, y: 0 },
       { x: 0, y: -5 },
     ],
-    right: [
+    RIGHT: [
       { x: 0, y: 5 },
       { x: 10, y: 0 },
       { x: 0, y: -5 },
     ],
-    top: [
+    TOP: [
       { x: 5, y: 0 },
       { x: 0, y: -10 },
       { x: -5, y: 0 },
     ],
-    bottom: [
+    BOTTOM: [
       { x: 5, y: 0 },
       { x: 0, y: 10 },
       { x: -5, y: 0 },
@@ -340,19 +348,19 @@ export function getEndIENotNullOneLine(
   to: { x: number; y: number },
 ) {
   const endLine = {
-    left: [
+    LEFT: [
       { x: -10, y: -5 },
       { x: -10, y: +5 },
     ],
-    right: [
+    RIGHT: [
       { x: +10, y: -5 },
       { x: +10, y: +5 },
     ],
-    top: [
+    TOP: [
       { x: -5, y: -10 },
       { x: +5, y: -10 },
     ],
-    bottom: [
+    BOTTOM: [
       { x: -5, y: +10 },
       { x: +5, y: +10 },
     ],
@@ -373,10 +381,10 @@ export function getEndIENullableCircle(
   to: { x: number; y: number },
 ) {
   const endCircle = {
-    left: { x: to.x - 13, y: to.y, radius: 3 },
-    right: { x: to.x + 13, y: to.y, radius: 3 },
-    top: { x: to.x, y: to.y - 13, radius: 3 },
-    bottom: { x: to.x, y: to.y + 13, radius: 3 },
+    LEFT: { x: to.x - 13, y: to.y, radius: 3 },
+    RIGHT: { x: to.x + 13, y: to.y, radius: 3 },
+    TOP: { x: to.x, y: to.y - 13, radius: 3 },
+    BOTTOM: { x: to.x, y: to.y + 13, radius: 3 },
   };
 
   return endCircle[endDirection];
@@ -387,16 +395,16 @@ export function getStartIDEFNullablePolygon(
   from: { x: number; y: number },
 ) {
   const startPolygon = {
-    left: {
+    LEFT: {
       positions: `${from.x},${from.y} ${from.x - 4},${from.y - 4} ${from.x - 8},${from.y} ${from.x - 4},${from.y + 4}`,
     },
-    right: {
+    RIGHT: {
       positions: `${from.x},${from.y} ${from.x + 4},${from.y - 4} ${from.x + 8},${from.y} ${from.x + 4},${from.y + 4}`,
     },
-    top: {
+    TOP: {
       positions: `${from.x},${from.y} ${from.x - 4},${from.y - 4} ${from.x},${from.y - 8} ${from.x + 4},${from.y - 4}`,
     },
-    bottom: {
+    BOTTOM: {
       positions: `${from.x},${from.y} ${from.x - 4},${from.y + 4} ${from.x},${from.y + 8} ${from.x + 4},${from.y + 4}`,
     },
   };
@@ -409,10 +417,10 @@ export function getEndIDEFCircle(
   to: { x: number; y: number },
 ) {
   const endCircle = {
-    left: { x: to.x - 4, y: to.y, radius: 4 },
-    right: { x: to.x + 4, y: to.y, radius: 4 },
-    top: { x: to.x, y: to.y - 4, radius: 4 },
-    bottom: { x: to.x, y: to.y + 4, radius: 4 },
+    LEFT: { x: to.x - 4, y: to.y, radius: 4 },
+    RIGHT: { x: to.x + 4, y: to.y, radius: 4 },
+    TOP: { x: to.x, y: to.y - 4, radius: 4 },
+    BOTTOM: { x: to.x, y: to.y + 4, radius: 4 },
   };
 
   return endCircle[endDirection];
@@ -586,8 +594,8 @@ function getDirection(
   let toDirection: Direction;
 
   if (mine) {
-    fromDirection = 'right';
-    toDirection = 'bottom';
+    fromDirection = 'RIGHT';
+    toDirection = 'BOTTOM';
     return { fromDirection, toDirection };
   }
 
@@ -596,17 +604,17 @@ function getDirection(
   const endAspect = toSize.height / toSize.width;
 
   if (angle <= 90) {
-    fromDirection = tanAngle < startAspect ? 'right' : 'top';
-    toDirection = tanAngle < endAspect ? 'left' : 'bottom';
+    fromDirection = tanAngle < startAspect ? 'RIGHT' : 'TOP';
+    toDirection = tanAngle < endAspect ? 'LEFT' : 'BOTTOM';
   } else if (angle <= 180) {
-    fromDirection = tanAngle > -startAspect ? 'left' : 'top';
-    toDirection = tanAngle > -endAspect ? 'right' : 'bottom';
+    fromDirection = tanAngle > -startAspect ? 'LEFT' : 'TOP';
+    toDirection = tanAngle > -endAspect ? 'RIGHT' : 'BOTTOM';
   } else if (angle <= 270) {
-    fromDirection = tanAngle < startAspect ? 'left' : 'bottom';
-    toDirection = tanAngle < endAspect ? 'right' : 'top';
+    fromDirection = tanAngle < startAspect ? 'LEFT' : 'BOTTOM';
+    toDirection = tanAngle < endAspect ? 'RIGHT' : 'TOP';
   } else {
-    fromDirection = tanAngle > -startAspect ? 'right' : 'bottom';
-    toDirection = tanAngle > -endAspect ? 'left' : 'top';
+    fromDirection = tanAngle > -startAspect ? 'RIGHT' : 'BOTTOM';
+    toDirection = tanAngle > -endAspect ? 'LEFT' : 'TOP';
   }
 
   return { fromDirection, toDirection };
@@ -642,16 +650,16 @@ function updatePosition(
   const update = { x: position.x, y: position.y };
 
   switch (direction) {
-    case 'right':
+    case 'RIGHT':
       update.x += size.width / 2;
       break;
-    case 'left':
+    case 'LEFT':
       update.x -= size.width / 2;
       break;
-    case 'top':
+    case 'TOP':
       update.y -= size.height / 2;
       break;
-    case 'bottom':
+    case 'BOTTOM':
       update.y += size.height / 2;
       break;
     default:

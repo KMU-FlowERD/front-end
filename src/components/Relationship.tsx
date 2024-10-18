@@ -6,6 +6,7 @@ import { ConnectLine } from './ConnectLine';
 
 import { ERDRelation, ERDTable } from '@/features/erd-project';
 import {
+  Direction,
   getStartEndDirection,
   TableDirectionChild,
 } from '@/features/table-mapping';
@@ -19,7 +20,7 @@ export function Relationship({
 }) {
   const relationDuplicate: ERDRelation[] = [];
 
-  const tableDir: Map<ERDTable['id'], TableDirectionChild> = new Map();
+  const tableDirection: Map<ERDTable['id'], TableDirectionChild> = new Map();
 
   const mineMapping: Map<ERDTable['id'], number> = new Map();
 
@@ -31,18 +32,32 @@ export function Relationship({
   });
 
   tables.forEach((table) => {
-    tableDir.set(
+    tableDirection.set(
       table.id,
       new Map([
-        ['left', []],
-        ['right', []],
-        ['top', []],
-        ['bottom', []],
+        ['LEFT', []],
+        ['RIGHT', []],
+        ['TOP', []],
+        ['BOTTOM', []],
       ]),
     );
 
     mineMapping.set(table.id, 0);
   });
+
+  const processDirection = (
+    table: ERDTable,
+    direction: Direction,
+    sortVal: number,
+    relatedTableID: ERDTable['id'],
+    relationID: ERDRelation['id'],
+  ) => {
+    tableDirection.get(table.id)?.get(direction)?.push({
+      sortVal,
+      tableID: relatedTableID,
+      relationID,
+    });
+  };
 
   relationDuplicate.forEach((relation) => {
     const fromTable = tables.find((t) => t.id === relation.from);
@@ -54,53 +69,36 @@ export function Relationship({
         toTable,
       );
 
-      if (fromDirection === 'left' || fromDirection === 'right') {
-        tableDir.get(fromTable.id)?.get(fromDirection)?.push({
-          sortVal: toTable.top,
-          tableID: toTable.id,
-          relationID: relation.id,
-        });
-      } else {
-        tableDir.get(fromTable.id)?.get(fromDirection)?.push({
-          sortVal: toTable.left,
-          tableID: toTable.id,
-          relationID: relation.id,
-        });
-      }
-
-      if (toDirection === 'left' || toDirection === 'right') {
-        tableDir.get(toTable.id)?.get(toDirection)?.push({
-          sortVal: fromTable.top,
-          tableID: fromTable.id,
-          relationID: relation.id,
-        });
-      } else {
-        tableDir.get(toTable.id)?.get(toDirection)?.push({
-          sortVal: fromTable.left,
-          tableID: fromTable.id,
-          relationID: relation.id,
-        });
-      }
+      processDirection(
+        fromTable,
+        fromDirection,
+        fromDirection === 'LEFT' || fromDirection === 'RIGHT'
+          ? toTable.top
+          : toTable.left,
+        toTable.id,
+        relation.id,
+      );
+      processDirection(
+        toTable,
+        toDirection,
+        toDirection === 'LEFT' || toDirection === 'RIGHT'
+          ? fromTable.top
+          : fromTable.left,
+        fromTable.id,
+        relation.id,
+      );
     }
   });
 
-  tableDir.keys().forEach((tableID) => {
-    tableDir
-      .get(tableID)
-      ?.get('top')
-      ?.sort((a, b) => a.sortVal - b.sortVal);
-    tableDir
-      .get(tableID)
-      ?.get('bottom')
-      ?.sort((a, b) => a.sortVal - b.sortVal);
-    tableDir
-      .get(tableID)
-      ?.get('left')
-      ?.sort((a, b) => a.sortVal - b.sortVal);
-    tableDir
-      .get(tableID)
-      ?.get('right')
-      ?.sort((a, b) => a.sortVal - b.sortVal);
+  const directions: Direction[] = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
+
+  directions.forEach((direction) => {
+    tableDirection.keys().forEach((tableID) =>
+      tableDirection
+        .get(tableID)
+        ?.get(direction)
+        ?.sort((a, b) => a.sortVal - b.sortVal),
+    );
   });
 
   return (
@@ -115,7 +113,7 @@ export function Relationship({
           key={Math.random().toString(36).slice(2)}
           tables={tables}
           relation={relation}
-          tableDir={tableDir}
+          tableDirection={tableDirection}
           mineMapping={mineMapping}
         />
       ))}

@@ -8,12 +8,12 @@ export function PointerIcon() {
   const cursor = useDrawToolsStore((state) => state.cursor);
   const setCursor = useDrawToolsStore((state) => state.setCursor);
 
-  const fill = cursor === 'pointer' ? '#ddd' : '#aaa';
+  const fill = cursor === 'POINTER' ? '#ddd' : '#aaa';
 
   return (
     <styles.container
       onClick={() => {
-        setCursor('pointer');
+        setCursor('POINTER');
       }}
     >
       <Icon fill={fill} />

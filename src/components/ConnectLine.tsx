@@ -23,21 +23,21 @@ import {
 interface ConnectLineProps {
   tables: ERDTable[];
   relation: ERDRelation;
-  tableDir: Map<ERDTable['id'], TableDirectionChild>;
+  tableDirection: Map<ERDTable['id'], TableDirectionChild>;
   mineMapping: Map<ERDTable['id'], number>;
 }
 
 export function ConnectLine({
   tables,
   relation,
-  tableDir,
+  tableDirection,
   mineMapping,
 }: ConnectLineProps) {
   return (
     <SvgComponent
       tables={tables}
       relation={relation}
-      tableDir={tableDir}
+      tableDirection={tableDirection}
       mineMapping={mineMapping}
     />
   );
@@ -46,7 +46,7 @@ export function ConnectLine({
 function SvgComponent({
   tables,
   relation,
-  tableDir,
+  tableDirection,
   mineMapping,
 }: ConnectLineProps) {
   const notation = useDrawToolsStore((state) => state.notation);
@@ -60,7 +60,7 @@ function SvgComponent({
     const navigateLines = [];
 
     const { fromDirection, toDirection, lastFromPosition, lastToPosition } =
-      getStartEndPosition(fromTable, toTable, tableDir, relation);
+      getStartEndPosition(fromTable, toTable, tableDirection, relation);
 
     if (fromTable.id !== toTable.id) {
       navigateLines.push(
@@ -72,9 +72,9 @@ function SvgComponent({
         ),
       );
     } else {
-      const mineMappingCnt = mineMapping.get(fromTable.id);
-      if (mineMappingCnt !== undefined)
-        mineMapping.set(fromTable.id, mineMappingCnt + 1);
+      const mineMappingCount = mineMapping.get(fromTable.id);
+      if (mineMappingCount !== undefined)
+        mineMapping.set(fromTable.id, mineMappingCount + 1);
 
       navigateLines.push(
         ...getDrawLinesMineMapping(
@@ -96,15 +96,15 @@ function SvgComponent({
     if (notation === 'IE') {
       drawLines.push(getStartIEOneLine(fromDirection, updatedFrom));
 
-      if (relation.type === 'one-to-many')
+      if (relation.type === 'ONE-TO-MANY')
         drawLines.push(...getManyLines(toDirection, updatedTo));
-      else if (relation.type === 'one-to-one')
+      else if (relation.type === 'ONE-TO-ONE')
         drawLines.push(getEndIEOneLine(toDirection, updatedTo));
 
       if (
         relation.multiplicity &&
         relation.multiplicity.to &&
-        relation.multiplicity.to === 'optional'
+        relation.multiplicity.to === 'OPTIONAL'
       ) {
         drawCircles.push(getStartIENullableCircle(fromDirection, updatedFrom));
       } else {
@@ -114,7 +114,7 @@ function SvgComponent({
       if (
         relation.multiplicity &&
         relation.multiplicity.from &&
-        relation.multiplicity.from === 'optional'
+        relation.multiplicity.from === 'OPTIONAL'
       ) {
         drawCircles.push(getEndIENullableCircle(toDirection, updatedTo));
       } else {
@@ -126,7 +126,7 @@ function SvgComponent({
       if (
         relation.multiplicity &&
         relation.multiplicity.from &&
-        relation.multiplicity.from === 'optional'
+        relation.multiplicity.from === 'OPTIONAL'
       ) {
         drawPolygons.push(
           getStartIDEFNullablePolygon(fromDirection, updatedFrom),
