@@ -46,7 +46,7 @@ function SvgComponent(
     const navigateLines = [];
 
     const { fromDirection, toDirection, lastFromPosition, lastToPosition } =
-      getStartEndPosition(fromTable, toTable, tableDir);
+      getStartEndPosition(fromTable, toTable, tableDir, relation);
 
     if (fromTable.id !== toTable.id) {
       navigateLines.push(
