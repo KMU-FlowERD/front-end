@@ -1,8 +1,10 @@
 'use client';
 
 import styled from '@emotion/styled';
+import { useRef, useState } from 'react';
 
 import { ConnectLine } from './ConnectLine';
+import { RelationshipMenu } from './RelationshipMenu';
 
 import { ERDRelation, ERDTable } from '@/features/erd-project';
 import {
@@ -92,30 +94,60 @@ export function Relationship({
     );
   });
 
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  const handleContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setContextMenu({ x: event.clientX, y: event.clientY });
+  };
+
+  const closeContextMenu = () => {
+    setContextMenu(null);
+  };
+
   return (
-    <styles.wrapper
-      width='100%'
-      height='100%'
-      version='1.1'
-      xmlns='http://www.w3.org/2000/svg'
-    >
-      {relationDuplicate.map((relation) => (
-        <ConnectLine
-          key={Math.random().toString(36).slice(2)}
-          tables={tables}
-          relation={relation}
-          tableDirection={tableDirection}
-          selfReferenceMapping={selfReferenceMapping}
+    <styles.display>
+      {contextMenu && (
+        <RelationshipMenu
+          position={contextMenu}
+          menuRef={menuRef}
+          onClose={closeContextMenu}
         />
-      ))}
-    </styles.wrapper>
+      )}
+      <styles.wrapper
+        width='100%'
+        height='100%'
+        version='1.1'
+        xmlns='http://www.w3.org/2000/svg'
+      >
+        {relationDuplicate.map((relation) => (
+          <ConnectLine
+            key={Math.random().toString(36).slice(2)}
+            tables={tables}
+            relation={relation}
+            tableDirection={tableDirection}
+            selfReferenceMapping={selfReferenceMapping}
+            handleContextMenu={handleContextMenu}
+          />
+        ))}
+      </styles.wrapper>
+    </styles.display>
   );
 }
 
 const styles = {
-  wrapper: styled.svg`
+  display: styled.div`
     width: 100%;
     height: 100%;
     position: absolute;
+  `,
+  wrapper: styled.svg`
+    width: 100%;
+    height: 100%;
   `,
 };

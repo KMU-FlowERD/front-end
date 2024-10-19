@@ -25,6 +25,7 @@ interface ConnectLineProps {
   relation: ERDRelation;
   tableDirection: Map<ERDTable['id'], TableDirectionChild>;
   selfReferenceMapping: Map<ERDTable['id'], number>;
+  handleContextMenu: (event: React.MouseEvent) => void;
 }
 
 export function ConnectLine({
@@ -32,6 +33,7 @@ export function ConnectLine({
   relation,
   tableDirection,
   selfReferenceMapping,
+  handleContextMenu,
 }: ConnectLineProps) {
   return (
     <SvgComponent
@@ -39,6 +41,7 @@ export function ConnectLine({
       relation={relation}
       tableDirection={tableDirection}
       selfReferenceMapping={selfReferenceMapping}
+      handleContextMenu={handleContextMenu}
     />
   );
 }
@@ -48,6 +51,7 @@ function SvgComponent({
   relation,
   tableDirection,
   selfReferenceMapping,
+  handleContextMenu,
 }: ConnectLineProps) {
   const notation = useDrawToolsStore((state) => state.notation);
 
@@ -145,6 +149,8 @@ function SvgComponent({
           stroke='#ededed'
           strokeWidth='1'
           strokeDasharray={relation.identify ? '0' : '5,5'}
+          style={{ cursor: 'pointer' }}
+          onContextMenu={handleContextMenu}
         />,
       );
     });
@@ -159,6 +165,7 @@ function SvgComponent({
           y2={line.toY}
           stroke='#ededed'
           strokeWidth='1'
+          style={{ cursor: 'pointer' }}
         />,
       );
     });
@@ -172,6 +179,7 @@ function SvgComponent({
           cy={circle.y}
           stroke='#ededed'
           strokeWidth='1'
+          style={{ cursor: 'pointer' }}
         />,
       );
     });
@@ -184,6 +192,7 @@ function SvgComponent({
           stroke='#ededed'
           strokeWidth='1'
           fill='#2f2f2f'
+          style={{ cursor: 'pointer' }}
         />,
       );
     });
