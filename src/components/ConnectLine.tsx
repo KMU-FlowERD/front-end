@@ -149,6 +149,19 @@ function SvgComponent({
           stroke='#ededed'
           strokeWidth='1'
           strokeDasharray={relation.identify ? '0' : '5,5'}
+        />,
+      );
+
+      // 이벤트용 투명 선
+      lines.push(
+        <line
+          key={Math.random().toString(36).slice(2)}
+          x1={line.fromX}
+          y1={line.fromY}
+          x2={line.toX}
+          y2={line.toY}
+          stroke='transparent'
+          strokeWidth='10'
           style={{ cursor: 'pointer' }}
           onContextMenu={handleContextMenu}
         />,
@@ -165,7 +178,6 @@ function SvgComponent({
           y2={line.toY}
           stroke='#ededed'
           strokeWidth='1'
-          style={{ cursor: 'pointer' }}
         />,
       );
     });
@@ -179,7 +191,6 @@ function SvgComponent({
           cy={circle.y}
           stroke='#ededed'
           strokeWidth='1'
-          style={{ cursor: 'pointer' }}
         />,
       );
     });
@@ -192,7 +203,6 @@ function SvgComponent({
           stroke='#ededed'
           strokeWidth='1'
           fill='#2f2f2f'
-          style={{ cursor: 'pointer' }}
         />,
       );
     });

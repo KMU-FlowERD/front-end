@@ -1,7 +1,7 @@
 'use client';
 
 import styled from '@emotion/styled';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { ConnectLine } from './ConnectLine';
 import { RelationshipMenu } from './RelationshipMenu';
@@ -13,18 +13,32 @@ import {
   TableDirectionChild,
 } from '@/features/table-mapping';
 
+interface RelationshipProps {
+  tables: ERDTable[];
+  relations: Record<ERDTable['id'], ERDRelation[]>;
+  deleteRelation: (relation: ERDRelation) => void;
+  updateRelation: (relation: ERDRelation) => void;
+}
+
 export function Relationship({
   tables,
   relations,
-}: {
-  tables: ERDTable[];
-  relations: Record<ERDTable['id'], ERDRelation[]>;
-}) {
+  deleteRelation,
+  updateRelation,
+}: RelationshipProps) {
   const relationDuplicate: ERDRelation[] = [];
 
   const tableDirection: Map<ERDTable['id'], TableDirectionChild> = new Map();
 
   const selfReferenceMapping: Map<ERDTable['id'], number> = new Map();
+
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+  const [lastRelation, setLastRelation] = useState<ERDRelation | null>(null);
+
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   tables.forEach((table) => {
     relations[table.id]?.forEach((relation) => {
@@ -94,21 +108,37 @@ export function Relationship({
     );
   });
 
-  const [contextMenu, setContextMenu] = useState<{
-    x: number;
-    y: number;
-  } | null>(null);
-
-  const menuRef = useRef<HTMLDivElement | null>(null);
-
-  const handleContextMenu = (event: React.MouseEvent) => {
+  const handleContextMenu = (
+    event: React.MouseEvent,
+    relation: ERDRelation,
+  ) => {
     event.preventDefault();
     setContextMenu({ x: event.clientX, y: event.clientY });
+    setLastRelation(relation);
   };
 
   const closeContextMenu = () => {
     setContextMenu(null);
+    setLastRelation(null);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) {
+        closeContextMenu();
+      }
+    };
+
+    if (contextMenu) {
+      window.addEventListener('mousedown', handleClickOutside);
+    } else {
+      window.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      window.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [contextMenu]);
 
   return (
     <styles.display>
@@ -116,7 +146,10 @@ export function Relationship({
         <RelationshipMenu
           position={contextMenu}
           menuRef={menuRef}
+          relation={lastRelation}
           onClose={closeContextMenu}
+          updateRelation={updateRelation}
+          deleteRelation={deleteRelation}
         />
       )}
       <styles.wrapper
@@ -132,7 +165,7 @@ export function Relationship({
             relation={relation}
             tableDirection={tableDirection}
             selfReferenceMapping={selfReferenceMapping}
-            handleContextMenu={handleContextMenu}
+            handleContextMenu={(e) => handleContextMenu(e, relation)}
           />
         ))}
       </styles.wrapper>

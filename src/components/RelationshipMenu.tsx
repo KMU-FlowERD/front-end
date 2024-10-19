@@ -1,27 +1,64 @@
 import styled from '@emotion/styled';
 import { MutableRefObject } from 'react';
 
+import { ERDRelation } from '@/features/erd-project';
+
 interface RelationshipMenuProps {
   position: { x: number; y: number };
   menuRef: MutableRefObject<HTMLDivElement | null>;
-  // deleteRelation: (relation: ERDRelation) => void;
-  // updateRelation: (relation: ERDRelation) => void;
+  relation: ERDRelation | null;
+  deleteRelation: (relation: ERDRelation) => void;
+  updateRelation: (relation: ERDRelation) => void;
   onClose: () => void;
 }
 
 export function RelationshipMenu({
   position,
   menuRef,
-  // deleteRelation,
-  // updateRelation,
+  relation,
+  deleteRelation,
+  updateRelation,
   onClose,
 }: RelationshipMenuProps) {
+  const fromMultiplicity =
+    relation &&
+    relation.multiplicity &&
+    relation.multiplicity.from &&
+    relation.multiplicity.from === 'OPTIONAL'
+      ? 'MANDATORY'
+      : 'OPTIONAL';
+
+  const toMultiplicity =
+    relation &&
+    relation.multiplicity &&
+    relation.multiplicity.to &&
+    relation.multiplicity.to === 'OPTIONAL'
+      ? 'MANDATORY'
+      : 'OPTIONAL';
+
   const handleMenuItemClick = (
-    action: 'delete' | 'add/pk' | 'add' | 'edit',
+    action: 'delete' | 'fromNullable' | 'toNullable',
   ) => {
-    switch (action) {
-      default:
-        break;
+    if (relation) {
+      switch (action) {
+        case 'delete':
+          deleteRelation(relation);
+          break;
+        case 'fromNullable':
+          updateRelation({
+            ...relation,
+            multiplicity: { ...relation.multiplicity, from: fromMultiplicity },
+          });
+          break;
+        case 'toNullable':
+          updateRelation({
+            ...relation,
+            multiplicity: { ...relation.multiplicity, to: toMultiplicity },
+          });
+          break;
+        default:
+          break;
+      }
     }
 
     onClose();
@@ -32,11 +69,11 @@ export function RelationshipMenu({
       <styles.menuItem onClick={() => handleMenuItemClick('delete')}>
         관계 삭제
       </styles.menuItem>
-      <styles.menuItem onClick={() => handleMenuItemClick('add/pk')}>
-        부모 null 허용
+      <styles.menuItem onClick={() => handleMenuItemClick('fromNullable')}>
+        {fromMultiplicity === 'MANDATORY' ? '✔️' : ''}부모 null 허용
       </styles.menuItem>
-      <styles.menuItem onClick={() => handleMenuItemClick('add')}>
-        자식 null 허용
+      <styles.menuItem onClick={() => handleMenuItemClick('toNullable')}>
+        {toMultiplicity === 'MANDATORY' ? '✔️' : ''}자식 null 허용
       </styles.menuItem>
     </styles.menu>
   );
