@@ -31,7 +31,7 @@ export function Relationship({
   const tableDirection: Map<ERDTable['id'], TableDirectionChild> = new Map();
 
   const selfReferenceMapping: Map<ERDTable['id'], number> = new Map();
-
+  
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
