@@ -25,6 +25,7 @@ interface ConnectLineProps {
   relation: ERDRelation;
   tableDirection: Map<ERDTable['id'], TableDirectionChild>;
   selfReferenceMapping: Map<ERDTable['id'], number>;
+  handleContextMenu: (event: React.MouseEvent) => void;
 }
 
 export function ConnectLine({
@@ -32,6 +33,7 @@ export function ConnectLine({
   relation,
   tableDirection,
   selfReferenceMapping,
+  handleContextMenu,
 }: ConnectLineProps) {
   return (
     <SvgComponent
@@ -39,6 +41,7 @@ export function ConnectLine({
       relation={relation}
       tableDirection={tableDirection}
       selfReferenceMapping={selfReferenceMapping}
+      handleContextMenu={handleContextMenu}
     />
   );
 }
@@ -48,6 +51,7 @@ function SvgComponent({
   relation,
   tableDirection,
   selfReferenceMapping,
+  handleContextMenu,
 }: ConnectLineProps) {
   const notation = useDrawToolsStore((state) => state.notation);
 
@@ -145,6 +149,21 @@ function SvgComponent({
           stroke='#ededed'
           strokeWidth='1'
           strokeDasharray={relation.identify ? '0' : '5,5'}
+        />,
+      );
+
+      // 이벤트용 투명 선
+      lines.push(
+        <line
+          key={Math.random().toString(36).slice(2)}
+          x1={line.fromX}
+          y1={line.fromY}
+          x2={line.toX}
+          y2={line.toY}
+          stroke='transparent'
+          strokeWidth='10'
+          style={{ cursor: 'pointer' }}
+          onContextMenu={handleContextMenu}
         />,
       );
     });

@@ -25,6 +25,8 @@ export function ErdProjectPage() {
   const updateTable = useStore(store, (state) => state.updateTable);
 
   const createRelation = useStore(store, (state) => state.createRelation);
+  const deleteRelation = useStore(store, (state) => state.deleteRelation);
+  const updateRelation = useStore(store, (state) => state.updateRelation);
 
   const createColumn = useStore(store, (state) => state.createColumn);
   const deleteColumn = useStore(store, (state) => state.deleteColumn);
@@ -88,7 +90,12 @@ export function ErdProjectPage() {
 
   return (
     <styles.displayWrapper onClick={displayClicked}>
-      <Relationship tables={tables} relations={relations} />
+      <Relationship
+        tables={tables}
+        relations={relations}
+        deleteRelation={deleteRelation}
+        updateRelation={updateRelation}
+      />
       <styles.container>
         <TableInformation />
         <ErdDrawTools />
