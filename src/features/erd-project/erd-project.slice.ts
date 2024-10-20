@@ -28,8 +28,8 @@ export interface ERDRelation {
   to: ERDTable['id'];
   type?: 'ONE-TO-ONE' | 'ONE-TO-MANY';
   identify: boolean;
-  multiplicity?: {
-    from: 'OPTIONAL' | 'MANDATORY';
+  multiplicity: {
+    from?: 'OPTIONAL' | 'MANDATORY';
     to: 'OPTIONAL' | 'MANDATORY';
   };
 }
