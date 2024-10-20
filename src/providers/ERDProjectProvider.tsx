@@ -1,8 +1,9 @@
 'use client';
 
 import { createContext, PropsWithChildren, useContext, useRef } from 'react';
+import { useStore } from 'zustand';
 
-import { createERDProjectStore } from '@/features/erd-project';
+import { createERDProjectStore, ERDProjectStore } from '@/features/erd-project';
 
 export type ERDProjectStoreAPI = ReturnType<typeof createERDProjectStore>;
 
@@ -25,7 +26,9 @@ export function ERDProjectProvider({ children }: ERDProjectProviderProps) {
   );
 }
 
-export const useERDProjectStore = () => {
+export const useERDProjectStore = <T,>(
+  selector: (store: ERDProjectStore) => T,
+): T => {
   const store = useContext(ERDProjectContext);
 
   if (!store) {
@@ -33,6 +36,6 @@ export const useERDProjectStore = () => {
       'useERDProjectStore must be used within a ERDProjectProvider',
     );
   }
-  
-  return store;
+
+  return useStore(store, selector);
 };
