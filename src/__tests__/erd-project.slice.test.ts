@@ -245,6 +245,252 @@ describe('ERD Project Store', () => {
       expect(updatedColumn2!.name).toBe('test-name');
     });
 
+    test('테이블2의 FK인 컬럼이 nullable로 변경되면, 테이블1과의 관계의 참여 정보가 부분참여로 변경되어야합니다.', () => {
+      const store = createERDProjectStore();
+      store.getState().createTable(table1);
+      store.getState().createTable(table2);
+      store.getState().createColumn(table1, true);
+      store.getState().createRelation({
+        ...relation,
+        identify: false,
+        multiplicity: {
+          from: 'optional',
+          to: 'mandatory',
+        },
+      });
+
+      const targetColumn = store
+        .getState()
+        .tables.find((t) => t.id === table2.id)?.columns[0];
+
+      expect(targetColumn).not.toBeUndefined();
+      expect(targetColumn!.nullable).toBe(false);
+
+      store
+        .getState()
+        .updateColumn(table2, { ...targetColumn!, nullable: true });
+
+      const targetRelation = store
+        .getState()
+        .relations[table2.id].find((rel) => rel.id === relation.id);
+
+      expect(targetRelation).not.toBeUndefined();
+      expect(targetRelation!.multiplicity!.to).toBe('optional');
+    });
+
+    test('테이블2의 FK인 컬럼이 nullable에서 non-null로 변경되면, 테이블1과의 관계의 참여 정보가 전체참여로 변경되어야합니다.', () => {
+      const store = createERDProjectStore();
+      store.getState().createTable(table1);
+      store.getState().createTable(table2);
+      store.getState().createColumn(table1, true);
+      store.getState().createRelation({
+        ...relation,
+        identify: false,
+        multiplicity: {
+          from: 'optional',
+          to: 'mandatory',
+        },
+      });
+
+      const targetColumn = store
+        .getState()
+        .tables.find((t) => t.id === table2.id)?.columns[0];
+
+      store
+        .getState()
+        .updateColumn(table2, { ...targetColumn!, nullable: true });
+
+      const updatedColumn = store
+        .getState()
+        .tables.find((t) => t.id === table2.id)?.columns[0];
+
+      expect(updatedColumn).not.toBeUndefined();
+      expect(updatedColumn!.nullable).toBe(true);
+
+      store
+        .getState()
+        .updateColumn(table2, { ...updatedColumn!, nullable: false });
+
+      const targetRelation = store
+        .getState()
+        .relations[table2.id].find((rel) => rel.id === relation.id);
+
+      expect(targetRelation).not.toBeUndefined();
+      expect(targetRelation!.multiplicity!.to).toBe('mandatory');
+    });
+
+    test('테이블2의 FK인 컬럼이 여러 개이고, 이 중 모두가 nullable로 변경되면, 테이블1과의 관계의 참여 정보가 부분참여로 변경되어야합니다.', () => {
+      const store = createERDProjectStore();
+      store.getState().createTable(table1);
+      store.getState().createTable(table2);
+      store.getState().createColumn(table1, true);
+      store.getState().createColumn(table1, true);
+      store.getState().createRelation({
+        ...relation,
+        identify: false,
+        multiplicity: {
+          from: 'optional',
+          to: 'mandatory',
+        },
+      });
+
+      const targetColumns = store
+        .getState()
+        .tables.find((t) => t.id === table2.id)
+        ?.columns.filter((col) => col.keyType === 'fk');
+
+      expect(targetColumns).not.toBeUndefined();
+      targetColumns?.forEach((col) => {
+        expect(col.nullable).toBe(false);
+      });
+
+      targetColumns?.forEach((col) => {
+        store.getState().updateColumn(table2, { ...col, nullable: true });
+      });
+
+      const targetRelation = store
+        .getState()
+        .relations[table2.id].find((rel) => rel.id === relation.id);
+
+      expect(targetRelation).not.toBeUndefined();
+      expect(targetRelation!.multiplicity!.to).toBe('optional');
+    });
+
+    test('테이블2의 FK인 컬럼이 여러 개이고, 이 중 하나만 nullable로 변경되면, 테이블1과의 관계의 참여 정보가 변경되지 않아야 합니다.', () => {
+      const store = createERDProjectStore();
+      store.getState().createTable(table1);
+      store.getState().createTable(table2);
+      store.getState().createColumn(table1, true);
+      store.getState().createColumn(table1, true);
+      store.getState().createRelation({
+        ...relation,
+        identify: false,
+        multiplicity: {
+          from: 'optional',
+          to: 'mandatory',
+        },
+      });
+
+      const targetColumns = store
+        .getState()
+        .tables.find((t) => t.id === table2.id)
+        ?.columns.filter((col) => col.keyType === 'fk');
+
+      expect(targetColumns).not.toBeUndefined();
+      targetColumns?.forEach((col) => {
+        expect(col.nullable).toBe(false);
+      });
+
+      targetColumns?.forEach((col, index) => {
+        if (index > 0) return;
+        store.getState().updateColumn(table2, { ...col, nullable: true });
+      });
+
+      const targetRelation = store
+        .getState()
+        .relations[table2.id].find((rel) => rel.id === relation.id);
+
+      expect(targetRelation).not.toBeUndefined();
+      expect(targetRelation!.multiplicity!.to).toBe('mandatory');
+    });
+
+    test('테이블2의 FK인 컬럼이 여러 개이고, 이 중 모두가 non-null로 변겯되면, 테이블1과의 관계의 참여 정보가 전체참여로 변경되어야합니다.', () => {
+      const store = createERDProjectStore();
+      store.getState().createTable(table1);
+      store.getState().createTable(table2);
+      store.getState().createColumn(table1, true);
+      store.getState().createColumn(table1, true);
+      store.getState().createRelation({
+        ...relation,
+        identify: false,
+        multiplicity: {
+          from: 'optional',
+          to: 'mandatory',
+        },
+      });
+
+      const targetColumns = store
+        .getState()
+        .tables.find((t) => t.id === table2.id)
+        ?.columns.filter((col) => col.keyType === 'fk');
+
+      expect(targetColumns).not.toBeUndefined();
+      targetColumns?.forEach((col) => {
+        expect(col.nullable).toBe(false);
+      });
+
+      targetColumns?.forEach((col) => {
+        store.getState().updateColumn(table2, { ...col, nullable: true });
+      });
+
+      const targetRelation = store
+        .getState()
+        .relations[table2.id].find((rel) => rel.id === relation.id);
+
+      expect(targetRelation).not.toBeUndefined();
+      expect(targetRelation!.multiplicity!.to).toBe('optional');
+
+      targetColumns?.forEach((col) => {
+        store.getState().updateColumn(table2, { ...col, nullable: false });
+      });
+
+      const updatedRelation = store
+        .getState()
+        .relations[table2.id].find((rel) => rel.id === relation.id);
+
+      expect(updatedRelation).not.toBeUndefined();
+      expect(updatedRelation!.multiplicity!.to).toBe('mandatory');
+    });
+
+    test('테이블2의 FK인 컬럼이 여러 개이고, 이 중 하나만 non-null로 변경되면, 테이블1과의 관계의 참여 정보가 전체참여로 유지되어야 합니다.', () => {
+      const store = createERDProjectStore();
+      store.getState().createTable(table1);
+      store.getState().createTable(table2);
+      store.getState().createColumn(table1, true);
+      store.getState().createColumn(table1, true);
+      store.getState().createRelation({
+        ...relation,
+        identify: false,
+        multiplicity: {
+          from: 'optional',
+          to: 'mandatory',
+        },
+      });
+
+      const targetColumns = store
+        .getState()
+        .tables.find((t) => t.id === table2.id)
+        ?.columns.filter((col) => col.keyType === 'fk');
+
+      expect(targetColumns).not.toBeUndefined();
+      targetColumns?.forEach((col) => {
+        expect(col.nullable).toBe(false);
+      });
+
+      targetColumns?.forEach((col) => {
+        store.getState().updateColumn(table2, { ...col, nullable: true });
+      });
+
+      const targetRelation = store
+        .getState()
+        .relations[table2.id].find((rel) => rel.id === relation.id);
+
+      expect(targetRelation).not.toBeUndefined();
+      expect(targetRelation!.multiplicity!.to).toBe('optional');
+
+      targetColumns?.forEach((col, index) => {
+        if (index > 0) return;
+        store.getState().updateColumn(table2, { ...col, nullable: false });
+      });
+
+      const updatedRelation = store
+        .getState()
+        .relations[table2.id].find((rel) => rel.id === relation.id);
+
+      expect(updatedRelation).not.toBeUndefined();
+      expect(updatedRelation!.multiplicity!.to).toBe('mandatory');
+    });
+
     test('컬럼을 삭제합니다.', () => {
       const store = createERDProjectStore();
       store.getState().createTable(table1);
