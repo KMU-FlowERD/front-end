@@ -18,7 +18,7 @@ import {
   getStartIENullableCircle,
   getStartIEOneLine,
   TableDirectionChild,
-} from '@/features/table-mapping';
+} from '@/features/mapping';
 
 interface ConnectLineProps {
   tables: ERDTable[];

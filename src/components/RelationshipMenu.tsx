@@ -40,28 +40,29 @@ export function RelationshipMenu({
     action: 'delete' | 'fromNullable' | 'toNullable',
   ) => {
     if (relation) {
-      switch (action) {
-        case 'delete':
-          deleteRelation(relation);
-          break;
-        case 'fromNullable':
-          updateRelation({
-            ...relation,
-            multiplicity: { ...relation.multiplicity, from: fromMultiplicity },
-          });
-          break;
-        case 'toNullable':
-          updateRelation({
-            ...relation,
-            multiplicity: { ...relation.multiplicity, to: toMultiplicity },
-          });
-          break;
-        default:
-          break;
+      if (action === 'delete') {
+        deleteRelation(relation);
+        onClose();
+        return;
+      }
+
+      if (action === 'fromNullable') {
+        updateRelation({
+          ...relation,
+          multiplicity: { ...relation.multiplicity, from: fromMultiplicity },
+        });
+        onClose();
+        return;
+      }
+
+      if (action === 'toNullable') {
+        updateRelation({
+          ...relation,
+          multiplicity: { ...relation.multiplicity, to: toMultiplicity },
+        });
+        onClose();
       }
     }
-
-    onClose();
   };
 
   return (
