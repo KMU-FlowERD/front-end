@@ -394,7 +394,7 @@ describe('ERD Project Store', () => {
       expect(targetRelation!.multiplicity!.to).toBe('mandatory');
     });
 
-    test('테이블2의 FK인 컬럼이 여러 개이고, 이 중 모두가 non-null로 변겯되면, 테이블1과의 관계의 참여 정보가 전체참여로 변경되어야합니다.', () => {
+    test('테이블2의 FK인 컬럼이 여러 개이고, 이 중 모두가 non-null로 변경되면, 테이블1과의 관계의 참여 정보가 전체참여로 변경되어야합니다.', () => {
       const store = createERDProjectStore();
       store.getState().createTable(table1);
       store.getState().createTable(table2);
