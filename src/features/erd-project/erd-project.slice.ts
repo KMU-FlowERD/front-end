@@ -240,8 +240,15 @@ export const createERDProjectStore = (
               const toTable = state.tables.find((t) => t.id === rel.to);
               if (!toTable) return;
 
+              const fromTable = state.tables.find((t) => t.id === rel.from);
+              if (!fromTable) return;
+
               const allFKsNullable = toTable.columns
                 .filter((col) => col.keyType === 'fk')
+                .filter(
+                  (col) =>
+                    fromTable.columns.find((c) => c.id === col.id) !== null,
+                )
                 .every((col) => col.nullable);
 
               if (allFKsNullable) {
