@@ -234,6 +234,33 @@ export const createERDProjectStore = (
           };
 
           dfs(targetTable);
+
+          if (column.keyType === 'fk') {
+            const updateRelationMultiplicity = (rel: ERDRelation) => {
+              const toTable = state.tables.find((t) => t.id === rel.to);
+              if (!toTable) return;
+
+              const allFKsNullable = toTable.columns
+                .filter((col) => col.keyType === 'fk')
+                .every((col) => col.nullable);
+
+              if (allFKsNullable) {
+                rel.multiplicity = {
+                  ...rel.multiplicity,
+                  to: 'optional',
+                };
+              } else {
+                rel.multiplicity = {
+                  ...rel.multiplicity,
+                  to: 'mandatory',
+                };
+              }
+            };
+
+            state.relations[targetTable.id]?.forEach(
+              updateRelationMultiplicity,
+            );
+          }
         }),
 
       deleteColumn: (table, column) =>
