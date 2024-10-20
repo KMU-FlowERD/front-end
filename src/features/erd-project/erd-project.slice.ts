@@ -26,11 +26,11 @@ export interface ERDRelation {
   id: string;
   from: ERDTable['id'];
   to: ERDTable['id'];
-  type: 'ONE-TO-ONE' | 'ONE-TO-MANY';
+  type?: 'ONE-TO-ONE' | 'ONE-TO-MANY';
   identify: boolean;
   multiplicity?: {
-    from?: 'OPTIONAL' | 'MANDATORY';
-    to?: 'OPTIONAL' | 'MANDATORY';
+    from: 'OPTIONAL' | 'MANDATORY';
+    to: 'OPTIONAL' | 'MANDATORY';
   };
 }
 
