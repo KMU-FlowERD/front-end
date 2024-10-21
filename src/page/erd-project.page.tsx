@@ -75,6 +75,9 @@ export function ErdProjectPage() {
           to: table.id,
           type: mapping.type,
           identify: lastTable.id === table.id ? false : mapping.identify,
+          multiplicity: {
+            to: 'MANDATORY',
+          },
         });
         setLastTable(undefined);
         setMapping(undefined);

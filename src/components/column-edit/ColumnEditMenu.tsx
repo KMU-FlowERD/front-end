@@ -25,9 +25,9 @@ export function ColumnEditMenu({
   deleteColumn: (table: ERDTable, column: ERDColumn) => void;
   updateTable: (table: ERDTable) => void;
 }) {
-  const pkColumns = tableColumns.filter((val) => val.keyType === 'pk');
-  const pkfkColumns = tableColumns.filter((val) => val.keyType === 'pk/fk');
-  const fkColumns = tableColumns.filter((val) => val.keyType === 'fk');
+  const pkColumns = tableColumns.filter((val) => val.keyType === 'PK');
+  const pkfkColumns = tableColumns.filter((val) => val.keyType === 'PK/FK');
+  const fkColumns = tableColumns.filter((val) => val.keyType === 'FK');
   const columns = tableColumns.filter((val) => val.keyType === undefined);
 
   const enterTitleEdit = (
