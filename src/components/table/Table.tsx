@@ -1,7 +1,7 @@
 'use client';
 
 import styled from '@emotion/styled';
-import { useRef, useState, useEffect, useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { Columns } from './Columns';
 import { TableMenu } from './TableMenu';
@@ -45,9 +45,9 @@ export function Table({
   const [menuOpen, setMenuOpen] = useState(false);
   const [isEditingColumns, setIsEditingColumns] = useState(false);
 
-  const pkColumns = table.columns.filter((val) => val.keyType === 'pk');
-  const pkfkColumns = table.columns.filter((val) => val.keyType === 'pk/fk');
-  const fkColumns = table.columns.filter((val) => val.keyType === 'fk');
+  const pkColumns = table.columns.filter((val) => val.keyType === 'PK');
+  const pkfkColumns = table.columns.filter((val) => val.keyType === 'PK/FK');
+  const fkColumns = table.columns.filter((val) => val.keyType === 'FK');
   const columns = table.columns.filter((val) => val.keyType === undefined);
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -76,7 +76,7 @@ export function Table({
         });
       }
     }
-  }, [boxRef.current?.getBoundingClientRect()]);
+  }, [table, updateTable]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -192,10 +192,8 @@ const styles = {
     gap: 5px;
     min-width: 50px;
     min-height: 30px;
-    display: inline-flex;
     border: 0.5px solid #606060;
     background: rgba(34, 34, 34, 0.7);
-    flex-direction: column;
     padding: 10px;
     cursor: pointer;
 
@@ -211,7 +209,7 @@ const styles = {
     justify-items: start;
     margin-right: 10px;
     width: 100%;
-    left: 0px;
+    left: 0;
     top: -20px;
   `,
 
