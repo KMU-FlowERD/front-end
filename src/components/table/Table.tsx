@@ -1,7 +1,7 @@
 'use client';
 
 import styled from '@emotion/styled';
-import { useRef, useState, useEffect, useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { Columns } from './Columns';
 import { TableMenu } from './TableMenu';
@@ -176,10 +176,8 @@ const styles = {
     gap: 5px;
     min-width: 50px;
     min-height: 30px;
-    display: inline-flex;
     border: 0.5px solid #606060;
     background: rgba(34, 34, 34, 0.7);
-    flex-direction: column;
     padding: 10px;
     cursor: pointer;
 
@@ -195,7 +193,7 @@ const styles = {
     justify-items: start;
     margin-right: 10px;
     width: 100%;
-    left: 0px;
+    left: 0;
     top: -20px;
   `,
 
