@@ -12,7 +12,7 @@ export function Sidebar() {
       <styles.userInformation>
         <styles.userName>John Doe</styles.userName>
         <styles.userDescription>Frontend Developer</styles.userDescription>
-        <styles.settingLink href='/user/setting'>설정</styles.settingLink>
+        <styles.settingLink href='/setting'>설정</styles.settingLink>
       </styles.userInformation>
     </styles.container>
   );

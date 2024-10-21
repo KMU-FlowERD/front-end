@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import Link from 'next/link';
 
 export const styles = {
   container: styled.div`
@@ -22,7 +23,7 @@ export const styles = {
 
     border-radius: 10.9375rem;
     border: 1px solid #000;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
 
     overflow: hidden;
 
@@ -44,7 +45,7 @@ export const styles = {
 
   userName: styled.p`
     color: #ededed;
-    font-family: Pretendard;
+    font-family: Pretendard, sans-serif;
     font-size: 1.25rem;
     font-style: normal;
     font-weight: 700;
@@ -53,19 +54,19 @@ export const styles = {
 
   userDescription: styled.p`
     color: #dedede;
-    font-family: Pretendard;
+    font-family: Pretendard, sans-serif;
     font-size: 1rem;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
   `,
 
-  settingLink: styled.a`
+  settingLink: styled(Link)`
     all: unset;
     cursor: pointer;
 
     color: #aaa;
-    font-family: Pretendard;
+    font-family: Pretendard, sans-serif;
     font-size: 0.75rem;
     font-style: normal;
     font-weight: 400;
