@@ -33,6 +33,9 @@ describe('ERD Project Store', () => {
     to: 'table2',
     type: 'ONE-TO-ONE',
     identify: true,
+    multiplicity: {
+      to: 'MANDATORY',
+    },
   };
 
   describe('프로젝트 관련 액션', () => {
@@ -254,8 +257,8 @@ describe('ERD Project Store', () => {
         ...relation,
         identify: false,
         multiplicity: {
-          from: 'optional',
-          to: 'mandatory',
+          from: 'OPTIONAL',
+          to: 'MANDATORY',
         },
       });
 
@@ -275,7 +278,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(targetRelation).not.toBeUndefined();
-      expect(targetRelation!.multiplicity!.to).toBe('optional');
+      expect(targetRelation!.multiplicity!.to).toBe('OPTIONAL');
     });
 
     test('테이블2의 FK인 컬럼이 nullable에서 non-null로 변경되면, 테이블1과의 관계의 참여 정보가 전체참여로 변경되어야합니다.', () => {
@@ -287,8 +290,8 @@ describe('ERD Project Store', () => {
         ...relation,
         identify: false,
         multiplicity: {
-          from: 'optional',
-          to: 'mandatory',
+          from: 'OPTIONAL',
+          to: 'MANDATORY',
         },
       });
 
@@ -316,7 +319,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(targetRelation).not.toBeUndefined();
-      expect(targetRelation!.multiplicity!.to).toBe('mandatory');
+      expect(targetRelation!.multiplicity!.to).toBe('MANDATORY');
     });
 
     test('테이블2의 FK인 컬럼이 여러 개이고, 이 중 모두가 nullable로 변경되면, 테이블1과의 관계의 참여 정보가 부분참여로 변경되어야합니다.', () => {
@@ -329,15 +332,15 @@ describe('ERD Project Store', () => {
         ...relation,
         identify: false,
         multiplicity: {
-          from: 'optional',
-          to: 'mandatory',
+          from: 'OPTIONAL',
+          to: 'MANDATORY',
         },
       });
 
       const targetColumns = store
         .getState()
         .tables.find((t) => t.id === table2.id)
-        ?.columns.filter((col) => col.keyType === 'fk');
+        ?.columns.filter((col) => col.keyType === 'FK');
 
       expect(targetColumns).not.toBeUndefined();
       targetColumns?.forEach((col) => {
@@ -353,7 +356,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(targetRelation).not.toBeUndefined();
-      expect(targetRelation!.multiplicity!.to).toBe('optional');
+      expect(targetRelation!.multiplicity!.to).toBe('OPTIONAL');
     });
 
     test('테이블2의 FK인 컬럼이 여러 개이고, 이 중 하나만 nullable로 변경되면, 테이블1과의 관계의 참여 정보가 변경되지 않아야 합니다.', () => {
@@ -366,15 +369,15 @@ describe('ERD Project Store', () => {
         ...relation,
         identify: false,
         multiplicity: {
-          from: 'optional',
-          to: 'mandatory',
+          from: 'OPTIONAL',
+          to: 'MANDATORY',
         },
       });
 
       const targetColumns = store
         .getState()
         .tables.find((t) => t.id === table2.id)
-        ?.columns.filter((col) => col.keyType === 'fk');
+        ?.columns.filter((col) => col.keyType === 'FK');
 
       expect(targetColumns).not.toBeUndefined();
       targetColumns?.forEach((col) => {
@@ -391,7 +394,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(targetRelation).not.toBeUndefined();
-      expect(targetRelation!.multiplicity!.to).toBe('mandatory');
+      expect(targetRelation!.multiplicity!.to).toBe('MANDATORY');
     });
 
     test('테이블2의 FK인 컬럼이 여러 개이고, 이 중 모두가 non-null로 변경되면, 테이블1과의 관계의 참여 정보가 전체참여로 변경되어야합니다.', () => {
@@ -404,15 +407,15 @@ describe('ERD Project Store', () => {
         ...relation,
         identify: false,
         multiplicity: {
-          from: 'optional',
-          to: 'mandatory',
+          from: 'OPTIONAL',
+          to: 'MANDATORY',
         },
       });
 
       const targetColumns = store
         .getState()
         .tables.find((t) => t.id === table2.id)
-        ?.columns.filter((col) => col.keyType === 'fk');
+        ?.columns.filter((col) => col.keyType === 'FK');
 
       expect(targetColumns).not.toBeUndefined();
       targetColumns?.forEach((col) => {
@@ -428,7 +431,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(targetRelation).not.toBeUndefined();
-      expect(targetRelation!.multiplicity!.to).toBe('optional');
+      expect(targetRelation!.multiplicity!.to).toBe('OPTIONAL');
 
       targetColumns?.forEach((col) => {
         store.getState().updateColumn(table2, { ...col, nullable: false });
@@ -439,7 +442,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(updatedRelation).not.toBeUndefined();
-      expect(updatedRelation!.multiplicity!.to).toBe('mandatory');
+      expect(updatedRelation!.multiplicity!.to).toBe('MANDATORY');
     });
 
     test('테이블2의 FK인 컬럼이 여러 개이고, 이 중 하나만 non-null로 변경되면, 테이블1과의 관계의 참여 정보가 전체참여로 유지되어야 합니다.', () => {
@@ -452,15 +455,15 @@ describe('ERD Project Store', () => {
         ...relation,
         identify: false,
         multiplicity: {
-          from: 'optional',
-          to: 'mandatory',
+          from: 'OPTIONAL',
+          to: 'MANDATORY',
         },
       });
 
       const targetColumns = store
         .getState()
         .tables.find((t) => t.id === table2.id)
-        ?.columns.filter((col) => col.keyType === 'fk');
+        ?.columns.filter((col) => col.keyType === 'FK');
 
       expect(targetColumns).not.toBeUndefined();
       targetColumns?.forEach((col) => {
@@ -476,7 +479,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(targetRelation).not.toBeUndefined();
-      expect(targetRelation!.multiplicity!.to).toBe('optional');
+      expect(targetRelation!.multiplicity!.to).toBe('OPTIONAL');
 
       targetColumns?.forEach((col, index) => {
         if (index > 0) return;
@@ -488,7 +491,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(updatedRelation).not.toBeUndefined();
-      expect(updatedRelation!.multiplicity!.to).toBe('mandatory');
+      expect(updatedRelation!.multiplicity!.to).toBe('MANDATORY');
     });
 
     test('컬럼을 삭제합니다.', () => {
@@ -654,7 +657,7 @@ describe('ERD Project Store', () => {
         .tables.find((table) => table.id === relation.to);
 
       expect(beforeTable2?.columns.length).toBe(1);
-      expect(beforeTable2?.columns[0].keyType).toBe('pk/fk');
+      expect(beforeTable2?.columns[0].keyType).toBe('PK/FK');
 
       store.getState().updateRelation({ ...relation, identify: false });
 
@@ -663,7 +666,7 @@ describe('ERD Project Store', () => {
         .tables.find((table) => table.id === relation.to);
 
       expect(afterTable2?.columns.length).toBe(1);
-      expect(afterTable2?.columns[0].keyType).toBe('fk');
+      expect(afterTable2?.columns[0].keyType).toBe('FK');
     });
 
     test('릴레이션의 식별/비식별이 변경되면, 다른 테이블에 영향을 미치게됩니다. 비식별 → 식별', () => {
@@ -678,7 +681,7 @@ describe('ERD Project Store', () => {
         .tables.find((table) => table.id === relation.to);
 
       expect(beforeTable2?.columns.length).toBe(1);
-      expect(beforeTable2?.columns[0].keyType).toBe('fk');
+      expect(beforeTable2?.columns[0].keyType).toBe('FK');
 
       store.getState().updateRelation({ ...relation, identify: true });
 
@@ -687,7 +690,7 @@ describe('ERD Project Store', () => {
         .tables.find((table) => table.id === relation.to);
 
       expect(afterTable2?.columns.length).toBe(1);
-      expect(afterTable2?.columns[0].keyType).toBe('pk/fk');
+      expect(afterTable2?.columns[0].keyType).toBe('PK/FK');
     });
 
     test('릴레이션을 삭제합니다.', () => {
