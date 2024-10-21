@@ -81,12 +81,6 @@
 
 html,
 body {
-  width: 100dvw;
-  height: 100dvh;
-  overflow: hidden;
-}
-
-body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
@@ -94,6 +88,9 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+}
+::-webkit-scrollbar {
+  display: none;
 }
 
 a {
