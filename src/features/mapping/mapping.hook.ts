@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react';
+
 import { getStartEndDirection } from './mapping.helper';
 import { Direction, TableDirectionChild } from './mapping.type';
 
@@ -71,7 +73,7 @@ export const useRelationshipData = (
   const directions: Direction[] = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
 
   directions.forEach((direction) => {
-    tableDirection.keys().forEach((tableID) =>
+    Array.from(tableDirection.keys()).forEach((tableID) =>
       tableDirection
         .get(tableID)
         ?.get(direction)
@@ -80,4 +82,50 @@ export const useRelationshipData = (
   });
 
   return { relationDuplicate, tableDirection, selfReferenceMapping };
+};
+
+export const useContextMenu = () => {
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+  const [lastRelation, setLastRelation] = useState<ERDRelation | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  const openContextMenu = (event: React.MouseEvent, relation: ERDRelation) => {
+    event.preventDefault();
+    setContextMenu({ x: event.clientX, y: event.clientY });
+    setLastRelation(relation);
+  };
+
+  const closeContextMenu = () => {
+    setContextMenu(null);
+    setLastRelation(null);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) {
+        closeContextMenu();
+      }
+    };
+
+    if (contextMenu) {
+      window.addEventListener('mousedown', handleClickOutside);
+    } else {
+      window.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      window.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [contextMenu]);
+
+  return {
+    contextMenu,
+    lastRelation,
+    menuRef,
+    openContextMenu,
+    closeContextMenu,
+  };
 };

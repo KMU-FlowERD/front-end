@@ -1,25 +1,19 @@
 import styled from '@emotion/styled';
-import { MutableRefObject } from 'react';
 
-import { ERDRelation } from '@/features/erd-project';
+import { useERDProjectStore } from '@/providers';
+import { useMappingContext } from '@/providers/MappingProvider';
 
-interface RelationshipMenuProps {
-  position: { x: number; y: number };
-  menuRef: MutableRefObject<HTMLDivElement | null>;
-  relation: ERDRelation | null;
-  deleteRelation: (relation: ERDRelation) => void;
-  updateRelation: (relation: ERDRelation) => void;
-  onClose: () => void;
-}
+export function RelationshipMenu() {
+  const {
+    lastRelation: relation,
+    menuRef,
+    contextMenu,
+    closeContextMenu,
+  } = useMappingContext();
 
-export function RelationshipMenu({
-  position,
-  menuRef,
-  relation,
-  deleteRelation,
-  updateRelation,
-  onClose,
-}: RelationshipMenuProps) {
+  const deleteRelation = useERDProjectStore((state) => state.deleteRelation);
+  const updateRelation = useERDProjectStore((state) => state.updateRelation);
+
   const fromMultiplicity =
     relation &&
     relation.multiplicity &&
@@ -39,34 +33,32 @@ export function RelationshipMenu({
   const handleMenuItemClick = (
     action: 'delete' | 'fromNullable' | 'toNullable',
   ) => {
-    if (relation) {
-      if (action === 'delete') {
-        deleteRelation(relation);
-        onClose();
-        return;
-      }
+    if (!relation) return;
 
-      if (action === 'fromNullable') {
-        updateRelation({
-          ...relation,
-          multiplicity: { ...relation.multiplicity, from: fromMultiplicity },
-        });
-        onClose();
-        return;
-      }
-
-      if (action === 'toNullable') {
-        updateRelation({
-          ...relation,
-          multiplicity: { ...relation.multiplicity, to: toMultiplicity },
-        });
-        onClose();
-      }
+    if (action === 'delete') {
+      deleteRelation(relation);
+    } else if (action === 'fromNullable') {
+      updateRelation({
+        ...relation,
+        multiplicity: { ...relation.multiplicity, from: fromMultiplicity },
+      });
+    } else if (action === 'toNullable') {
+      updateRelation({
+        ...relation,
+        multiplicity: { ...relation.multiplicity, to: toMultiplicity },
+      });
     }
+
+    closeContextMenu();
   };
 
+  if (!contextMenu) return null;
+
   return (
-    <styles.menu ref={menuRef} $pos={{ left: position.x, top: position.y }}>
+    <styles.menu
+      ref={menuRef}
+      $pos={{ left: contextMenu.x, top: contextMenu.y }}
+    >
       <styles.menuItem onClick={() => handleMenuItemClick('delete')}>
         관계 삭제
       </styles.menuItem>

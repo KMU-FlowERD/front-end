@@ -9,25 +9,22 @@ import { PkColumns } from './PkColumns';
 import { PkFkColumns } from './PkFkColumns';
 
 import { ERDColumn, ERDTable } from '@/features/erd-project';
+import { useERDProjectStore } from '@/providers';
 
 export function ColumnEditMenu({
   editRef,
   table,
   tableColumns,
-  updateColumn,
-  deleteColumn,
-  updateTable,
 }: {
   editRef: MutableRefObject<HTMLDivElement | null>;
   table: ERDTable;
   tableColumns: ERDColumn[];
-  updateColumn: (table: ERDTable, column: ERDColumn) => void;
-  deleteColumn: (table: ERDTable, column: ERDColumn) => void;
-  updateTable: (table: ERDTable) => void;
 }) {
-  const pkColumns = tableColumns.filter((val) => val.keyType === 'pk');
-  const pkfkColumns = tableColumns.filter((val) => val.keyType === 'pk/fk');
-  const fkColumns = tableColumns.filter((val) => val.keyType === 'fk');
+  const updateTable = useERDProjectStore((state) => state.updateTable);
+
+  const pkColumns = tableColumns.filter((val) => val.keyType === 'PK');
+  const pkfkColumns = tableColumns.filter((val) => val.keyType === 'PK/FK');
+  const fkColumns = tableColumns.filter((val) => val.keyType === 'FK');
   const columns = tableColumns.filter((val) => val.keyType === undefined);
 
   const enterTitleEdit = (
@@ -53,30 +50,12 @@ export function ColumnEditMenu({
         onBlur={(e) => blurTitleEdit(table, e.target.value)}
         onKeyDown={(e) => enterTitleEdit(e, table, e.currentTarget.value)}
       />
-      <PkColumns
-        table={table}
-        pkColumns={pkColumns}
-        updateColumn={updateColumn}
-        deleteColumn={deleteColumn}
-      />
-      <PkFkColumns
-        table={table}
-        pkfkColumns={pkfkColumns}
-        updateColumn={updateColumn}
-      />
+      <PkColumns table={table} pkColumns={pkColumns} />
+      <PkFkColumns table={table} pkfkColumns={pkfkColumns} />
       {(pkColumns.length > 0 || pkfkColumns.length > 0) &&
         (fkColumns.length > 0 || columns.length > 0) && <styles.contour />}
-      <Columns
-        table={table}
-        columns={columns}
-        updateColumn={updateColumn}
-        deleteColumn={deleteColumn}
-      />
-      <FkColumns
-        table={table}
-        fkColumns={fkColumns}
-        updateColumn={updateColumn}
-      />
+      <Columns table={table} columns={columns} />
+      <FkColumns table={table} fkColumns={fkColumns} />
     </styles.wrapper>
   );
 }

@@ -3,7 +3,7 @@
 import React, { JSX } from 'react';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { ERDRelation, ERDTable } from '@/features/erd-project';
+import { ERDRelation } from '@/features/erd-project';
 import {
   getDrawLines,
   getDrawLinesselfReferenceMapping,
@@ -17,42 +17,25 @@ import {
   getStartIENotNullOneLine,
   getStartIENullableCircle,
   getStartIEOneLine,
-  TableDirectionChild,
 } from '@/features/mapping';
+import { useERDProjectStore } from '@/providers';
+import { useMappingContext } from '@/providers/MappingProvider';
 
 interface ConnectLineProps {
-  tables: ERDTable[];
   relation: ERDRelation;
-  tableDirection: Map<ERDTable['id'], TableDirectionChild>;
-  selfReferenceMapping: Map<ERDTable['id'], number>;
-  handleContextMenu: (event: React.MouseEvent) => void;
 }
 
-export function ConnectLine({
-  tables,
-  relation,
-  tableDirection,
-  selfReferenceMapping,
-  handleContextMenu,
-}: ConnectLineProps) {
-  return (
-    <SvgComponent
-      tables={tables}
-      relation={relation}
-      tableDirection={tableDirection}
-      selfReferenceMapping={selfReferenceMapping}
-      handleContextMenu={handleContextMenu}
-    />
-  );
+export function ConnectLine({ relation }: ConnectLineProps) {
+  return <SvgComponent relation={relation} />;
 }
 
-function SvgComponent({
-  tables,
-  relation,
-  tableDirection,
-  selfReferenceMapping,
-  handleContextMenu,
-}: ConnectLineProps) {
+function SvgComponent({ relation }: ConnectLineProps) {
+  const tables = useERDProjectStore((state) => state.tables);
+
+  const context = useMappingContext();
+
+  const { tableDirection, selfReferenceMapping, openContextMenu } = context;
+
   const notation = useDrawToolsStore((state) => state.notation);
 
   const lines: JSX.Element[] = [];
@@ -163,7 +146,7 @@ function SvgComponent({
           stroke='transparent'
           strokeWidth='10'
           style={{ cursor: 'pointer' }}
-          onContextMenu={handleContextMenu}
+          onContextMenu={(e) => openContextMenu(e, relation)}
         />,
       );
     });

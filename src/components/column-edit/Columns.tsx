@@ -1,20 +1,17 @@
 import styled from '@emotion/styled';
 
 import { ERDColumn, ERDTable } from '@/features/erd-project';
+import { useERDProjectStore } from '@/providers';
 
 interface ColumnsProps {
   table: ERDTable;
   columns: ERDColumn[];
-  updateColumn: (table: ERDTable, column: ERDColumn) => void;
-  deleteColumn: (table: ERDTable, column: ERDColumn) => void;
 }
 
-export function Columns({
-  table,
-  columns,
-  updateColumn,
-  deleteColumn,
-}: ColumnsProps) {
+export function Columns({ table, columns }: ColumnsProps) {
+  const deleteColumn = useERDProjectStore((state) => state.deleteColumn);
+  const updateColumn = useERDProjectStore((state) => state.updateColumn);
+
   const enterNameEdit = (
     e: React.KeyboardEvent<HTMLInputElement>,
     column: ERDColumn,
