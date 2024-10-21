@@ -2,12 +2,11 @@ import styled from '@emotion/styled';
 import { MutableRefObject } from 'react';
 
 import { ERDTable } from '@/features/erd-project';
+import { useERDProjectStore } from '@/providers';
 
 interface TableMenuProps {
   menuRef: MutableRefObject<HTMLDivElement | null>;
   table: ERDTable;
-  deleteTable: (tableId: ERDTable['id']) => void;
-  createColumn: (table: ERDTable, isPk: boolean) => void;
   setIsEditingColumns: (isEditingColumns: boolean) => void;
   setMenuOpen: (menuOpen: boolean) => void;
 }
@@ -15,11 +14,13 @@ interface TableMenuProps {
 export function TableMenu({
   menuRef,
   table,
-  deleteTable,
-  createColumn,
   setIsEditingColumns,
   setMenuOpen,
 }: TableMenuProps) {
+  const deleteTable = useERDProjectStore((state) => state.deleteTable);
+
+  const createColumn = useERDProjectStore((state) => state.createColumn);
+
   const handleMenuItemClick = (
     action: 'delete' | 'add/pk' | 'add' | 'edit',
   ) => {

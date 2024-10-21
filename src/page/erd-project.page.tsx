@@ -16,17 +16,11 @@ import { useERDProjectStore } from '@/providers';
 
 export function ErdProjectPage() {
   const tables = useERDProjectStore((state) => state.tables);
-  const relations = useERDProjectStore((state) => state.relations);
 
   const createTable = useERDProjectStore((state) => state.createTable);
-  const deleteTable = useERDProjectStore((state) => state.deleteTable);
   const updateTable = useERDProjectStore((state) => state.updateTable);
 
   const createRelation = useERDProjectStore((state) => state.createRelation);
-
-  const createColumn = useERDProjectStore((state) => state.createColumn);
-  const deleteColumn = useERDProjectStore((state) => state.deleteColumn);
-  const updateColumn = useERDProjectStore((state) => state.updateColumn);
 
   const mapping = useDrawToolsStore((state) => state.mapping);
   const setMapping = useDrawToolsStore((state) => state.setMapping);
@@ -75,9 +69,7 @@ export function ErdProjectPage() {
           to: table.id,
           type: mapping.type,
           identify: lastTable.id === table.id ? false : mapping.identify,
-          multiplicity: {
-            to: 'MANDATORY',
-          },
+          multiplicity: { from: 'MANDATORY', to: 'MANDATORY' },
         });
         setLastTable(undefined);
         setMapping(undefined);
@@ -89,7 +81,7 @@ export function ErdProjectPage() {
 
   return (
     <styles.displayWrapper onClick={displayClicked}>
-      <Relationship tables={tables} relations={relations} />
+      <Relationship />
       <styles.container>
         <TableInformation />
         <ErdDrawTools />
@@ -100,11 +92,6 @@ export function ErdProjectPage() {
             table={table}
             onClick={TableClick}
             onPositionChange={onPositionChange}
-            updateTable={updateTable}
-            deleteTable={deleteTable}
-            createColumn={createColumn}
-            updateColumn={updateColumn}
-            deleteColumn={deleteColumn}
           />
         ))}
       </styles.container>

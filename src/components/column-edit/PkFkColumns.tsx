@@ -1,18 +1,16 @@
 import styled from '@emotion/styled';
 
 import { ERDColumn, ERDTable } from '@/features/erd-project';
+import { useERDProjectStore } from '@/providers';
 
 interface PkFkColumnsProps {
   table: ERDTable;
   pkfkColumns: ERDColumn[];
-  updateColumn: (table: ERDTable, column: ERDColumn) => void;
 }
 
-export function PkFkColumns({
-  table,
-  pkfkColumns,
-  updateColumn,
-}: PkFkColumnsProps) {
+export function PkFkColumns({ table, pkfkColumns }: PkFkColumnsProps) {
+  const updateColumn = useERDProjectStore((state) => state.updateColumn);
+
   const enterNameEdit = (
     e: React.KeyboardEvent<HTMLInputElement>,
     column: ERDColumn,
