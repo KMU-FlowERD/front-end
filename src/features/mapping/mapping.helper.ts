@@ -1,4 +1,4 @@
-import { Direction, TableDirectionChild } from './table-mapping.type';
+import { Direction, TableDirectionChild } from './mapping.type';
 
 import { ERDRelation, ERDTable } from '@/features/erd-project';
 

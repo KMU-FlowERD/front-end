@@ -3,7 +3,7 @@
 import React, { JSX } from 'react';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { ERDRelation, ERDTable } from '@/features/erd-project';
+import { ERDRelation } from '@/features/erd-project';
 import {
   getDrawLines,
   getDrawLinesselfReferenceMapping,
@@ -17,38 +17,25 @@ import {
   getStartIENotNullOneLine,
   getStartIENullableCircle,
   getStartIEOneLine,
-  TableDirectionChild,
-} from '@/features/table-mapping';
+} from '@/features/mapping';
+import { useERDProjectStore } from '@/providers';
+import { useMappingContext } from '@/providers/MappingProvider';
 
 interface ConnectLineProps {
-  tables: ERDTable[];
   relation: ERDRelation;
-  tableDirection: Map<ERDTable['id'], TableDirectionChild>;
-  selfReferenceMapping: Map<ERDTable['id'], number>;
 }
 
-export function ConnectLine({
-  tables,
-  relation,
-  tableDirection,
-  selfReferenceMapping,
-}: ConnectLineProps) {
-  return (
-    <SvgComponent
-      tables={tables}
-      relation={relation}
-      tableDirection={tableDirection}
-      selfReferenceMapping={selfReferenceMapping}
-    />
-  );
+export function ConnectLine({ relation }: ConnectLineProps) {
+  return <SvgComponent relation={relation} />;
 }
 
-function SvgComponent({
-  tables,
-  relation,
-  tableDirection,
-  selfReferenceMapping,
-}: ConnectLineProps) {
+function SvgComponent({ relation }: ConnectLineProps) {
+  const tables = useERDProjectStore((state) => state.tables);
+
+  const context = useMappingContext();
+
+  const { tableDirection, selfReferenceMapping, openContextMenu } = context;
+
   const notation = useDrawToolsStore((state) => state.notation);
 
   const lines: JSX.Element[] = [];
@@ -145,6 +132,21 @@ function SvgComponent({
           stroke='#ededed'
           strokeWidth='1'
           strokeDasharray={relation.identify ? '0' : '5,5'}
+        />,
+      );
+
+      // 이벤트용 투명 선
+      lines.push(
+        <line
+          key={Math.random().toString(36).slice(2)}
+          x1={line.fromX}
+          y1={line.fromY}
+          x2={line.toX}
+          y2={line.toY}
+          stroke='transparent'
+          strokeWidth='10'
+          style={{ cursor: 'pointer' }}
+          onContextMenu={(e) => openContextMenu(e, relation)}
         />,
       );
     });

@@ -8,7 +8,8 @@ import { TableMenu } from './TableMenu';
 
 import { ColumnEditMenu } from '@/components/column-edit';
 import { MenuIcon } from '@/components/implements-icon';
-import { ERDColumn, ERDTable } from '@/features/erd-project';
+import { ERDTable } from '@/features/erd-project';
+import { useERDProjectStore } from '@/providers';
 
 interface Position {
   left: number;
@@ -19,23 +20,11 @@ interface TableProps {
   table: ERDTable;
   onClick: (table: ERDTable) => void;
   onPositionChange: (id: string, pos: Position) => void;
-  updateTable: (table: ERDTable) => void;
-  deleteTable: (tableId: ERDTable['id']) => void;
-  createColumn: (table: ERDTable, isPK: boolean) => void;
-  updateColumn: (table: ERDTable, column: ERDColumn) => void;
-  deleteColumn: (table: ERDTable, column: ERDColumn) => void;
 }
 
-export function Table({
-  table,
-  onClick,
-  onPositionChange,
-  updateTable,
-  deleteTable,
-  createColumn,
-  updateColumn,
-  deleteColumn,
-}: TableProps) {
+export function Table({ table, onClick, onPositionChange }: TableProps) {
+  const updateTable = useERDProjectStore((state) => state.updateTable);
+
   const boxRef = useRef<HTMLDivElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const editRef = useRef<HTMLDivElement | null>(null);
@@ -151,8 +140,6 @@ export function Table({
           <TableMenu
             menuRef={menuRef}
             table={table}
-            deleteTable={deleteTable}
-            createColumn={createColumn}
             setIsEditingColumns={setIsEditingColumns}
             setMenuOpen={setMenuOpen}
           />
@@ -162,9 +149,6 @@ export function Table({
             editRef={editRef}
             tableColumns={table.columns}
             table={table}
-            updateColumn={updateColumn}
-            deleteColumn={deleteColumn}
-            updateTable={updateTable}
           />
         )}
       </styles.container>
