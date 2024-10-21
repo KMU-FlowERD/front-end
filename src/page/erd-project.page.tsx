@@ -2,35 +2,31 @@
 
 import styled from '@emotion/styled';
 import { useState } from 'react';
-import { useStore } from 'zustand';
 
 import {
-  TableInformation,
   ErdDrawTools,
   RelationshipInformation,
+  TableInformation,
 } from '@/components';
 import { Relationship } from '@/components/Relationship';
 import { Table } from '@/components/table';
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { createERDProjectStore, ERDTable } from '@/features/erd-project';
-
-const store = createERDProjectStore();
+import { ERDTable } from '@/features/erd-project';
+import { useERDProjectStore } from '@/providers';
 
 export function ErdProjectPage() {
-  const tables = useStore(store, (state) => state.tables);
-  const relations = useStore(store, (state) => state.relations);
+  const tables = useERDProjectStore((state) => state.tables);
+  const relations = useERDProjectStore((state) => state.relations);
 
-  const createTable = useStore(store, (state) => state.createTable);
-  const deleteTable = useStore(store, (state) => state.deleteTable);
-  const updateTable = useStore(store, (state) => state.updateTable);
+  const createTable = useERDProjectStore((state) => state.createTable);
+  const deleteTable = useERDProjectStore((state) => state.deleteTable);
+  const updateTable = useERDProjectStore((state) => state.updateTable);
 
-  const createRelation = useStore(store, (state) => state.createRelation);
-  const deleteRelation = useStore(store, (state) => state.deleteRelation);
-  const updateRelation = useStore(store, (state) => state.updateRelation);
+  const createRelation = useERDProjectStore((state) => state.createRelation);
 
-  const createColumn = useStore(store, (state) => state.createColumn);
-  const deleteColumn = useStore(store, (state) => state.deleteColumn);
-  const updateColumn = useStore(store, (state) => state.updateColumn);
+  const createColumn = useERDProjectStore((state) => state.createColumn);
+  const deleteColumn = useERDProjectStore((state) => state.deleteColumn);
+  const updateColumn = useERDProjectStore((state) => state.updateColumn);
 
   const mapping = useDrawToolsStore((state) => state.mapping);
   const setMapping = useDrawToolsStore((state) => state.setMapping);
@@ -79,6 +75,7 @@ export function ErdProjectPage() {
           to: table.id,
           type: mapping.type,
           identify: lastTable.id === table.id ? false : mapping.identify,
+          multiplicity: { from: 'MANDATORY', to: 'MANDATORY' },
         });
         setLastTable(undefined);
         setMapping(undefined);

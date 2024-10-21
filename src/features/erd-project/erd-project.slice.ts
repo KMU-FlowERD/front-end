@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
-export type KeyType = 'pk' | 'fk' | 'pk/fk';
+export type KeyType = 'PK' | 'FK' | 'PK/FK';
 
 export interface ERDColumn {
   id: string;
@@ -26,11 +26,11 @@ export interface ERDRelation {
   id: string;
   from: ERDTable['id'];
   to: ERDTable['id'];
-  type: 'ONE-TO-ONE' | 'ONE-TO-MANY';
+  type?: 'ONE-TO-ONE' | 'ONE-TO-MANY';
   identify: boolean;
-  multiplicity?: {
+  multiplicity: {
     from?: 'OPTIONAL' | 'MANDATORY';
-    to?: 'OPTIONAL' | 'MANDATORY';
+    to: 'OPTIONAL' | 'MANDATORY';
   };
 }
 
@@ -160,7 +160,7 @@ export const createERDProjectStore = (
             id: uuidv4(),
             name: 'column',
             nullable: false,
-            keyType: isPK ? 'pk' : undefined,
+            keyType: isPK ? 'PK' : undefined,
           };
 
           target.columns.push(column);
@@ -181,7 +181,7 @@ export const createERDProjectStore = (
 
                 next.columns.push({
                   ...column,
-                  keyType: relation.identify ? 'pk/fk' : 'fk',
+                  keyType: relation.identify ? 'PK/FK' : 'FK',
                 });
                 dfs(next);
               });
@@ -217,7 +217,7 @@ export const createERDProjectStore = (
                 const next = state.tables.find((t) => t.id === rel.to);
                 if (!next) return;
 
-                const keyType = rel.identify ? 'pk/fk' : 'fk';
+                const keyType = rel.identify ? 'PK/FK' : 'FK';
                 curr.columns
                   .filter((col) => col.id === column.id)
                   .forEach((col) => {
@@ -226,7 +226,6 @@ export const createERDProjectStore = (
                       nextCol.name = column.name;
                       nextCol.type = column.type;
                       nextCol.keyType = keyType;
-                      nextCol.nullable = column.nullable;
                     }
                   });
 
@@ -235,6 +234,40 @@ export const createERDProjectStore = (
           };
 
           dfs(targetTable);
+
+          if (column.keyType === 'FK') {
+            const updateRelationMultiplicity = (rel: ERDRelation) => {
+              const toTable = state.tables.find((t) => t.id === rel.to);
+              if (!toTable) return;
+
+              const fromTable = state.tables.find((t) => t.id === rel.from);
+              if (!fromTable) return;
+
+              const allFKsNullable = toTable.columns
+                .filter((col) => col.keyType === 'FK')
+                .filter(
+                  (col) =>
+                    fromTable.columns.find((c) => c.id === col.id) !== null,
+                )
+                .every((col) => col.nullable);
+
+              if (allFKsNullable) {
+                rel.multiplicity = {
+                  ...rel.multiplicity,
+                  to: 'OPTIONAL',
+                };
+              } else {
+                rel.multiplicity = {
+                  ...rel.multiplicity,
+                  to: 'MANDATORY',
+                };
+              }
+            };
+
+            state.relations[targetTable.id]?.forEach(
+              updateRelationMultiplicity,
+            );
+          }
         }),
 
       deleteColumn: (table, column) =>
@@ -251,7 +284,7 @@ export const createERDProjectStore = (
             (c) => c.id !== column.id,
           );
 
-          if (column.keyType === 'pk') {
+          if (column.keyType === 'PK') {
             const visited: Record<ERDTable['id'], boolean> = {};
 
             const dfs = (curr: ERDTable) => {
@@ -297,9 +330,9 @@ export const createERDProjectStore = (
                 const next = tables.find((t) => t.id === rel.to);
                 if (!next) return;
 
-                const keyType = rel.identify ? 'pk/fk' : 'fk';
+                const keyType: KeyType = rel.identify ? 'PK/FK' : 'FK';
                 from.columns
-                  .filter((col) => col.keyType === 'pk')
+                  .filter((col) => col.keyType === 'PK')
                   .forEach((col) => {
                     next.columns.push({
                       ...col,
@@ -343,13 +376,13 @@ export const createERDProjectStore = (
             if (!fromTable || !toTable) return;
 
             fromTable.columns
-              .filter((col) => col.keyType === 'pk')
+              .filter((col) => col.keyType === 'PK')
               .forEach((col1) => {
                 toTable.columns = toTable.columns.map((col2) =>
                   col2.id === col1.id
                     ? {
                         ...col2,
-                        keyType: erdRelation.identify ? 'pk/fk' : 'fk',
+                        keyType: erdRelation.identify ? 'PK/FK' : 'FK',
                       }
                     : col2,
                 );
@@ -382,7 +415,7 @@ export const createERDProjectStore = (
             if (!fromTable || !toTable) return;
 
             fromTable.columns
-              .filter((col) => col.keyType === 'pk')
+              .filter((col) => col.keyType === 'PK')
               .forEach((col1) => {
                 toTable.columns = toTable.columns.filter(
                   (col2) => col2.id !== col1.id,
