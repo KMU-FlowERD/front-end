@@ -1,7 +1,7 @@
 'use client';
 
 import styled from '@emotion/styled';
-import { useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
 import {
   ErdDrawTools,
@@ -15,6 +15,13 @@ import { ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 
 export function ErdProjectPage() {
+  const projectWidth = useERDProjectStore((state) => state.width);
+  const projectHeight = useERDProjectStore((state) => state.height);
+
+  const updateCanvasSize = useERDProjectStore(
+    (state) => state.updateCanvasSize,
+  );
+
   const tables = useERDProjectStore((state) => state.tables);
 
   const createTable = useERDProjectStore((state) => state.createTable);
@@ -30,12 +37,44 @@ export function ErdProjectPage() {
 
   const [lastTable, setLastTable] = useState<ERDTable | undefined>(undefined);
 
+  const handleResize = useCallback(() => {
+    if (
+      window.innerWidth > projectWidth ||
+      window.innerHeight > projectHeight
+    ) {
+      console.log('resize');
+      updateCanvasSize({
+        width: Math.max(window.innerWidth, projectWidth),
+        height: Math.max(window.innerHeight, projectHeight),
+      });
+    }
+  }, [projectWidth, projectHeight, updateCanvasSize]);
+
   const onPositionChange = (id: string, pos: { left: number; top: number }) => {
     const table = tables.find((t) => t.id === id);
 
     if (table) {
       const updatedTable = { ...table, left: pos.left, top: pos.top };
       updateTable(updatedTable);
+
+      const updateProjectWidth = Math.max(
+        projectWidth,
+        updatedTable.left + updatedTable.width + 500,
+      );
+      const updateProjectHeight = Math.max(
+        projectHeight,
+        updatedTable.top + updatedTable.height + 500,
+      );
+
+      if (
+        updateProjectWidth > projectWidth ||
+        updateProjectHeight > projectHeight
+      ) {
+        updateCanvasSize({
+          width: updateProjectWidth,
+          height: updateProjectHeight,
+        });
+      }
     }
   };
 
@@ -79,40 +118,59 @@ export function ErdProjectPage() {
     }
   };
 
+  useLayoutEffect(() => {
+    handleResize();
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [handleResize]);
+
   return (
-    <styles.displayWrapper onClick={displayClicked}>
+    <styles.displayWrapper
+      onClick={displayClicked}
+      $pos={{ width: projectWidth, height: projectHeight }}
+    >
       <Relationship />
+      {tables.map((table) => (
+        <Table
+          key={table.id}
+          table={table}
+          onClick={TableClick}
+          onPositionChange={onPositionChange}
+        />
+      ))}
       <styles.container>
         <TableInformation />
         <ErdDrawTools />
         <RelationshipInformation />
-        {tables.map((table) => (
-          <Table
-            key={table.id}
-            table={table}
-            onClick={TableClick}
-            onPositionChange={onPositionChange}
-          />
-        ))}
       </styles.container>
     </styles.displayWrapper>
   );
 }
 
 const styles = {
-  displayWrapper: styled.div`
+  displayWrapper: styled.div<{ $pos: { width: number; height: number } }>`
     position: relative;
-    width: 100%;
-    height: 100%;
+    width: ${({ $pos }) => `${$pos.width}px`};
+    height: ${({ $pos }) => `${$pos.height}px`};
+    background: #2f2f2f;
   `,
 
   container: styled.div`
+    position: fixed;
     display: flex;
     width: 100%;
     height: 100%;
     padding: 16px;
     align-items: flex-end;
     gap: 16px;
-    background: #2f2f2f;
+    background: transparent;
+    pointer-events: none;
+    z-index: 2;
   `,
 };

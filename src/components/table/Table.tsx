@@ -94,8 +94,8 @@ export function Table({ table, onClick, onPositionChange }: TableProps) {
     const handleMouseMove = (e: MouseEvent) => {
       if (dragging) {
         const newPos = {
-          left: e.clientX - offset.left,
-          top: e.clientY - offset.top,
+          left: e.pageX - offset.left,
+          top: e.pageY - offset.top,
         };
         onPositionChange(table.id, newPos);
       }
@@ -163,6 +163,7 @@ const styles = {
     flex-direction: column;
     left: ${({ $pos }) => `${$pos.left}px`};
     top: ${({ $pos }) => `${$pos.top - 20}px`};
+    z-index: 1;
   `,
 
   titleMenuWrapper: styled.div`
