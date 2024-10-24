@@ -1,6 +1,11 @@
 import { styles } from './Sidebar.styles';
 
+import { ProfileSetting } from '@/components/home/setting';
+import { useModal } from '@/features/modal';
+
 export function Sidebar() {
+  const { Modal, openModal } = useModal(<ProfileSetting />);
+
   return (
     <styles.container>
       <styles.profileImageFrame>
@@ -12,8 +17,9 @@ export function Sidebar() {
       <styles.userInformation>
         <styles.userName>John Doe</styles.userName>
         <styles.userDescription>Frontend Developer</styles.userDescription>
-        <styles.settingLink href='/setting'>설정</styles.settingLink>
+        <styles.settingLink onClick={openModal}>설정</styles.settingLink>
       </styles.userInformation>
+      {Modal}
     </styles.container>
   );
 }
