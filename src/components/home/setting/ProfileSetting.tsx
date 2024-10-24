@@ -1,15 +1,19 @@
 import { ProfileInformation } from './ProfileInformation';
 import { styles } from './ProfileSetting.styles';
 
-interface ProfileSettingProps {
-  onClickCancel: () => void;
-  onClickConfirm: () => void;
-}
+import { useModalContext } from '@/features/modal';
 
-export function ProfileSetting({
-  onClickCancel,
-  onClickConfirm,
-}: ProfileSettingProps) {
+export function ProfileSetting() {
+  const { closeModal } = useModalContext();
+
+  const onClickConfirm = () => {
+    closeModal();
+  };
+
+  const onClickCancel = () => {
+    closeModal();
+  };
+
   return (
     <styles.container>
       <styles.profileInformationContainer>
