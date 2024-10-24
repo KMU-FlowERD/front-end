@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import Link from 'next/link';
 
 export const styles = {
   container: styled.div`
@@ -61,7 +60,7 @@ export const styles = {
     line-height: normal;
   `,
 
-  settingLink: styled(Link)`
+  settingLink: styled.button`
     all: unset;
     cursor: pointer;
 
