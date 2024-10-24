@@ -37,12 +37,13 @@ export function ErdProjectPage() {
 
   const [lastTable, setLastTable] = useState<ERDTable | undefined>(undefined);
 
+  const projectMaxDistance = 300;
+
   const handleResize = useCallback(() => {
     if (
       window.innerWidth > projectWidth ||
       window.innerHeight > projectHeight
     ) {
-      console.log('resize');
       updateCanvasSize({
         width: Math.max(window.innerWidth, projectWidth),
         height: Math.max(window.innerHeight, projectHeight),
@@ -59,11 +60,11 @@ export function ErdProjectPage() {
 
       const updateProjectWidth = Math.max(
         projectWidth,
-        updatedTable.left + updatedTable.width + 500,
+        updatedTable.left + updatedTable.width + projectMaxDistance,
       );
       const updateProjectHeight = Math.max(
         projectHeight,
-        updatedTable.top + updatedTable.height + 500,
+        updatedTable.top + updatedTable.height + projectMaxDistance,
       );
 
       if (
@@ -96,6 +97,25 @@ export function ErdProjectPage() {
       });
 
       setEntity('NONE');
+
+      const updateProjectWidth = Math.max(
+        projectWidth,
+        pageX + projectMaxDistance + 50,
+      );
+      const updateProjectHeight = Math.max(
+        projectHeight,
+        pageY + projectMaxDistance + 30,
+      );
+
+      if (
+        updateProjectWidth > projectWidth ||
+        updateProjectHeight > projectHeight
+      ) {
+        updateCanvasSize({
+          width: updateProjectWidth,
+          height: updateProjectHeight,
+        });
+      }
     }
   };
 
