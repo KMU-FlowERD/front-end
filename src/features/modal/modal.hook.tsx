@@ -25,7 +25,22 @@ export const useModal = (children: ReactNode) => {
   const Modal = useMemo(() => {
     if (!isOpen) return null;
     return createPortal(
-      <Background onClick={closeModal}>{children}</Background>,
+      <Background onClick={closeModal}>
+        <div
+          role='button'
+          tabIndex={0}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.stopPropagation();
+            }
+          }}
+        >
+          {children}
+        </div>
+      </Background>,
       document.body,
     );
   }, [isOpen, children]);
