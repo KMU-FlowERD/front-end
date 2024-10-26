@@ -1,12 +1,6 @@
-'use client';
-
 import styled from '@emotion/styled';
 
-export function RelationshipInformation() {
-  return <styles.container />;
-}
-
-const styles = {
+export const styles = {
   container: styled.div`
     display: flex;
     width: 200px;

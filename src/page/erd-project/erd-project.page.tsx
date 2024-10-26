@@ -1,14 +1,15 @@
 'use client';
 
-import styled from '@emotion/styled';
 import { useState } from 'react';
+
+import { styles } from './erd-project.page.styles';
 
 import {
   ErdDrawTools,
   RelationshipInformation,
   TableInformation,
 } from '@/components';
-import { Relationship } from '@/components/Relationship';
+import { Relationship } from '@/components/project-page/Relationship';
 import { Table } from '@/components/table';
 import { useDrawToolsStore } from '@/features/draw-tools';
 import { ERDTable } from '@/features/erd-project';
@@ -98,21 +99,3 @@ export function ErdProjectPage() {
     </styles.displayWrapper>
   );
 }
-
-const styles = {
-  displayWrapper: styled.div`
-    position: relative;
-    width: 100%;
-    height: 100%;
-  `,
-
-  container: styled.div`
-    display: flex;
-    width: 100%;
-    height: 100%;
-    padding: 16px;
-    align-items: flex-end;
-    gap: 16px;
-    background: #2f2f2f;
-  `,
-};

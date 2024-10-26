@@ -1,4 +1,4 @@
-import styled from '@emotion/styled';
+import { styles } from './icon.styles';
 
 export function MenuIcon({ onClick }: { onClick: () => void }) {
   return (
@@ -13,9 +13,3 @@ export function MenuIcon({ onClick }: { onClick: () => void }) {
 // Google Material Icons의 more_vert 아이콘 path
 const ellipsisIconPath =
   'M12 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z';
-
-const styles = {
-  menuIcon: styled.div`
-    cursor: pointer;
-  `,
-};

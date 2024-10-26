@@ -1,7 +1,6 @@
 'use client';
 
-import styled from '@emotion/styled';
-
+import { styles } from './icon.styles';
 import { IdentifyManyToManyIcon } from './IdentifyManyToManyIcon';
 import { IdentifyOneToManyIcon } from './IdentifyOneToManyIcon';
 import { IdentifyOneToOneIcon } from './IdentifyOneToOneIcon';
@@ -47,13 +46,3 @@ function Icon({ mapping, fill }: { mapping: MappingType; fill: string }) {
   if (!identify && type === 'MANY-TO-MANY')
     return <NonIdentifyManyToManyIcon fill={fill} />;
 }
-
-const styles = {
-  container: styled.rect`
-    user-select: none;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  `,
-};

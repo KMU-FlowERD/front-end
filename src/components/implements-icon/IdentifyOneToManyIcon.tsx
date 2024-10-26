@@ -1,4 +1,4 @@
-import styled from '@emotion/styled';
+import { styles } from './icon.styles';
 
 export function IdentifyOneToManyIcon({ fill }: { fill: string }) {
   return (
@@ -7,11 +7,3 @@ export function IdentifyOneToManyIcon({ fill }: { fill: string }) {
     </svg>
   );
 }
-
-const styles = {
-  pathStyle: styled.rect`
-    &:hover {
-      fill: #ddd;
-    }
-  `,
-};
