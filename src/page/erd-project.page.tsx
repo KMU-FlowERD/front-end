@@ -19,6 +19,10 @@ export function ErdProjectPage() {
   const { lastTable, setLastTable } = useLastTable();
   usePageMove();
 
+  const updateCanvasSize = useERDProjectStore(
+    (state) => state.updateCanvasSize,
+  );
+
   const tables = useERDProjectStore((state) => state.tables);
   const createTable = useERDProjectStore((state) => state.createTable);
   const updateTable = useERDProjectStore((state) => state.updateTable);
@@ -29,6 +33,8 @@ export function ErdProjectPage() {
   const entity = useDrawToolsStore((state) => state.entity);
   const setEntity = useDrawToolsStore((state) => state.setEntity);
   const cursor = useDrawToolsStore((state) => state.cursor);
+
+  const projectMaxDistance = 300;
 
   const displayClicked = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -46,6 +52,25 @@ export function ErdProjectPage() {
         columns: [],
       });
       setEntity('NONE');
+
+      const updateProjectWidth = Math.max(
+        projectWidth,
+        pageX + projectMaxDistance + 50,
+      );
+      const updateProjectHeight = Math.max(
+        projectHeight,
+        pageY + projectMaxDistance + 30,
+      );
+
+      if (
+        updateProjectWidth > projectWidth ||
+        updateProjectHeight > projectHeight
+      ) {
+        updateCanvasSize({
+          width: updateProjectWidth,
+          height: updateProjectHeight,
+        });
+      }
     }
   };
 
@@ -54,6 +79,25 @@ export function ErdProjectPage() {
     if (cursor === 'ARROW' && table) {
       const updatedTable = { ...table, left: pos.left, top: pos.top };
       updateTable(updatedTable);
+
+      const updateProjectWidth = Math.max(
+        projectWidth,
+        updatedTable.left + updatedTable.width + projectMaxDistance,
+      );
+      const updateProjectHeight = Math.max(
+        projectHeight,
+        updatedTable.top + updatedTable.height + projectMaxDistance,
+      );
+
+      if (
+        updateProjectWidth > projectWidth ||
+        updateProjectHeight > projectHeight
+      ) {
+        updateCanvasSize({
+          width: updateProjectWidth,
+          height: updateProjectHeight,
+        });
+      }
     }
   };
 

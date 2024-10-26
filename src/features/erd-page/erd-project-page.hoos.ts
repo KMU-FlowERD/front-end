@@ -4,8 +4,6 @@ import { useDrawToolsStore } from '@/features/draw-tools';
 import { ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 
-// hooks/useLastTable.ts
-
 export function useCanvasSize() {
   const projectWidth = useERDProjectStore((state) => state.width);
   const projectHeight = useERDProjectStore((state) => state.height);
