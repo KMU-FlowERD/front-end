@@ -1,1 +1,1 @@
-export * from './erd-project.slice';
+export * from './erd-project.store';
