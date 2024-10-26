@@ -102,26 +102,57 @@ export function ErdProjectPage() {
   };
 
   const TableClick = (table: ERDTable) => {
-    if (
-      cursor === 'ARROW' &&
-      mapping !== undefined &&
-      mapping.type !== 'MANY-TO-MANY'
-    ) {
-      if (lastTable) {
-        createRelation({
-          id: Math.random().toString(36).slice(2),
-          from: lastTable.id,
-          to: table.id,
-          type: mapping.type,
-          identify: lastTable.id === table.id ? false : mapping.identify,
-          multiplicity: { from: 'MANDATORY', to: 'MANDATORY' },
-        });
-        setLastTable(undefined);
-        setMapping(undefined);
-      } else {
-        setLastTable(table);
-      }
+    if (cursor !== 'ARROW' || mapping === undefined) return;
+
+    if (!lastTable) {
+      setLastTable(table);
+      return;
     }
+
+    if (mapping.type !== 'MANY-TO-MANY') {
+      createRelation({
+        id: Math.random().toString(36).slice(2),
+        from: lastTable.id,
+        to: table.id,
+        type: mapping.type,
+        identify: lastTable.id === table.id ? false : mapping.identify,
+        multiplicity: { from: 'MANDATORY', to: 'MANDATORY' },
+      });
+    } else {
+      const tableCount = tables.length;
+      const mappingTable = {
+        id: tableCount.toString(),
+        title: `${lastTable.title}_${table.title}`,
+        top: (lastTable.top + table.top) / 2,
+        left: (lastTable.left + table.left) / 2,
+        width: 50,
+        height: 30,
+        columns: [],
+      };
+
+      createTable(mappingTable);
+
+      createRelation({
+        id: Math.random().toString(36).slice(2),
+        from: lastTable.id,
+        to: mappingTable.id,
+        type: 'ONE-TO-MANY',
+        identify: lastTable.id === table.id ? false : mapping.identify,
+        multiplicity: { from: 'MANDATORY', to: 'MANDATORY' },
+      });
+
+      createRelation({
+        id: Math.random().toString(36).slice(2),
+        from: table.id,
+        to: mappingTable.id,
+        type: 'ONE-TO-MANY',
+        identify: lastTable.id === table.id ? false : mapping.identify,
+        multiplicity: { from: 'MANDATORY', to: 'MANDATORY' },
+      });
+    }
+
+    setLastTable(undefined);
+    setMapping(undefined);
   };
 
   return (
