@@ -94,8 +94,8 @@ export function Table({ table, onClick, onPositionChange }: TableProps) {
     const handleMouseMove = (e: MouseEvent) => {
       if (dragging) {
         const newPos = {
-          left: e.clientX - offset.left,
-          top: e.clientY - offset.top,
+          left: e.pageX - offset.left,
+          top: e.pageY - offset.top,
         };
         onPositionChange(table.id, newPos);
       }

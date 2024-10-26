@@ -94,7 +94,7 @@ export const useContextMenu = () => {
 
   const openContextMenu = (event: React.MouseEvent, relation: ERDRelation) => {
     event.preventDefault();
-    setContextMenu({ x: event.clientX, y: event.clientY });
+    setContextMenu({ x: event.pageX, y: event.pageY });
     setLastRelation(relation);
   };
 

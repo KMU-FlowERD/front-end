@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 
 export const styles = {
   container: styled.div`
+    position: relative;
     display: flex;
     width: 200px;
     height: 100%;
@@ -13,6 +14,6 @@ export const styles = {
     border-radius: 16px;
     border: 0.5px solid #606060;
     background: #222;
-    z-index: 1;
+    pointer-events: all;
   `,
 };
