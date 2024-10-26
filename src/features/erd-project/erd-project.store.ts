@@ -4,6 +4,10 @@ import { immer } from 'zustand/middleware/immer';
 
 export type KeyType = 'PK' | 'FK' | 'PK/FK';
 
+export type Participation = 'OPTIONAL' | 'FULL';
+
+export type Cardinality = 'ONE' | 'MANY';
+
 export interface ERDColumn {
   id: string;
   type?: string;
@@ -26,11 +30,11 @@ export interface ERDRelation {
   id: string;
   from: ERDTable['id'];
   to: ERDTable['id'];
-  type?: 'ONE-TO-ONE' | 'ONE-TO-MANY';
+  cardinality?: Cardinality;
   identify: boolean;
-  multiplicity: {
-    from?: 'OPTIONAL' | 'MANDATORY';
-    to: 'OPTIONAL' | 'MANDATORY';
+  participation: {
+    from?: Participation;
+    to: Participation;
   };
 }
 
@@ -252,14 +256,14 @@ export const createERDProjectStore = (
                 .every((col) => col.nullable);
 
               if (allFKsNullable) {
-                rel.multiplicity = {
-                  ...rel.multiplicity,
+                rel.participation = {
+                  ...rel.participation,
                   to: 'OPTIONAL',
                 };
               } else {
-                rel.multiplicity = {
-                  ...rel.multiplicity,
-                  to: 'MANDATORY',
+                rel.participation = {
+                  ...rel.participation,
+                  to: 'FULL',
                 };
               }
             };

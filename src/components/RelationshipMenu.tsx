@@ -16,18 +16,18 @@ export function RelationshipMenu() {
 
   const fromMultiplicity =
     relation &&
-    relation.multiplicity &&
-    relation.multiplicity.from &&
-    relation.multiplicity.from === 'OPTIONAL'
-      ? 'MANDATORY'
+    relation.participation &&
+    relation.participation.from &&
+    relation.participation.from === 'OPTIONAL'
+      ? 'FULL'
       : 'OPTIONAL';
 
   const toMultiplicity =
     relation &&
-    relation.multiplicity &&
-    relation.multiplicity.to &&
-    relation.multiplicity.to === 'OPTIONAL'
-      ? 'MANDATORY'
+    relation.participation &&
+    relation.participation.to &&
+    relation.participation.to === 'OPTIONAL'
+      ? 'FULL'
       : 'OPTIONAL';
 
   const handleMenuItemClick = (
@@ -40,12 +40,12 @@ export function RelationshipMenu() {
     } else if (action === 'fromNullable') {
       updateRelation({
         ...relation,
-        multiplicity: { ...relation.multiplicity, from: fromMultiplicity },
+        participation: { ...relation.participation, from: fromMultiplicity },
       });
     } else if (action === 'toNullable') {
       updateRelation({
         ...relation,
-        multiplicity: { ...relation.multiplicity, to: toMultiplicity },
+        participation: { ...relation.participation, to: toMultiplicity },
       });
     }
 
@@ -63,10 +63,10 @@ export function RelationshipMenu() {
         관계 삭제
       </styles.menuItem>
       <styles.menuItem onClick={() => handleMenuItemClick('fromNullable')}>
-        {fromMultiplicity === 'MANDATORY' ? '✔️' : ''}부모 null 허용
+        {fromMultiplicity === 'FULL' ? '✔️' : ''}부모 null 허용
       </styles.menuItem>
       <styles.menuItem onClick={() => handleMenuItemClick('toNullable')}>
-        {toMultiplicity === 'MANDATORY' ? '✔️' : ''}자식 null 허용
+        {toMultiplicity === 'FULL' ? '✔️' : ''}자식 null 허용
       </styles.menuItem>
     </styles.menu>
   );

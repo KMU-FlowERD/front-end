@@ -67,9 +67,9 @@ export function ErdProjectPage() {
           id: Math.random().toString(36).slice(2),
           from: lastTable.id,
           to: table.id,
-          type: mapping.type,
+          cardinality: mapping.type,
           identify: lastTable.id === table.id ? false : mapping.identify,
-          multiplicity: { from: 'MANDATORY', to: 'MANDATORY' },
+          participation: { from: 'MANDATORY', to: 'FULL' },
         });
         setLastTable(undefined);
         setMapping(undefined);

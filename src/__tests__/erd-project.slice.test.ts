@@ -31,10 +31,10 @@ describe('ERD Project Store', () => {
     id: 'relation1',
     from: 'table1',
     to: 'table2',
-    type: 'ONE-TO-ONE',
+    cardinality: 'ONE-TO-ONE',
     identify: true,
-    multiplicity: {
-      to: 'MANDATORY',
+    participation: {
+      to: 'FULL',
     },
   };
 
@@ -256,9 +256,9 @@ describe('ERD Project Store', () => {
       store.getState().createRelation({
         ...relation,
         identify: false,
-        multiplicity: {
+        participation: {
           from: 'OPTIONAL',
-          to: 'MANDATORY',
+          to: 'FULL',
         },
       });
 
@@ -278,7 +278,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(targetRelation).not.toBeUndefined();
-      expect(targetRelation!.multiplicity!.to).toBe('OPTIONAL');
+      expect(targetRelation!.participation!.to).toBe('OPTIONAL');
     });
 
     test('테이블2의 FK인 컬럼이 nullable에서 non-null로 변경되면, 테이블1과의 관계의 참여 정보가 전체참여로 변경되어야합니다.', () => {
@@ -289,9 +289,9 @@ describe('ERD Project Store', () => {
       store.getState().createRelation({
         ...relation,
         identify: false,
-        multiplicity: {
+        participation: {
           from: 'OPTIONAL',
-          to: 'MANDATORY',
+          to: 'FULL',
         },
       });
 
@@ -319,7 +319,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(targetRelation).not.toBeUndefined();
-      expect(targetRelation!.multiplicity!.to).toBe('MANDATORY');
+      expect(targetRelation!.participation!.to).toBe('MANDATORY');
     });
 
     test('테이블2의 FK인 컬럼이 여러 개이고, 이 중 모두가 nullable로 변경되면, 테이블1과의 관계의 참여 정보가 부분참여로 변경되어야합니다.', () => {
@@ -331,9 +331,9 @@ describe('ERD Project Store', () => {
       store.getState().createRelation({
         ...relation,
         identify: false,
-        multiplicity: {
+        participation: {
           from: 'OPTIONAL',
-          to: 'MANDATORY',
+          to: 'FULL',
         },
       });
 
@@ -356,7 +356,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(targetRelation).not.toBeUndefined();
-      expect(targetRelation!.multiplicity!.to).toBe('OPTIONAL');
+      expect(targetRelation!.participation!.to).toBe('OPTIONAL');
     });
 
     test('테이블2의 FK인 컬럼이 여러 개이고, 이 중 하나만 nullable로 변경되면, 테이블1과의 관계의 참여 정보가 변경되지 않아야 합니다.', () => {
@@ -368,9 +368,9 @@ describe('ERD Project Store', () => {
       store.getState().createRelation({
         ...relation,
         identify: false,
-        multiplicity: {
+        participation: {
           from: 'OPTIONAL',
-          to: 'MANDATORY',
+          to: 'FULL',
         },
       });
 
@@ -394,7 +394,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(targetRelation).not.toBeUndefined();
-      expect(targetRelation!.multiplicity!.to).toBe('MANDATORY');
+      expect(targetRelation!.participation!.to).toBe('MANDATORY');
     });
 
     test('테이블2의 FK인 컬럼이 여러 개이고, 이 중 모두가 non-null로 변경되면, 테이블1과의 관계의 참여 정보가 전체참여로 변경되어야합니다.', () => {
@@ -406,9 +406,9 @@ describe('ERD Project Store', () => {
       store.getState().createRelation({
         ...relation,
         identify: false,
-        multiplicity: {
+        participation: {
           from: 'OPTIONAL',
-          to: 'MANDATORY',
+          to: 'FULL',
         },
       });
 
@@ -431,7 +431,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(targetRelation).not.toBeUndefined();
-      expect(targetRelation!.multiplicity!.to).toBe('OPTIONAL');
+      expect(targetRelation!.participation!.to).toBe('OPTIONAL');
 
       targetColumns?.forEach((col) => {
         store.getState().updateColumn(table2, { ...col, nullable: false });
@@ -442,7 +442,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(updatedRelation).not.toBeUndefined();
-      expect(updatedRelation!.multiplicity!.to).toBe('MANDATORY');
+      expect(updatedRelation!.participation!.to).toBe('MANDATORY');
     });
 
     test('테이블2의 FK인 컬럼이 여러 개이고, 이 중 하나만 non-null로 변경되면, 테이블1과의 관계의 참여 정보가 전체참여로 유지되어야 합니다.', () => {
@@ -454,9 +454,9 @@ describe('ERD Project Store', () => {
       store.getState().createRelation({
         ...relation,
         identify: false,
-        multiplicity: {
+        participation: {
           from: 'OPTIONAL',
-          to: 'MANDATORY',
+          to: 'FULL',
         },
       });
 
@@ -479,7 +479,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(targetRelation).not.toBeUndefined();
-      expect(targetRelation!.multiplicity!.to).toBe('OPTIONAL');
+      expect(targetRelation!.participation!.to).toBe('OPTIONAL');
 
       targetColumns?.forEach((col, index) => {
         if (index > 0) return;
@@ -491,7 +491,7 @@ describe('ERD Project Store', () => {
         .relations[table2.id].find((rel) => rel.id === relation.id);
 
       expect(updatedRelation).not.toBeUndefined();
-      expect(updatedRelation!.multiplicity!.to).toBe('MANDATORY');
+      expect(updatedRelation!.participation!.to).toBe('MANDATORY');
     });
 
     test('컬럼을 삭제합니다.', () => {
@@ -636,13 +636,16 @@ describe('ERD Project Store', () => {
       store.getState().createTable(table2);
       store.getState().createRelation(relation);
 
-      const updatedRelation: ERDRelation = { ...relation, type: 'ONE-TO-MANY' };
+      const updatedRelation: ERDRelation = {
+        ...relation,
+        cardinality: 'ONE-TO-MANY',
+      };
       store.getState().updateRelation(updatedRelation);
 
       const updatedRel = store
         .getState()
         .relations[table1.id].find((rel) => rel.id === relation.id);
-      expect(updatedRel?.type).toBe('ONE-TO-MANY');
+      expect(updatedRel?.cardinality).toBe('ONE-TO-MANY');
     });
 
     test('릴레이션의 식별/비식별이 변경되면, 다른 테이블에 영향을 미치게됩니다. 식별 → 비식별', () => {
