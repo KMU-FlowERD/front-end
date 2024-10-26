@@ -7,7 +7,7 @@ import {
   RelationshipInformation,
   TableInformation,
 } from '@/components';
-import { Relationship } from '@/components/Relationship';
+import { Relationship } from '@/components/erd-project/Relationship';
 import { Table } from '@/components/table';
 import { useDrawToolsStore } from '@/features/draw-tools';
 import { useCanvasSize, usePageMove, useLastTable } from '@/features/erd-page';
