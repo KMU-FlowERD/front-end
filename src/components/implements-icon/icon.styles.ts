@@ -15,6 +15,12 @@ export const styles = {
     }
   `,
 
+  relationshipPath: styled.rect`
+    &:hover {
+      fill: #ddd;
+    }
+  `,
+
   menuIcon: styled.div`
     cursor: pointer;
   `,

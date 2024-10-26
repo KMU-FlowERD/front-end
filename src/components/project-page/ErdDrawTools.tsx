@@ -1,14 +1,14 @@
 'use client';
 
 import { styles } from './ErdDrawTools.styles';
+
 import {
   ArrowIcon,
   MemoIcon,
   PointerIcon,
   RelationshipIcons,
   TableIcon,
-} from '../implements-icon';
-
+} from '@/components/implements-icon';
 import { useDrawToolsStore } from '@/features/draw-tools';
 
 export function ErdDrawTools() {

@@ -8,7 +8,7 @@ import {
   ErdDrawTools,
   RelationshipInformation,
   TableInformation,
-} from '@/components';
+} from '@/components/project-page';
 import { Relationship } from '@/components/project-page/Relationship';
 import { Table } from '@/components/table';
 import { useDrawToolsStore } from '@/features/draw-tools';
