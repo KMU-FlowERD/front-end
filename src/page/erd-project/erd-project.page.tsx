@@ -1,6 +1,7 @@
 'use client';
 
 import styled from '@emotion/styled';
+import { useState } from 'react';
 
 import {
   ErdDrawTools,
@@ -10,13 +11,14 @@ import {
 import { Relationship } from '@/components/erd-project/Relationship';
 import { Table } from '@/components/table';
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { useCanvasSize, usePageMove, useLastTable } from '@/features/erd-page';
+import { useCanvasSize, usePageMove } from '@/features/erd-page';
 import { ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 
 export function ErdProjectPage() {
+  const [lastTable, setLastTable] = useState<ERDTable | undefined>(undefined);
+
   const { projectWidth, projectHeight } = useCanvasSize();
-  const { lastTable, setLastTable } = useLastTable();
   usePageMove();
 
   const updateCanvasSize = useERDProjectStore(
@@ -120,7 +122,7 @@ export function ErdProjectPage() {
       });
     } else {
       const tableCount = tables.length;
-      const mappingTable = {
+      const mappingTable: ERDTable = {
         id: tableCount.toString(),
         title: `${lastTable.title}_${table.title}`,
         top: (lastTable.top + table.top) / 2,
