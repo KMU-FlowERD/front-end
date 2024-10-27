@@ -1,4 +1,4 @@
-import { styles } from './Column.styles';
+import { styles } from './Columns.styles';
 
 import { ERDColumn, ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 
 export function useCanvasSize() {
@@ -93,9 +92,4 @@ export function usePageMove() {
   }, [cursor, pageMove, initPagePosition, scrollPagePosition]);
 
   return { pageMove, setPageMove };
-}
-
-export function useLastTable() {
-  const [lastTable, setLastTable] = useState<ERDTable | undefined>(undefined);
-  return { lastTable, setLastTable };
 }
