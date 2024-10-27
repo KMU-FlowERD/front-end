@@ -25,6 +25,11 @@
     "import/prefer-default-export": "off",
     "import/no-default-export": "error",
     "@typescript-eslint/no-floating-promises": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      { "prefer": "type-imports" }
+    ],
     "max-lines-per-function": [
       "error",
       {
@@ -75,7 +80,6 @@
       }
     ],
     "no-use-before-define": "off",
-    "@typescript-eslint/no-use-before-define": "off",
     "@next/next/no-img-element": "off",
     "no-param-reassign": [
       "error",
