@@ -73,6 +73,16 @@
         "tsx": "never"
       }
     ],
+    "sort-imports": [
+      "error",
+      {
+        "ignoreCase": true,
+        "ignoreDeclarationSort": true,
+        "ignoreMemberSort": true,
+        "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
+        "allowSeparatedGroups": true
+      }
+    ],
     "react/jsx-filename-extension": [
       "error",
       {
