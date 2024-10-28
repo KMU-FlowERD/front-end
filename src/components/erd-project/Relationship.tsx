@@ -1,8 +1,7 @@
 'use client';
 
-import styled from '@emotion/styled';
-
 import { ConnectLine } from './ConnectLine';
+import { styles } from './Relationship.styles';
 import { RelationshipMenu } from './RelationshipMenu';
 
 import {
@@ -40,15 +39,3 @@ function RelationshipConsumer() {
     </styles.display>
   );
 }
-
-const styles = {
-  display: styled.div`
-    width: 100%;
-    height: 100%;
-    position: absolute;
-  `,
-  wrapper: styled.svg`
-    width: 100%;
-    height: 100%;
-  `,
-};

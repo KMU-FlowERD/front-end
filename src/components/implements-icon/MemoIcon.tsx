@@ -1,6 +1,6 @@
 'use client';
 
-import styled from '@emotion/styled';
+import { styles } from './icon.styles';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
 
@@ -40,19 +40,3 @@ function Icon({ fill }: { fill: string }) {
     </svg>
   );
 }
-
-const styles = {
-  container: styled.div`
-    user-select: none;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  `,
-
-  pathStyle: styled.path`
-    &:hover {
-      fill: #ddd;
-    }
-  `,
-};

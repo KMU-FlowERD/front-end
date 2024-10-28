@@ -1,5 +1,6 @@
-import styled from '@emotion/styled';
 import { MutableRefObject } from 'react';
+
+import { styles } from './TableMenu.styles';
 
 import { ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
@@ -61,28 +62,3 @@ export function TableMenu({
     </styles.menu>
   );
 }
-
-const styles = {
-  menu: styled.div`
-    position: absolute;
-    top: 0px;
-    right: 5px;
-    background-color: #333;
-    border: 1px solid #444;
-    border-radius: 4px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-    z-index: 1;
-  `,
-
-  menuItem: styled.div`
-    padding: 8px 16px;
-    font-size: 12px;
-    color: #fff;
-    white-space: nowrap;
-    cursor: pointer;
-
-    &:hover {
-      background-color: #444;
-    }
-  `,
-};

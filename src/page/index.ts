@@ -1,2 +1,2 @@
-export * from './erd-project.page';
+export * from './erd-project';
 export * from './home';
