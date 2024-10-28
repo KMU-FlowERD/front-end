@@ -1,23 +1,11 @@
-import { MutableRefObject } from 'react';
-
 import { styles } from './TableMenu.styles';
 
-import { ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
+import { useTableContext } from '@/providers/TableProvider';
 
-interface TableMenuProps {
-  menuRef: MutableRefObject<HTMLDivElement | null>;
-  table: ERDTable;
-  setIsEditingColumns: (isEditingColumns: boolean) => void;
-  setMenuOpen: (menuOpen: boolean) => void;
-}
-
-export function TableMenu({
-  menuRef,
-  table,
-  setIsEditingColumns,
-  setMenuOpen,
-}: TableMenuProps) {
+export function TableMenu() {
+  const { menuRef, table, menuOpen, setIsEditingColumns, setMenuOpen } =
+    useTableContext();
   const deleteTable = useERDProjectStore((state) => state.deleteTable);
 
   const createColumn = useERDProjectStore((state) => state.createColumn);
@@ -44,6 +32,8 @@ export function TableMenu({
 
     setMenuOpen(false);
   };
+
+  if (!menuOpen) return null;
 
   return (
     <styles.menu ref={menuRef}>
