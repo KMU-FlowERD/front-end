@@ -33,9 +33,13 @@ export function ErdProjectPage() {
 
   const mapping = useDrawToolsStore((state) => state.mapping);
   const setMapping = useDrawToolsStore((state) => state.setMapping);
+
   const entity = useDrawToolsStore((state) => state.entity);
+
   const setEntity = useDrawToolsStore((state) => state.setEntity);
   const cursor = useDrawToolsStore((state) => state.cursor);
+
+  const notation = useDrawToolsStore((state) => state.notation);
 
   const projectMaxDistance = 300;
 
@@ -44,9 +48,8 @@ export function ErdProjectPage() {
   ) => {
     const { pageX, pageY } = event;
     if (cursor === 'ARROW' && entity === 'TABLE') {
-      const tableCount = tables.length;
       createTable({
-        id: tableCount.toString(),
+        id: Math.random().toString(36).slice(2),
         title: 'table',
         top: pageY,
         left: pageX,
@@ -112,6 +115,21 @@ export function ErdProjectPage() {
       return;
     }
 
+    setLastTable(undefined);
+    setMapping(undefined);
+
+    if (notation === 'IDEF1X') {
+      createRelation({
+        id: Math.random().toString(36).slice(2),
+        from: lastTable.id,
+        to: table.id,
+        identify: lastTable.id === table.id ? false : mapping.identify,
+        multiplicity: { to: 'MANDATORY' },
+      });
+
+      return;
+    }
+
     if (mapping.type !== 'MANY-TO-MANY') {
       createRelation({
         id: Math.random().toString(36).slice(2),
@@ -121,41 +139,40 @@ export function ErdProjectPage() {
         identify: lastTable.id === table.id ? false : mapping.identify,
         multiplicity: { from: 'MANDATORY', to: 'MANDATORY' },
       });
-    } else {
-      const tableCount = tables.length;
-      const mappingTable: ERDTable = {
-        id: tableCount.toString(),
-        title: `${lastTable.title}_${table.title}`,
-        top: (lastTable.top + table.top) / 2,
-        left: (lastTable.left + table.left) / 2,
-        width: 50,
-        height: 30,
-        columns: [],
-      };
 
-      createTable(mappingTable);
-
-      createRelation({
-        id: Math.random().toString(36).slice(2),
-        from: lastTable.id,
-        to: mappingTable.id,
-        type: 'ONE-TO-MANY',
-        identify: lastTable.id === table.id ? false : mapping.identify,
-        multiplicity: { from: 'MANDATORY', to: 'MANDATORY' },
-      });
-
-      createRelation({
-        id: Math.random().toString(36).slice(2),
-        from: table.id,
-        to: mappingTable.id,
-        type: 'ONE-TO-MANY',
-        identify: lastTable.id === table.id ? false : mapping.identify,
-        multiplicity: { from: 'MANDATORY', to: 'MANDATORY' },
-      });
+      return;
     }
 
-    setLastTable(undefined);
-    setMapping(undefined);
+    const tableCount = tables.length;
+    const mappingTable: ERDTable = {
+      id: tableCount.toString(),
+      title: `${lastTable.title}_${table.title}`,
+      top: (lastTable.top + table.top) / 2,
+      left: (lastTable.left + table.left) / 2,
+      width: 50,
+      height: 30,
+      columns: [],
+    };
+
+    createTable(mappingTable);
+
+    createRelation({
+      id: Math.random().toString(36).slice(2),
+      from: lastTable.id,
+      to: mappingTable.id,
+      type: 'ONE-TO-MANY',
+      identify: lastTable.id === table.id ? false : mapping.identify,
+      multiplicity: { from: 'MANDATORY', to: 'MANDATORY' },
+    });
+
+    createRelation({
+      id: Math.random().toString(36).slice(2),
+      from: table.id,
+      to: mappingTable.id,
+      type: 'ONE-TO-MANY',
+      identify: lastTable.id === table.id ? false : mapping.identify,
+      multiplicity: { from: 'MANDATORY', to: 'MANDATORY' },
+    });
   };
 
   return (
