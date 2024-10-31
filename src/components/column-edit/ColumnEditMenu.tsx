@@ -1,25 +1,18 @@
 'use client';
 
-import { MutableRefObject } from 'react';
-
 import { styles } from './ColumnEditMenu.styles';
 import { Columns } from './Columns';
 import { FkColumns } from './FkColumns';
 import { PkColumns } from './PkColumns';
 import { PkFkColumns } from './PkFkColumns';
 
-import { ERDColumn, ERDTable } from '@/features/erd-project';
+import { ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
+import { useTableContext } from '@/providers/TableProvider';
 
-export function ColumnEditMenu({
-  editRef,
-  table,
-  tableColumns,
-}: {
-  editRef: MutableRefObject<HTMLDivElement | null>;
-  table: ERDTable;
-  tableColumns: ERDColumn[];
-}) {
+export function ColumnEditMenu() {
+  const { editRef, table, tableColumns, isEditingColumns } = useTableContext();
+
   const updateTable = useERDProjectStore((state) => state.updateTable);
 
   const pkColumns = tableColumns.filter((val) => val.keyType === 'PK');
@@ -40,6 +33,8 @@ export function ColumnEditMenu({
   const blurTitleEdit = (orginTable: ERDTable, title: string) => {
     updateTable({ ...orginTable, title });
   };
+
+  if (!isEditingColumns) return null;
 
   return (
     <styles.wrapper ref={editRef}>
