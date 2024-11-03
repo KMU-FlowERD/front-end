@@ -8,6 +8,7 @@ import { TableMenu } from './TableMenu';
 
 import { ColumnEditMenu } from '@/components/column-edit';
 import { MenuIcon } from '@/components/implements-icon';
+import { useDrawToolsStore } from '@/features/draw-tools';
 import { ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 
@@ -18,12 +19,15 @@ interface Position {
 
 interface TableProps {
   table: ERDTable;
+  child: boolean;
   onClick: (table: ERDTable) => void;
   onPositionChange: (id: string, pos: Position) => void;
 }
 
-export function Table({ table, onClick, onPositionChange }: TableProps) {
+export function Table({ table, child, onClick, onPositionChange }: TableProps) {
   const updateTable = useERDProjectStore((state) => state.updateTable);
+
+  const notation = useDrawToolsStore((state) => state.notation);
 
   const boxRef = useRef<HTMLDivElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -126,6 +130,7 @@ export function Table({ table, onClick, onPositionChange }: TableProps) {
       </styles.titleMenuWrapper>
       <styles.container
         ref={boxRef}
+        $child={child && notation === 'IDEF1X'}
         onClick={() => onClick(table)}
         onMouseDown={handleMouseDown}
       >

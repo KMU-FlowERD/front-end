@@ -31,6 +31,8 @@ export function ErdProjectPage() {
   const updateTable = useERDProjectStore((state) => state.updateTable);
   const createRelation = useERDProjectStore((state) => state.createRelation);
 
+  const relations = useERDProjectStore((state) => state.relations);
+
   const mapping = useDrawToolsStore((state) => state.mapping);
   const setMapping = useDrawToolsStore((state) => state.setMapping);
 
@@ -42,6 +44,14 @@ export function ErdProjectPage() {
   const notation = useDrawToolsStore((state) => state.notation);
 
   const projectMaxDistance = 300;
+
+  const childTables = new Set<string>();
+
+  tables.forEach((table) => {
+    relations[table.id]?.forEach((relation) => {
+      childTables.add(relation.to);
+    });
+  });
 
   const displayClicked = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -185,6 +195,7 @@ export function ErdProjectPage() {
         <Table
           key={table.id}
           table={table}
+          child={childTables.has(table.id)}
           onClick={TableClick}
           onPositionChange={onPositionChange}
         />
