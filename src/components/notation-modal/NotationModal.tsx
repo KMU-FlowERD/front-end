@@ -13,7 +13,14 @@ export function NotationModal({ relations }: { relations: ERDRelation[] }) {
 
   const modalContext = useModalContext();
 
-  const changeRelations = relations.slice();
+  const changeRelations = relations.map((relation) => {
+    const changeRelation: ERDRelation = {
+      ...relation,
+      multiplicity: { from: 'OPTIONAL', to: relation.multiplicity.to },
+      type: 'ONE-TO-MANY',
+    };
+    return changeRelation;
+  });
 
   const changeClick = () => {
     changeRelations.forEach((relation) => {
