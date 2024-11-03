@@ -3,95 +3,95 @@ import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
 import type {
-  Column,
-  Diagram,
-  Project,
+  ERDColumn,
+  ERDDiagram,
+  ERDProject,
   Relation,
-  Schema,
-  Table,
+  ERDSchema,
+  ERDTable,
   WithPosition,
 } from './erd-project.type';
 
-export type ERDProjectState = Project;
+export type ERDProjectState = ERDProject;
 
 export interface ERDProjectAction {
-  setProject: (project: Project) => void;
+  setProject: (project: ERDProject) => void;
 
   updateProjectInfo: (metaData: {
     title: string;
     description?: string;
   }) => void;
 
-  createSchema: (schema: Schema) => void;
+  createSchema: (schema: ERDSchema) => void;
 
-  updateSchema: (schema: Schema) => void;
+  updateSchema: (schema: ERDSchema) => void;
 
-  deleteSchema: (schemaName: Schema['name']) => void;
+  deleteSchema: (schemaName: ERDSchema['name']) => void;
 
-  createDiagram: (schemaName: Schema['name'], diagram: Diagram) => void;
+  createDiagram: (schemaName: ERDSchema['name'], diagram: ERDDiagram) => void;
 
-  updateDiagram: (schemaName: Schema['name'], diagram: Diagram) => void;
+  updateDiagram: (schemaName: ERDSchema['name'], diagram: ERDDiagram) => void;
 
   deleteDiagram: (
-    schemaName: Schema['name'],
-    diagramName: Diagram['name'],
+    schemaName: ERDSchema['name'],
+    diagramName: ERDDiagram['name'],
   ) => void;
 
   insertTableIntoDiagram: (
-    schemaName: Schema['name'],
-    diagramName: Diagram['name'],
-    table: WithPosition<Table>,
+    schemaName: ERDSchema['name'],
+    diagramName: ERDDiagram['name'],
+    table: WithPosition<ERDTable>,
   ) => void;
 
   removeTableFromDiagram: (
-    schemaName: Schema['name'],
-    diagramName: Diagram['name'],
-    table: WithPosition<Table>,
+    schemaName: ERDSchema['name'],
+    diagramName: ERDDiagram['name'],
+    table: WithPosition<ERDTable>,
   ) => void;
 
   moveTableInDiagram: (
-    schemaName: Schema['name'],
-    diagramName: Diagram['name'],
-    table: WithPosition<Table>,
+    schemaName: ERDSchema['name'],
+    diagramName: ERDDiagram['name'],
+    table: WithPosition<ERDTable>,
   ) => void;
 
   resizeCanvas: (
-    schemaName: Schema['name'],
-    diagramName: Diagram['name'],
+    schemaName: ERDSchema['name'],
+    diagramName: ERDDiagram['name'],
     size: { width: number; height: number },
   ) => void;
 
-  createTable: (schemaName: Schema['name'], table: Table) => void;
+  createTable: (schemaName: ERDSchema['name'], table: ERDTable) => void;
 
-  updateTable: (schemaName: Schema['name'], table: Table) => void;
+  updateTable: (schemaName: ERDSchema['name'], table: ERDTable) => void;
 
-  deleteTable: (schemaName: Schema['name'], tableId: Table['id']) => void;
+  deleteTable: (schemaName: ERDSchema['name'], tableId: ERDTable['id']) => void;
 
   createColumn: (
-    schemaName: Schema['name'],
-    table: Table,
+    schemaName: ERDSchema['name'],
+    table: ERDTable,
     isPK: boolean,
   ) => void;
 
   updateColumn: (
-    schemaName: Schema['name'],
-    table: Table,
-    column: Column,
+    schemaName: ERDSchema['name'],
+    table: ERDTable,
+    column: ERDColumn,
   ) => void;
 
   deleteColumn: (
-    schemaName: Schema['name'],
-    table: Table,
-    column: Column,
+    schemaName: ERDSchema['name'],
+    table: ERDTable,
+    column: ERDColumn,
   ) => void;
 
-  createRelation: (schemaName: Schema['name'], relation: Relation) => void;
+  createRelation: (schemaName: ERDSchema['name'], relation: Relation) => void;
 
-  updateRelation: (schemaName: Schema['name'], relation: Relation) => void;
+  updateRelation: (schemaName: ERDSchema['name'], relation: Relation) => void;
 
-  deleteRelation: (schemaName: Schema['name'], relation: Relation) => void;
+  deleteRelation: (schemaName: ERDSchema['name'], relation: Relation) => void;
 
-  updateTableInDiagram: (schemaName: Schema['name']) => void;
+  updateTableInDiagram: (schemaName: ERDSchema['name']) => void;
 }
 
 export type ERDProjectStore = ERDProjectState & ERDProjectAction;
@@ -103,7 +103,9 @@ export const defaultInitState: ERDProjectState = {
   schemas: [],
 };
 
-export const createERDProjectStore = (initState: Project = defaultInitState) =>
+export const createERDProjectStore = (
+  initState: ERDProject = defaultInitState,
+) =>
   createStore<ERDProjectStore>()(
     immer((set, get) => ({
       ...initState,
@@ -228,8 +230,8 @@ export const createERDProjectStore = (initState: Project = defaultInitState) =>
           const target = schema.tables.find((t) => t.id === tableId);
           if (!target) return;
 
-          const visited: Record<Table['id'], boolean> = {};
-          const dfs = (curr: Table) => {
+          const visited: Record<ERDTable['id'], boolean> = {};
+          const dfs = (curr: ERDTable) => {
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
@@ -278,15 +280,15 @@ export const createERDProjectStore = (initState: Project = defaultInitState) =>
           const target = schema.tables.find((t) => t.id === table.id);
           if (!target) return;
 
-          const column: Column = {
+          const column: ERDColumn = {
             id: uuidv4(),
             name: 'column',
             nullable: false,
             constraintName: isPK ? `PK_${target.title}` : undefined,
           };
 
-          const visited: Record<Table['id'], boolean> = {};
-          const dfs = (curr: Table) => {
+          const visited: Record<ERDTable['id'], boolean> = {};
+          const dfs = (curr: ERDTable) => {
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
@@ -325,8 +327,8 @@ export const createERDProjectStore = (initState: Project = defaultInitState) =>
           const target = schema.tables.find((t) => t.id === table.id);
           if (!target) return;
 
-          const visited: Record<Table['id'], boolean> = {};
-          const dfs = (curr: Table) => {
+          const visited: Record<ERDTable['id'], boolean> = {};
+          const dfs = (curr: ERDTable) => {
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
@@ -376,8 +378,8 @@ export const createERDProjectStore = (initState: Project = defaultInitState) =>
           const target = schema.tables.find((t) => t.id === table.id);
           if (!target) return;
 
-          const visited: Record<Table['id'], boolean> = {};
-          const dfs = (curr: Table) => {
+          const visited: Record<ERDTable['id'], boolean> = {};
+          const dfs = (curr: ERDTable) => {
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 

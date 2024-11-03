@@ -11,7 +11,7 @@ export type Position = {
 
 export type WithPosition<T> = Position & T;
 
-export interface Column {
+export interface ERDColumn {
   id: string;
   type?: string;
   name: string;
@@ -20,19 +20,19 @@ export interface Column {
   constraintName?: string;
 }
 
-export interface Table {
+export interface ERDTable {
   id: string;
   title: string;
   width: number;
   height: number;
-  columns: Column[];
+  columns: ERDColumn[];
   relations: Relation[];
 }
 
 export interface Relation {
   id: string;
-  from: Table['id'];
-  to: Table['id'];
+  from: ERDTable['id'];
+  to: ERDTable['id'];
   cardinality?: {
     from: Cardinality;
     to: Cardinality;
@@ -45,22 +45,22 @@ export interface Relation {
   constraintName: string;
 }
 
-export interface Schema {
+export interface ERDSchema {
   name: string;
-  tables: Table[];
-  diagrams: Diagram[];
+  tables: ERDTable[];
+  diagrams: ERDDiagram[];
 }
 
-export interface Diagram {
+export interface ERDDiagram {
   name: string;
-  tables: WithPosition<Table>[];
+  tables: WithPosition<ERDTable>[];
   width: number;
   height: number;
 }
 
-export interface Project {
+export interface ERDProject {
   id: string;
   name: string;
   description?: string;
-  schemas: Schema[];
+  schemas: ERDSchema[];
 }

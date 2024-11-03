@@ -1,27 +1,27 @@
 import { describe, expect, test } from '@jest/globals';
 import {
   createERDProjectStore,
-  Diagram,
+  ERDDiagram,
   Relation,
-  Schema,
-  Table,
+  ERDSchema,
+  ERDTable,
 } from '@/features/erd-project';
 
 describe('ERD Project Store', () => {
-  const _schema: Schema = {
+  const _schema: ERDSchema = {
     name: 'schema1',
     tables: [],
     diagrams: [],
   };
 
-  const _diagram: Diagram = {
+  const _diagram: ERDDiagram = {
     name: 'diagram1',
     width: 1000,
     height: 1000,
     tables: [],
   };
 
-  const _table1: Table = {
+  const _table1: ERDTable = {
     id: 'table1',
     title: 'Table1',
     width: 100,
@@ -30,7 +30,7 @@ describe('ERD Project Store', () => {
     relations: [],
   };
 
-  const _table2: Table = {
+  const _table2: ERDTable = {
     id: 'table2',
     title: 'Table2',
     width: 100,
