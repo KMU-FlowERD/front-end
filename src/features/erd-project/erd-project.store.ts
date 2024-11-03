@@ -2,444 +2,554 @@ import { v4 as uuidv4 } from 'uuid';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
-export type KeyType = 'PK' | 'FK' | 'PK/FK';
+import type {
+  Column,
+  Diagram,
+  Project,
+  Relation,
+  Schema,
+  Table,
+  WithPosition,
+} from './erd-project.type';
 
-export type Participation = 'OPTIONAL' | 'FULL';
-
-export type Cardinality = 'ONE' | 'MANY';
-
-export interface ERDColumn {
-  id: string;
-  type?: string;
-  name: string;
-  nullable: boolean;
-  keyType?: KeyType;
-}
-
-export interface ERDTable {
-  id: string;
-  title: string;
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-  columns: ERDColumn[];
-}
-
-export interface ERDRelation {
-  id: string;
-  from: ERDTable['id'];
-  to: ERDTable['id'];
-  cardinality?: Cardinality;
-  identify: boolean;
-  participation: {
-    from?: Participation;
-    to: Participation;
-  };
-}
-
-export interface ERDProject {
-  id: string;
-  title: string;
-  description?: string;
-  width: number;
-  height: number;
-  tables: ERDTable[];
-  relations: Record<ERDTable['id'], ERDRelation[]>;
-}
+export type ERDProjectState = Project;
 
 export interface ERDProjectAction {
-  setProject: (project: ERDProject) => void;
-  updateDescriptions: (metaData: {
+  setProject: (project: Project) => void;
+
+  updateProjectInfo: (metaData: {
     title: string;
     description?: string;
   }) => void;
-  updateCanvasSize: (size: { width: number; height: number }) => void;
-  createTable: (table: ERDTable) => void;
-  updateTable: (table: ERDTable) => void;
-  deleteTable: (tableId: ERDTable['id']) => void;
-  createColumn: (table: ERDTable, isPK: boolean) => void;
-  updateColumn: (table: ERDTable, column: ERDColumn) => void;
-  deleteColumn: (table: ERDTable, column: ERDColumn) => void;
-  createRelation: (relation: ERDRelation) => void;
-  updateRelation: (relation: ERDRelation) => void;
-  deleteRelation: (relation: ERDRelation) => void;
+
+  createSchema: (schema: Schema) => void;
+
+  updateSchema: (schema: Schema) => void;
+
+  deleteSchema: (schemaName: Schema['name']) => void;
+
+  createDiagram: (schemaName: Schema['name'], diagram: Diagram) => void;
+
+  updateDiagram: (schemaName: Schema['name'], diagram: Diagram) => void;
+
+  deleteDiagram: (
+    schemaName: Schema['name'],
+    diagramName: Diagram['name'],
+  ) => void;
+
+  insertTableIntoDiagram: (
+    schemaName: Schema['name'],
+    diagramName: Diagram['name'],
+    table: WithPosition<Table>,
+  ) => void;
+
+  removeTableFromDiagram: (
+    schemaName: Schema['name'],
+    diagramName: Diagram['name'],
+    table: WithPosition<Table>,
+  ) => void;
+
+  moveTableInDiagram: (
+    schemaName: Schema['name'],
+    diagramName: Diagram['name'],
+    table: WithPosition<Table>,
+  ) => void;
+
+  resizeCanvas: (
+    schemaName: Schema['name'],
+    diagramName: Diagram['name'],
+    size: { width: number; height: number },
+  ) => void;
+
+  createTable: (schemaName: Schema['name'], table: Table) => void;
+
+  updateTable: (schemaName: Schema['name'], table: Table) => void;
+
+  deleteTable: (schemaName: Schema['name'], tableId: Table['id']) => void;
+
+  createColumn: (
+    schemaName: Schema['name'],
+    table: Table,
+    isPK: boolean,
+  ) => void;
+
+  updateColumn: (
+    schemaName: Schema['name'],
+    table: Table,
+    column: Column,
+  ) => void;
+
+  deleteColumn: (
+    schemaName: Schema['name'],
+    table: Table,
+    column: Column,
+  ) => void;
+
+  createRelation: (schemaName: Schema['name'], relation: Relation) => void;
+
+  updateRelation: (schemaName: Schema['name'], relation: Relation) => void;
+
+  deleteRelation: (schemaName: Schema['name'], relation: Relation) => void;
+
+  updateTableInDiagram: (schemaName: Schema['name']) => void;
 }
 
-export type ERDProjectStore = ERDProject & ERDProjectAction;
+export type ERDProjectStore = ERDProjectState & ERDProjectAction;
 
-export const defaultInitState: ERDProject = {
+export const defaultInitState: ERDProjectState = {
   id: 'default',
-  title: '프로젝트 이름',
+  name: '프로젝트 이름',
   description: undefined,
-  height: 0,
-  width: 0,
-  tables: [],
-  relations: {},
+  schemas: [],
 };
 
-export const createERDProjectStore = (
-  initState: ERDProject = defaultInitState,
-) =>
+export const createERDProjectStore = (initState: Project = defaultInitState) =>
   createStore<ERDProjectStore>()(
-    immer((set) => ({
+    immer((set, get) => ({
       ...initState,
 
       setProject: (project) =>
         set((state) => {
           state.id = project.id;
-          state.title = project.title;
+          state.name = project.name;
           state.description = project.description;
-          state.width = project.width;
-          state.height = project.height;
-          state.tables = project.tables;
-          state.relations = project.relations;
+          state.schemas = project.schemas;
         }),
 
-      updateDescriptions: ({ title, description }) =>
+      updateProjectInfo: ({ title, description }) =>
         set((state) => {
-          state.title = title;
+          state.name = title;
           state.description = description;
         }),
 
-      updateCanvasSize: ({ width, height }) => {
-        if (width <= 0 || height <= 0)
-          throw new Error('width, height must greater than 0');
-
+      createSchema: (schema) =>
         set((state) => {
-          state.width = width;
-          state.height = height;
+          state.schemas.push(schema);
+        }),
+
+      updateSchema: (schema) =>
+        set((state) => {
+          state.schemas = state.schemas.map((s) =>
+            s.name === schema.name ? schema : s,
+          );
+        }),
+
+      deleteSchema: (schemaName) =>
+        set((state) => {
+          state.schemas = state.schemas.filter((s) => s.name !== schemaName);
+        }),
+
+      createDiagram: (schemaName, diagram) =>
+        set((state) => {
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (schema) schema.diagrams.push(diagram);
+        }),
+
+      updateDiagram: (schemaName, diagram) =>
+        set((state) => {
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (schema)
+            schema.diagrams = schema.diagrams.map((d) =>
+              d.name === diagram.name ? diagram : d,
+            );
+        }),
+
+      deleteDiagram: (schemaName, diagramName) =>
+        set((state) => {
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (schema)
+            schema.diagrams = schema.diagrams.filter(
+              (d) => d.name !== diagramName,
+            );
+        }),
+
+      insertTableIntoDiagram: (schemaName, diagramName, table) =>
+        set((state) => {
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (schema) {
+            const diagram = schema.diagrams.find((d) => d.name === diagramName);
+            if (diagram) diagram.tables.push(table);
+          }
+        }),
+
+      removeTableFromDiagram: (schemaName, diagramName, table) =>
+        set((state) => {
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (schema) {
+            const diagram = schema.diagrams.find((d) => d.name === diagramName);
+            if (diagram)
+              diagram.tables = diagram.tables.filter((t) => t.id !== table.id);
+          }
+        }),
+
+      moveTableInDiagram: (schemaName, diagramName, table) =>
+        set((state) => {
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (schema) {
+            const diagram = schema.diagrams.find((d) => d.name === diagramName);
+            if (diagram)
+              diagram.tables = diagram.tables.map((t) =>
+                t.id === table.id ? table : t,
+              );
+          }
+        }),
+
+      resizeCanvas: (schemaName, diagramName, size) => {
+        set((state) => {
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (schema)
+            schema.diagrams = schema.diagrams.map((d) =>
+              d.name === diagramName ? { ...d, ...size } : d,
+            );
         });
       },
 
-      createTable: (table) =>
+      createTable: (schemaName, table) =>
         set((state) => {
-          state.tables.push(table);
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (schema) schema.tables.push(table);
         }),
 
-      updateTable: (table) =>
+      updateTable: (schemaName, table) =>
         set((state) => {
-          state.tables = state.tables.map((v) =>
-            v.id === table.id ? table : v,
-          );
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (schema)
+            schema.tables = schema.tables.map((t) =>
+              t.id === table.id ? table : t,
+            );
+          get().updateTableInDiagram(schemaName);
         }),
 
-      deleteTable: (tableId) =>
+      deleteTable: (schemaName, tableId) =>
         set((state) => {
-          const target = state.tables.find((v) => v.id === tableId);
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (!schema) return;
+
+          const target = schema.tables.find((t) => t.id === tableId);
           if (!target) return;
 
-          const visited: Record<ERDTable['id'], boolean> = {};
-
-          const dfs = (curr: ERDTable) => {
+          const visited: Record<Table['id'], boolean> = {};
+          const dfs = (curr: Table) => {
             if (visited[curr.id]) return;
-
             visited[curr.id] = true;
 
-            state.relations[curr.id]
-              ?.filter((relation) => relation.from === curr.id)
-              ?.forEach((relation) => {
-                const next = state.tables.find((t) => t.id === relation.to);
-                if (!next) return;
+            curr.columns = curr.columns.filter(
+              (col) => !target.columns.find((c) => c.id === col.id),
+            );
 
-                next.columns = next.columns.filter(
-                  (col) => !curr.columns.some((c) => c.id === col.id),
-                );
-
-                dfs(next);
+            curr.relations
+              .filter((relation) => relation.from === curr.id)
+              .forEach((relation) => {
+                const toTable = schema.tables.find((t) => t.id === relation.to);
+                if (toTable) dfs(toTable);
               });
           };
 
-          dfs(target);
+          target.relations.forEach((relation) => {
+            if (relation.to === tableId) {
+              const fromTable = schema.tables.find(
+                (t) => t.id === relation.from,
+              );
+              if (fromTable) {
+                fromTable.relations = fromTable.relations.filter(
+                  (r) => r.id !== relation.id,
+                );
+              }
+            } else {
+              const toTable = schema.tables.find((t) => t.id === relation.to);
+              if (toTable) {
+                dfs(toTable);
+                toTable.relations = toTable.relations.filter(
+                  (r) => r.id !== relation.id,
+                );
+              }
+            }
+          });
 
-          state.tables = state.tables.filter((v) => v.id !== tableId);
+          schema.tables = schema.tables.filter((t) => t.id !== tableId);
+          get().updateTableInDiagram(schemaName);
         }),
 
-      createColumn: (table, isPK = false) =>
-        set(({ tables, relations }) => {
-          const target = tables.find((v) => v.id === table.id);
-          if (!target) throw new Error('table not found');
+      createColumn: (schemaName, table, isPK) =>
+        set((state) => {
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (!schema) return;
 
-          const column: ERDColumn = {
+          const target = schema.tables.find((t) => t.id === table.id);
+          if (!target) return;
+
+          const column: Column = {
             id: uuidv4(),
             name: 'column',
             nullable: false,
-            keyType: isPK ? 'PK' : undefined,
+            constraintName: isPK ? `PK_${target.title}` : undefined,
           };
+
+          const visited: Record<Table['id'], boolean> = {};
+          const dfs = (curr: Table) => {
+            if (visited[curr.id]) return;
+            visited[curr.id] = true;
+
+            curr.relations
+              .filter((relation) => relation.from === curr.id)
+              .forEach((relation) => {
+                const toTable = schema.tables.find((t) => t.id === relation.to);
+                if (toTable) {
+                  toTable.columns.push({
+                    ...column,
+                    keyType: relation.identify ? 'PK/FK' : 'FK',
+                    nullable: relation.identify
+                      ? false
+                      : relation.participation.to === 'PARTIAL',
+                    constraintName: `FK_${toTable.title}_${curr.title}`,
+                  });
+                  dfs(toTable);
+                }
+              });
+          };
+
+          if (isPK) {
+            column.keyType = 'PK';
+            dfs(target);
+          }
 
           target.columns.push(column);
-
-          if (!isPK) return;
-
-          const visited: Record<ERDTable['id'], boolean> = {};
-
-          const dfs = (curr: ERDTable) => {
-            if (visited[curr.id]) return;
-
-            visited[curr.id] = true;
-            relations[curr.id]
-              ?.filter((relation) => relation.from === curr.id)
-              ?.forEach((relation) => {
-                const next = tables.find((t) => t.id === relation.to);
-                if (!next) return;
-
-                next.columns.push({
-                  ...column,
-                  keyType: relation.identify ? 'PK/FK' : 'FK',
-                });
-                dfs(next);
-              });
-          };
-
-          dfs(target);
+          get().updateTableInDiagram(schemaName);
         }),
 
-      updateColumn: (table, column) =>
+      updateColumn: (schemaName, table, column) =>
         set((state) => {
-          const targetTable = state.tables.find((t) => t.id === table.id);
-          if (!targetTable) return;
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (!schema) return;
 
-          const targetColumn = targetTable.columns.find(
-            (c) => c.id === column.id,
-          );
-          if (!targetColumn) return;
+          const target = schema.tables.find((t) => t.id === table.id);
+          if (!target) return;
 
-          targetColumn.name = column.name;
-          targetColumn.type = column.type;
-          targetColumn.keyType = column.keyType;
-          targetColumn.nullable = column.nullable;
-
-          const visited: Record<ERDTable['id'], boolean> = {};
-
-          const dfs = (curr: ERDTable) => {
+          const visited: Record<Table['id'], boolean> = {};
+          const dfs = (curr: Table) => {
             if (visited[curr.id]) return;
-
             visited[curr.id] = true;
-            state.relations[curr.id]
-              ?.filter((rel) => rel.from === curr.id)
-              ?.forEach((rel) => {
-                const next = state.tables.find((t) => t.id === rel.to);
-                if (!next) return;
 
-                const keyType = rel.identify ? 'PK/FK' : 'FK';
-                curr.columns
-                  .filter((col) => col.id === column.id)
-                  .forEach((col) => {
-                    const nextCol = next.columns.find((c) => c.id === col.id);
-                    if (nextCol) {
-                      nextCol.name = column.name;
-                      nextCol.type = column.type;
-                      nextCol.keyType = keyType;
-                    }
-                  });
-
-                dfs(next);
+            curr.relations
+              .filter((relation) => relation.from === curr.id)
+              .forEach((relation) => {
+                const toTable = schema.tables.find((t) => t.id === relation.to);
+                if (toTable) {
+                  toTable.columns = toTable.columns.map((c) =>
+                    c.id === column.id ? column : c,
+                  );
+                  dfs(toTable);
+                }
               });
           };
-
-          dfs(targetTable);
-
-          if (column.keyType === 'FK') {
-            const updateRelationMultiplicity = (rel: ERDRelation) => {
-              const toTable = state.tables.find((t) => t.id === rel.to);
-              if (!toTable) return;
-
-              const fromTable = state.tables.find((t) => t.id === rel.from);
-              if (!fromTable) return;
-
-              const allFKsNullable = toTable.columns
-                .filter((col) => col.keyType === 'FK')
-                .filter(
-                  (col) =>
-                    fromTable.columns.find((c) => c.id === col.id) !== null,
-                )
-                .every((col) => col.nullable);
-
-              if (allFKsNullable) {
-                rel.participation = {
-                  ...rel.participation,
-                  to: 'OPTIONAL',
-                };
-              } else {
-                rel.participation = {
-                  ...rel.participation,
-                  to: 'FULL',
-                };
-              }
-            };
-
-            state.relations[targetTable.id]?.forEach(
-              updateRelationMultiplicity,
-            );
-          }
-        }),
-
-      deleteColumn: (table, column) =>
-        set((state) => {
-          const targetTable = state.tables.find((t) => t.id === table.id);
-          if (!targetTable) return;
-
-          const targetColumn = targetTable.columns.find(
-            (c) => c.id === column.id,
-          );
-          if (!targetColumn) return;
-
-          targetTable.columns = targetTable.columns.filter(
-            (c) => c.id !== column.id,
-          );
 
           if (column.keyType === 'PK') {
-            const visited: Record<ERDTable['id'], boolean> = {};
-
-            const dfs = (curr: ERDTable) => {
-              if (visited[curr.id]) return;
-
-              visited[curr.id] = true;
-              state.relations[curr.id]
-                ?.filter((rel) => rel.from === curr.id)
-                ?.forEach((rel) => {
-                  const next = state.tables.find((t) => t.id === rel.to);
-                  if (!next) return;
-
-                  next.columns = next.columns.filter((c) => c.id !== column.id);
-                  dfs(next);
-                });
-            };
-
-            dfs(targetTable);
+            dfs(target);
+          } else if (column.keyType === 'FK') {
+            target.columns = target.columns.map((c) =>
+              c.constraintName === column.constraintName
+                ? {
+                    ...c,
+                    nullable: column.nullable,
+                  }
+                : c,
+            );
+            const relation = target.relations.find(
+              (r) => r.constraintName === column.constraintName,
+            );
+            if (relation) {
+              relation.participation.to = column.nullable ? 'PARTIAL' : 'FULL';
+            }
+          } else {
+            target.columns = target.columns.map((c) =>
+              c.id === column.id ? column : c,
+            );
           }
+          get().updateTableInDiagram(schemaName);
         }),
 
-      createRelation: (relation) =>
-        set(({ tables, relations }) => {
-          const from = tables.find((table) => table.id === relation.from);
-          const to = tables.find((table) => table.id === relation.to);
+      deleteColumn: (schemaName, table, column) =>
+        set((state) => {
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (!schema) return;
 
+          const target = schema.tables.find((t) => t.id === table.id);
+          if (!target) return;
+
+          const visited: Record<Table['id'], boolean> = {};
+          const dfs = (curr: Table) => {
+            if (visited[curr.id]) return;
+            visited[curr.id] = true;
+
+            curr.relations
+              .filter((relation) => relation.from === curr.id)
+              .forEach((relation) => {
+                const toTable = schema.tables.find((t) => t.id === relation.to);
+                if (toTable) {
+                  toTable.columns = toTable.columns.filter(
+                    (c) => c.id !== column.id,
+                  );
+                  dfs(toTable);
+                }
+              });
+          };
+
+          if (column.keyType === 'PK') dfs(target);
+
+          target.columns = target.columns.filter((c) => c.id !== column.id);
+          get().updateTableInDiagram(schemaName);
+        }),
+
+      createRelation: (schemaName, relation) =>
+        set((state) => {
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (!schema) return;
+
+          const from = schema.tables.find((t) => t.id === relation.from);
+          const to = schema.tables.find((t) => t.id === relation.to);
           if (!from || !to) return;
 
-          if (!relations[relation.from]) relations[relation.from] = [];
-          if (!relations[relation.to]) relations[relation.to] = [];
-          relations[relation.from].push(relation);
-          relations[relation.to].push(relation);
+          from.relations.push(relation);
+          to.relations.push(relation);
 
-          const visited: Record<ERDTable['id'], boolean> = {};
-
-          const dfs = (curr: ERDTable) => {
+          const visited: Record<Relation['id'], boolean> = {};
+          const dfs = (curr: Relation) => {
             if (visited[curr.id]) return;
-
             visited[curr.id] = true;
-            relations[curr.id]
-              ?.filter((rel) => rel.from === curr.id)
-              ?.forEach((rel) => {
-                const next = tables.find((t) => t.id === rel.to);
-                if (!next) return;
 
-                const keyType: KeyType = rel.identify ? 'PK/FK' : 'FK';
-                from.columns
-                  .filter((col) => col.keyType === 'PK')
-                  .forEach((col) => {
-                    next.columns.push({
-                      ...col,
-                      keyType,
-                    });
-                  });
-
-                dfs(next);
-              });
-          };
-
-          dfs(from);
-        }),
-
-      updateRelation: (relation) =>
-        set((state) => {
-          const updateRelationInState = (rel: ERDRelation) =>
-            rel.id === relation.id ? relation : rel;
-
-          state.relations[relation.from] = state.relations[relation.from].map(
-            updateRelationInState,
-          );
-          state.relations[relation.to] = state.relations[relation.to].map(
-            updateRelationInState,
-          );
-
-          const visited: Record<ERDRelation['id'], boolean> = {};
-
-          const dfs = (erdRelation: ERDRelation) => {
-            if (visited[erdRelation.id]) return;
-
-            visited[erdRelation.id] = true;
-
-            const fromTable = state.tables.find(
-              (table) => table.id === erdRelation.from,
-            );
-            const toTable = state.tables.find(
-              (table) => table.id === erdRelation.to,
-            );
+            const fromTable = schema.tables.find((t) => t.id === curr.from);
+            const toTable = schema.tables.find((t) => t.id === curr.to);
 
             if (!fromTable || !toTable) return;
 
             fromTable.columns
-              .filter((col) => col.keyType === 'PK')
-              .forEach((col1) => {
-                toTable.columns = toTable.columns.map((col2) =>
-                  col2.id === col1.id
-                    ? {
-                        ...col2,
-                        keyType: erdRelation.identify ? 'PK/FK' : 'FK',
-                      }
-                    : col2,
-                );
+              .filter((col) => col.keyType === 'PK' || col.keyType === 'PK/FK')
+              .forEach((fromCol) => {
+                toTable.columns.push({
+                  ...fromCol,
+                  nullable: curr.identify
+                    ? false
+                    : curr.participation.to === 'PARTIAL',
+                  keyType: curr.identify ? 'PK/FK' : 'FK',
+                  constraintName: `FK_${toTable.title}_${fromTable.title}`,
+                });
               });
 
-            state.relations[erdRelation.to]
-              .filter((rel) => rel.from === erdRelation.to)
+            fromTable.relations
+              .filter((rel) => rel.from === fromTable.id)
               .forEach(dfs);
           };
 
           dfs(relation);
+          get().updateTableInDiagram(schemaName);
         }),
 
-      deleteRelation: (relation) =>
+      updateRelation: (schemaName, relation) =>
         set((state) => {
-          const visited: Record<ERDRelation['id'], boolean> = {};
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (!schema) return;
 
-          const dfs = (erdRelation: ERDRelation) => {
-            if (visited[erdRelation.id]) return;
+          const from = schema.tables.find((t) => t.id === relation.from);
+          const to = schema.tables.find((t) => t.id === relation.to);
+          if (!from || !to) return;
 
-            visited[erdRelation.id] = true;
+          from.relations = from.relations.map((r) =>
+            r.id === relation.id ? relation : r,
+          );
+          to.relations = to.relations.map((r) =>
+            r.id === relation.id ? relation : r,
+          );
 
-            const fromTable = state.tables.find(
-              (table) => table.id === erdRelation.from,
-            );
-            const toTable = state.tables.find(
-              (table) => table.id === erdRelation.to,
-            );
+          const visited: Record<Relation['id'], boolean> = {};
+          const dfs = (curr: Relation) => {
+            if (visited[curr.id]) return;
+            visited[curr.id] = true;
+
+            const fromTable = schema.tables.find((t) => t.id === curr.from);
+            const toTable = schema.tables.find((t) => t.id === curr.to);
+
+            if (!fromTable || !toTable) return;
+
+            fromTable.columns.forEach((fromCol) => {
+              toTable.columns = toTable.columns.map((toCol) =>
+                fromCol.id === toCol.id
+                  ? {
+                      ...fromCol,
+                      nullable: curr.identify
+                        ? false
+                        : curr.participation.to === 'PARTIAL',
+                      keyType: curr.identify ? 'PK/FK' : 'FK',
+                      constraintName: `FK_${toTable.title}_${fromTable.title}`,
+                    }
+                  : toCol,
+              );
+            });
+
+            toTable.relations
+              .filter((rel) => rel.from === toTable.id)
+              .forEach(dfs);
+          };
+          dfs(relation);
+          get().updateTableInDiagram(schemaName);
+        }),
+
+      deleteRelation: (schemaName, relation) =>
+        set((state) => {
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (!schema) return;
+
+          const from = schema.tables.find((t) => t.id === relation.from);
+          const to = schema.tables.find((t) => t.id === relation.to);
+          if (!from || !to) return;
+
+          from.relations = from.relations.filter((r) => r.id !== relation.id);
+          to.relations = to.relations.filter((r) => r.id !== relation.id);
+
+          const visited: Record<Relation['id'], boolean> = {};
+          const dfs = (curr: Relation) => {
+            if (visited[curr.id]) return;
+            visited[curr.id] = true;
+
+            const fromTable = schema.tables.find((t) => t.id === curr.from);
+            const toTable = schema.tables.find((t) => t.id === curr.to);
 
             if (!fromTable || !toTable) return;
 
             fromTable.columns
-              .filter((col) => col.keyType === 'PK')
-              .forEach((col1) => {
+              .filter((col) => col.keyType === 'PK' || col.keyType === 'PK/FK')
+              .forEach((col) => {
                 toTable.columns = toTable.columns.filter(
-                  (col2) => col2.id !== col1.id,
+                  (c) => c.id !== col.id,
                 );
               });
 
-            state.relations[erdRelation.to]
-              .filter((rel) => rel.from === erdRelation.to)
+            toTable.relations
+              .filter((rel) => rel.from === toTable.id)
               .forEach(dfs);
           };
 
           dfs(relation);
+          get().updateTableInDiagram(schemaName);
+        }),
 
-          state.relations[relation.from] = state.relations[
-            relation.from
-          ].filter((rel) => rel.id !== relation.id);
+      updateTableInDiagram: (schemaName) =>
+        set((state) => {
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (!schema) return;
 
-          state.relations[relation.to] = state.relations[relation.to].filter(
-            (rel) => rel.id !== relation.id,
-          );
+          schema.diagrams.forEach((diagram) => {
+            diagram.tables = diagram.tables.filter((table) =>
+              schema.tables.find((t) => t.id === table.id),
+            );
+          });
+
+          schema.tables.forEach((table) => {
+            schema.diagrams.forEach((diagram) => {
+              diagram.tables = diagram.tables.map((t) =>
+                t.id === table.id ? { ...t, ...table } : t,
+              );
+            });
+          });
         }),
     })),
   );
