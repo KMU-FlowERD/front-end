@@ -1,10 +1,10 @@
 export type KeyType = 'PK' | 'FK' | 'PK/FK';
 
-export type Participation = 'OPTIONAL' | 'FULL';
+export type Participation = 'PARTIAL' | 'FULL';
 
 export type Cardinality = 'ONE' | 'MANY';
 
-type Position = {
+export type Position = {
   top: number;
   left: number;
 };
@@ -17,6 +17,7 @@ export interface Column {
   name: string;
   nullable: boolean;
   keyType?: KeyType;
+  constraintName?: string;
 }
 
 export interface Table {
@@ -41,11 +42,13 @@ export interface Relation {
     from?: Participation;
     to: Participation;
   };
+  constraintName: string;
 }
 
 export interface Schema {
   name: string;
   tables: Table[];
+  diagrams: Diagram[];
 }
 
 export interface Diagram {
@@ -60,5 +63,4 @@ export interface Project {
   name: string;
   description?: string;
   schemas: Schema[];
-  diagrams: Diagram[];
 }
