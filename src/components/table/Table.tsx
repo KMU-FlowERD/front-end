@@ -1,15 +1,20 @@
 'use client';
 
-import styled from '@emotion/styled';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 
 import { Columns } from './Columns';
+import { styles } from './Table.styles';
 import { TableMenu } from './TableMenu';
 
 import { ColumnEditMenu } from '@/components/column-edit';
 import { MenuIcon } from '@/components/implements-icon';
+import {
+  useDrag,
+  useOutsideClick,
+} from '@/features/erd-page/erd-page.table.hook';
 import { ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
+import { TableProvider, useTableContext } from '@/providers/TableProvider';
 
 interface Position {
   left: number;
@@ -23,36 +28,48 @@ interface TableProps {
 }
 
 export function Table({ table, onClick, onPositionChange }: TableProps) {
+  return (
+    <TableProvider table={table}>
+      <TableConsumer
+        table={table}
+        onClick={onClick}
+        onPositionChange={onPositionChange}
+      />
+    </TableProvider>
+  );
+}
+
+function TableConsumer({ table, onClick, onPositionChange }: TableProps) {
+  const {
+    menuOpen,
+    setMenuOpen,
+    menuRef,
+    editRef,
+    isEditingColumns,
+    setIsEditingColumns,
+  } = useTableContext();
+
   const updateTable = useERDProjectStore((state) => state.updateTable);
 
   const boxRef = useRef<HTMLDivElement | null>(null);
-  const menuRef = useRef<HTMLDivElement | null>(null);
-  const editRef = useRef<HTMLDivElement | null>(null);
-
-  const [dragging, setDragging] = useState(false);
-  const [offset, setOffset] = useState<Position>({ left: 0, top: 0 });
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [isEditingColumns, setIsEditingColumns] = useState(false);
 
   const pkColumns = table.columns.filter((val) => val.keyType === 'PK');
   const pkfkColumns = table.columns.filter((val) => val.keyType === 'PK/FK');
   const fkColumns = table.columns.filter((val) => val.keyType === 'FK');
   const columns = table.columns.filter((val) => val.keyType === undefined);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (boxRef.current) {
-      const rect = boxRef.current.getBoundingClientRect();
-      setDragging(true);
-      setOffset({
-        left: e.clientX - rect.left,
-        top: e.clientY - rect.top,
-      });
-    }
-  };
+  const { handleMouseDown } = useDrag((newPos) =>
+    onPositionChange(table.id, newPos),
+  );
 
-  const toggleMenu = () => {
-    setMenuOpen((prev) => !prev);
-  };
+  useOutsideClick(
+    [menuRef, boxRef, editRef],
+    () => {
+      setIsEditingColumns(false);
+      setMenuOpen(false);
+    },
+    menuOpen || isEditingColumns,
+  );
 
   useLayoutEffect(() => {
     if (boxRef.current) {
@@ -67,67 +84,16 @@ export function Table({ table, onClick, onPositionChange }: TableProps) {
     }
   }, [table, updateTable]);
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        !menuRef.current?.contains(e.target as Node) &&
-        !boxRef.current?.contains(e.target as Node) &&
-        !editRef.current?.contains(e.target as Node)
-      ) {
-        setIsEditingColumns(false);
-        setMenuOpen(false);
-      }
-    };
-
-    if (menuOpen || isEditingColumns) {
-      window.addEventListener('mousedown', handleClickOutside);
-    } else {
-      window.removeEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      window.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isEditingColumns, menuOpen]);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (dragging) {
-        const newPos = {
-          left: e.clientX - offset.left,
-          top: e.clientY - offset.top,
-        };
-        onPositionChange(table.id, newPos);
-      }
-    };
-
-    const handleMouseUp = () => {
-      if (dragging) {
-        setDragging(false);
-      }
-    };
-
-    if (dragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [dragging, offset.left, offset.top, onPositionChange, table.id]);
-
   return (
     <styles.displayWrapper $pos={{ left: table.left, top: table.top }}>
       <styles.titleMenuWrapper>
         <styles.tableTitle>{table.title}</styles.tableTitle>
-        <MenuIcon onClick={toggleMenu} />
+        <MenuIcon onClick={() => setMenuOpen(!menuOpen)} />
       </styles.titleMenuWrapper>
       <styles.container
         ref={boxRef}
         onClick={() => onClick(table)}
-        onMouseDown={handleMouseDown}
+        onMouseDown={(e) => handleMouseDown(e, boxRef)}
       >
         <Columns columns={pkColumns} />
         <Columns columns={pkfkColumns} />
@@ -135,71 +101,9 @@ export function Table({ table, onClick, onPositionChange }: TableProps) {
           (fkColumns.length > 0 || columns.length > 0) && <styles.contour />}
         <Columns columns={columns} />
         <Columns columns={fkColumns} />
-
-        {menuOpen && (
-          <TableMenu
-            menuRef={menuRef}
-            table={table}
-            setIsEditingColumns={setIsEditingColumns}
-            setMenuOpen={setMenuOpen}
-          />
-        )}
-        {isEditingColumns && (
-          <ColumnEditMenu
-            editRef={editRef}
-            tableColumns={table.columns}
-            table={table}
-          />
-        )}
+        <TableMenu />
+        <ColumnEditMenu />
       </styles.container>
     </styles.displayWrapper>
   );
 }
-
-const styles = {
-  displayWrapper: styled.div<{ $pos: Position }>`
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    left: ${({ $pos }) => `${$pos.left}px`};
-    top: ${({ $pos }) => `${$pos.top - 20}px`};
-  `,
-
-  titleMenuWrapper: styled.div`
-    display: flex;
-    flex-direction: row;
-  `,
-
-  container: styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    min-width: 50px;
-    min-height: 30px;
-    border: 0.5px solid #606060;
-    background: rgba(34, 34, 34, 0.7);
-    padding: 10px;
-    cursor: pointer;
-
-    &:hover {
-      color: #fff;
-    }
-  `,
-
-  tableTitle: styled.div`
-    font-size: 12px;
-    color: #ededed;
-    flex-grow: 1;
-    justify-items: start;
-    margin-right: 10px;
-    width: 100%;
-    left: 0;
-    top: -20px;
-  `,
-
-  contour: styled.div`
-    width: 100%;
-    height: 1px;
-    background-color: #ccc;
-  `,
-};

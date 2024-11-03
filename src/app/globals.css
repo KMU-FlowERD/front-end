@@ -83,17 +83,11 @@ html,
 body {
   width: 100dvw;
   height: 100dvh;
-  overflow: hidden;
-}
-
-body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: #2f2f2f;
+}
+::-webkit-scrollbar {
+  display: none;
 }
 
 a {

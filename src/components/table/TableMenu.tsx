@@ -1,22 +1,11 @@
-import styled from '@emotion/styled';
-import { MutableRefObject } from 'react';
+import { styles } from './TableMenu.styles';
 
-import { ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
+import { useTableContext } from '@/providers/TableProvider';
 
-interface TableMenuProps {
-  menuRef: MutableRefObject<HTMLDivElement | null>;
-  table: ERDTable;
-  setIsEditingColumns: (isEditingColumns: boolean) => void;
-  setMenuOpen: (menuOpen: boolean) => void;
-}
-
-export function TableMenu({
-  menuRef,
-  table,
-  setIsEditingColumns,
-  setMenuOpen,
-}: TableMenuProps) {
+export function TableMenu() {
+  const { menuRef, table, menuOpen, setIsEditingColumns, setMenuOpen } =
+    useTableContext();
   const deleteTable = useERDProjectStore((state) => state.deleteTable);
 
   const createColumn = useERDProjectStore((state) => state.createColumn);
@@ -44,6 +33,8 @@ export function TableMenu({
     setMenuOpen(false);
   };
 
+  if (!menuOpen) return null;
+
   return (
     <styles.menu ref={menuRef}>
       <styles.menuItem onClick={() => handleMenuItemClick('delete')}>
@@ -61,28 +52,3 @@ export function TableMenu({
     </styles.menu>
   );
 }
-
-const styles = {
-  menu: styled.div`
-    position: absolute;
-    top: 0px;
-    right: 5px;
-    background-color: #333;
-    border: 1px solid #444;
-    border-radius: 4px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-    z-index: 1;
-  `,
-
-  menuItem: styled.div`
-    padding: 8px 16px;
-    font-size: 12px;
-    color: #fff;
-    white-space: nowrap;
-    cursor: pointer;
-
-    &:hover {
-      background-color: #444;
-    }
-  `,
-};
