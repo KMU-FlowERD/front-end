@@ -5,13 +5,15 @@ export const styles = {
     display: flex;
     flex-direction: column;
     color: #ededed;
-    background: #222;
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
+    background: #27272a;
+    align-items: end;
+    padding: 32px;
     border: 1px solid #444;
+    border-radius: 16px;
     gap: 20px;
     z-index: 30;
+    max-height: 400px;
+    overflow-y: auto;
   `,
 
   relationWrapper: styled.div`
@@ -22,17 +24,20 @@ export const styles = {
     gap: 12px;
   `,
 
-  dropdownWrapper: styled.div`
-    width: 100px;
-    height: 30px;
-    background: #222;
-    border: 1px solid #444;
+  changeButton: styled.div`
+    background-color: #ededed;
+    color: #222;
+    justify-content: center;
+    align-items: center;
+    padding: 3px 15px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    cursor: pointer;
   `,
 
-  dropdown: styled.li`
-    width: 100px;
-    height: 30px;
-    background: #222;
+  middleText: styled.div`
+    display: flex;
+    width: 100%;
     justify-content: center;
     align-items: center;
   `,
