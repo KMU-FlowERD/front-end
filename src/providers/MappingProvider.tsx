@@ -1,23 +1,13 @@
 'use client';
 
-import type {
-  MutableRefObject,
-  PropsWithChildren} from 'react';
-import {
-  createContext,
-  useContext,
-  useMemo,
-} from 'react';
+import type { MutableRefObject, PropsWithChildren } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 
 import { useERDProjectStore } from './ERDProjectProvider';
 
 import type { ERDRelation } from '@/features/erd-project';
-import type {
-  TableDirectionChild} from '@/features/mapping';
-import {
-  useContextMenu,
-  useRelationshipData,
-} from '@/features/mapping';
+import type { TableDirectionChild } from '@/features/mapping';
+import { useContextMenu, useRelationshipData } from '@/features/mapping';
 
 interface MappingDataProps {
   relationDuplicate: ERDRelation[];

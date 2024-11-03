@@ -1,8 +1,6 @@
 'use client';
 
-import type {
-  MutableRefObject,
-  PropsWithChildren} from 'react';
+import type { MutableRefObject, PropsWithChildren } from 'react';
 import {
   createContext,
   useCallback,

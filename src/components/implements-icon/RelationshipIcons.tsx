@@ -8,7 +8,7 @@ import { NonIdentifyManyToManyIcon } from './NonIdentifyManyToManyIcon';
 import { NonIdentifyOneToManyIcon } from './NonIdentifyOneToManyIcon';
 import { NonIdentifyOneToOneIcon } from './NonIdentifyOneToOneIcon';
 
-import type { MappingType} from '@/features/draw-tools';
+import type { MappingType } from '@/features/draw-tools';
 import { useDrawToolsStore } from '@/features/draw-tools';
 
 export function RelationshipIcons({ type }: { type: MappingType }) {

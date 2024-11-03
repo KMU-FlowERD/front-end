@@ -1,6 +1,6 @@
 'use client';
 
-import type { PropsWithChildren} from 'react';
+import type { PropsWithChildren } from 'react';
 import { createContext, useContext, useRef } from 'react';
 import { useStore } from 'zustand';
 

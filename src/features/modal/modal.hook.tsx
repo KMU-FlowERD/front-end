@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import type { ReactNode} from 'react';
+import type { ReactNode } from 'react';
 import { useMemo, useState, createContext, useContext } from 'react';
 import { createPortal } from 'react-dom';
 
