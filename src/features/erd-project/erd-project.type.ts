@@ -47,14 +47,14 @@ export interface Schema {
 export interface Diagram {
   name: string;
   tables: WithPosition<Table>[];
+  width: number;
+  height: number;
 }
 
 export interface Project {
   id: string;
   name: string;
   description?: string;
-  width: number;
-  height: number;
   schemas: Schema[];
   diagrams: Diagram[];
   relations: Record<Table['id'], Relation[]>;
