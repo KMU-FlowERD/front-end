@@ -25,13 +25,17 @@ export interface Table {
   width: number;
   height: number;
   columns: Column[];
+  relations: Relation[];
 }
 
 export interface Relation {
   id: string;
   from: Table['id'];
   to: Table['id'];
-  cardinality?: Cardinality;
+  cardinality?: {
+    from: Cardinality;
+    to: Cardinality;
+  };
   identify: boolean;
   participation: {
     from?: Participation;
@@ -57,5 +61,4 @@ export interface Project {
   description?: string;
   schemas: Schema[];
   diagrams: Diagram[];
-  relations: Record<Table['id'], Relation[]>;
 }
