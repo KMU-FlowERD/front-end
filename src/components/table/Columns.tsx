@@ -1,6 +1,6 @@
 import { styles } from './Columns.styles';
 
-import { ERDColumn } from '@/features/erd-project';
+import type { ERDColumn } from '@/features/erd-project';
 
 export function Columns({ columns }: { columns: ERDColumn[] }) {
   return columns.map((column) => (

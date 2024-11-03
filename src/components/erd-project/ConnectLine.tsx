@@ -1,9 +1,10 @@
 'use client';
 
-import React, { JSX } from 'react';
+import type { JSX } from 'react';
+import React from 'react';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { ERDRelation } from '@/features/erd-project';
+import type { ERDRelation } from '@/features/erd-project';
 import {
   getDrawLines,
   getDrawLinesselfReferenceMapping,

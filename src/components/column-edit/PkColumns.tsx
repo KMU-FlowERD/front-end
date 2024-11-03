@@ -1,6 +1,6 @@
 import { styles } from './PkColumns.styles';
 
-import { ERDColumn, ERDTable } from '@/features/erd-project';
+import type { ERDColumn, ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 
 interface PkColumnsProps {

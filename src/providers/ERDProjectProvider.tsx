@@ -1,9 +1,11 @@
 'use client';
 
-import { createContext, PropsWithChildren, useContext, useRef } from 'react';
+import type { PropsWithChildren} from 'react';
+import { createContext, useContext, useRef } from 'react';
 import { useStore } from 'zustand';
 
-import { createERDProjectStore, ERDProjectStore } from '@/features/erd-project';
+import type { ERDProjectStore } from '@/features/erd-project';
+import { createERDProjectStore } from '@/features/erd-project';
 
 export type ERDProjectStoreAPI = ReturnType<typeof createERDProjectStore>;
 

@@ -8,10 +8,9 @@ import {
   RelationshipInformation,
   TableInformation,
 } from '@/components';
-import { Relationship } from '@/components/Relationship';
 import { Table } from '@/components/table';
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { ERDTable } from '@/features/erd-project';
+import type { ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 
 export function ErdProjectPage() {
@@ -81,7 +80,6 @@ export function ErdProjectPage() {
 
   return (
     <styles.displayWrapper onClick={displayClicked}>
-      <Relationship />
       <styles.container>
         <TableInformation />
         <ErdDrawTools />
