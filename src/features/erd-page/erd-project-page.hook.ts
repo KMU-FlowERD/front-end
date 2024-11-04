@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
+import { ERDRelation } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 
 export function useCanvasSize() {
@@ -92,4 +93,30 @@ export function usePageMove() {
   }, [cursor, pageMove, initPagePosition, scrollPagePosition]);
 
   return { pageMove, setPageMove };
+}
+
+export function useRelationChange() {
+  const tables = useERDProjectStore((state) => state.tables);
+  const relations = useERDProjectStore((state) => state.relations);
+
+  const changedRelation: ERDRelation[] = useMemo(() => {
+    const toChangeRelations: ERDRelation[] = [];
+
+    tables.forEach((table) => {
+      relations[table.id]?.forEach((relation) => {
+        if (
+          relation.multiplicity.from !== undefined &&
+          relation.type !== undefined
+        )
+          return;
+
+        if (!toChangeRelations.includes(relation))
+          toChangeRelations.push(relation);
+      });
+    });
+
+    return toChangeRelations;
+  }, [relations, tables]);
+
+  return changedRelation;
 }

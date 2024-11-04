@@ -8,6 +8,7 @@ import { TableMenu } from './TableMenu';
 
 import { ColumnEditMenu } from '@/components/column-edit';
 import { MenuIcon } from '@/components/implements-icon';
+import { useDrawToolsStore } from '@/features/draw-tools';
 import {
   useDrag,
   useOutsideClick,
@@ -23,15 +24,17 @@ interface Position {
 
 interface TableProps {
   table: ERDTable;
+  child: boolean;
   onClick: (table: ERDTable) => void;
   onPositionChange: (id: string, pos: Position) => void;
 }
 
-export function Table({ table, onClick, onPositionChange }: TableProps) {
+export function Table({ table, child, onClick, onPositionChange }: TableProps) {
   return (
     <TableProvider table={table}>
       <TableConsumer
         table={table}
+        child={child}
         onClick={onClick}
         onPositionChange={onPositionChange}
       />
@@ -39,7 +42,12 @@ export function Table({ table, onClick, onPositionChange }: TableProps) {
   );
 }
 
-function TableConsumer({ table, onClick, onPositionChange }: TableProps) {
+function TableConsumer({
+  table,
+  child,
+  onClick,
+  onPositionChange,
+}: TableProps) {
   const {
     menuOpen,
     setMenuOpen,
@@ -50,6 +58,8 @@ function TableConsumer({ table, onClick, onPositionChange }: TableProps) {
   } = useTableContext();
 
   const updateTable = useERDProjectStore((state) => state.updateTable);
+
+  const notation = useDrawToolsStore((state) => state.notation);
 
   const boxRef = useRef<HTMLDivElement | null>(null);
 
@@ -92,6 +102,7 @@ function TableConsumer({ table, onClick, onPositionChange }: TableProps) {
       </styles.titleMenuWrapper>
       <styles.container
         ref={boxRef}
+        $child={child && notation === 'IDEF1X'}
         onClick={() => onClick(table)}
         onMouseDown={(e) => handleMouseDown(e, boxRef)}
       >

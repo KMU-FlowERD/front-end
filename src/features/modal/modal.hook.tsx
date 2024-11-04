@@ -13,6 +13,7 @@ const Background = styled.div`
   align-items: center;
   background: rgba(47, 47, 47, 0.8);
   backdrop-filter: blur(4px);
+  z-index: 10;
 `;
 
 interface ModalContextProps {

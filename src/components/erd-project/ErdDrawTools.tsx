@@ -8,16 +8,36 @@ import {
   RelationshipIcons,
   TableIcon,
 } from '../implements-icon';
+import { NotationModal } from '../notation-modal/NotationModal';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
+import { useRelationChange } from '@/features/erd-page';
+import { useModal } from '@/features/modal';
+
+type NotationType = 'IE' | 'IDEF1X';
 
 export function ErdDrawTools() {
   const notation = useDrawToolsStore((state) => state.notation);
   const setNotation = useDrawToolsStore((state) => state.setNotation);
 
+  const changeRelations = useRelationChange();
+
+  const { Modal, openModal } = useModal(
+    <NotationModal relations={changeRelations} />,
+  );
+
   const notationChange = () => {
-    if (notation === 'IE') setNotation('IDEF1X');
-    else setNotation('IE');
+    if (notation === 'IE') {
+      setNotation('IDEF1X');
+      return;
+    }
+
+    if (changeRelations.length > 0) {
+      openModal();
+      return;
+    }
+
+    setNotation('IE');
   };
 
   return (
@@ -35,6 +55,29 @@ export function ErdDrawTools() {
       <TableIcon />
       <MemoIcon />
       <div style={{ width: '1px', height: '40px', background: '#444' }} />
+      <Relationship notation={notation} />
+      <div style={{ width: '1px', height: '40px', background: '#444' }} />
+      <styles.notationChange onClick={notationChange}>
+        {notation} ↕️
+      </styles.notationChange>
+      {Modal}
+    </styles.container>
+  );
+}
+
+function Relationship({ notation }: { notation: NotationType }) {
+  if (notation === 'IDEF1X') {
+    return (
+      <>
+        <RelationshipIcons type={{ type: 'ONE-TO-ONE', identify: true }} />
+        <div style={{ width: '1px', height: '40px', background: '#444' }} />
+        <RelationshipIcons type={{ type: 'ONE-TO-ONE', identify: false }} />
+      </>
+    );
+  }
+
+  return (
+    <>
       <RelationshipIcons type={{ type: 'ONE-TO-ONE', identify: true }} />
       <RelationshipIcons type={{ type: 'ONE-TO-MANY', identify: true }} />
       <RelationshipIcons type={{ type: 'MANY-TO-MANY', identify: true }} />
@@ -42,10 +85,6 @@ export function ErdDrawTools() {
       <RelationshipIcons type={{ type: 'ONE-TO-ONE', identify: false }} />
       <RelationshipIcons type={{ type: 'ONE-TO-MANY', identify: false }} />
       <RelationshipIcons type={{ type: 'MANY-TO-MANY', identify: false }} />
-      <div style={{ width: '1px', height: '40px', background: '#444' }} />
-      <styles.notationChange onClick={notationChange}>
-        {notation} ↕️
-      </styles.notationChange>
-    </styles.container>
+    </>
   );
 }
