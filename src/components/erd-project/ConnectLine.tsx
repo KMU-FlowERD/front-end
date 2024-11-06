@@ -1,9 +1,10 @@
 'use client';
 
-import React, { JSX } from 'react';
+import type { JSX } from 'react';
+import React from 'react';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { ERDRelation } from '@/features/erd-project';
+import type { ERDRelation } from '@/features/erd-project';
 import {
   getDrawLines,
   getDrawLinesselfReferenceMapping,
@@ -83,15 +84,15 @@ function SvgComponent({ relation }: ConnectLineProps) {
     if (notation === 'IE') {
       drawLines.push(getStartIEOneLine(fromDirection, updatedFrom));
 
-      if (relation.type === 'ONE-TO-MANY')
+      if (relation.cardinality === 'ONE-TO-MANY')
         drawLines.push(...getManyLines(toDirection, updatedTo));
-      else if (relation.type === 'ONE-TO-ONE')
+      else if (relation.cardinality === 'ONE-TO-ONE')
         drawLines.push(getEndIEOneLine(toDirection, updatedTo));
 
       if (
-        relation.multiplicity &&
-        relation.multiplicity.to &&
-        relation.multiplicity.to === 'OPTIONAL'
+        relation.participation &&
+        relation.participation.to &&
+        relation.participation.to === 'OPTIONAL'
       ) {
         drawCircles.push(getStartIENullableCircle(fromDirection, updatedFrom));
       } else {
@@ -99,9 +100,9 @@ function SvgComponent({ relation }: ConnectLineProps) {
       }
 
       if (
-        relation.multiplicity &&
-        relation.multiplicity.from &&
-        relation.multiplicity.from === 'OPTIONAL'
+        relation.participation &&
+        relation.participation.from &&
+        relation.participation.from === 'OPTIONAL'
       ) {
         drawCircles.push(getEndIENullableCircle(toDirection, updatedTo));
       } else {
@@ -111,9 +112,9 @@ function SvgComponent({ relation }: ConnectLineProps) {
       drawCircles.push(getEndIDEFCircle(toDirection, updatedTo));
 
       if (
-        relation.multiplicity &&
-        relation.multiplicity.from &&
-        relation.multiplicity.from === 'OPTIONAL'
+        relation.participation &&
+        relation.participation.from &&
+        relation.participation.from === 'OPTIONAL'
       ) {
         drawPolygons.push(
           getStartIDEFNullablePolygon(fromDirection, updatedFrom),

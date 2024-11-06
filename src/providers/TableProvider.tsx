@@ -1,9 +1,8 @@
 'use client';
 
+import type { MutableRefObject, PropsWithChildren } from 'react';
 import {
   createContext,
-  MutableRefObject,
-  PropsWithChildren,
   useCallback,
   useContext,
   useMemo,
@@ -11,7 +10,7 @@ import {
   useState,
 } from 'react';
 
-import { ERDTable } from '@/features/erd-project';
+import type { ERDTable } from '@/features/erd-project';
 
 interface TableDataProps {
   menuOpen: boolean;

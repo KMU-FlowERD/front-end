@@ -13,7 +13,7 @@ import {
   useDrag,
   useOutsideClick,
 } from '@/features/erd-page/erd-page.table.hook';
-import { ERDTable } from '@/features/erd-project';
+import type { ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 import { TableProvider, useTableContext } from '@/providers/TableProvider';
 

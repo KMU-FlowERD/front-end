@@ -1,6 +1,6 @@
-import { Direction, TableDirectionChild } from './mapping.type';
+import type { Direction, TableDirectionChild } from './mapping.type';
 
-import { ERDRelation, ERDTable } from '@/features/erd-project';
+import type { ERDRelation, ERDTable } from '@/features/erd-project';
 
 export function getStartEndDirection(fromTable: ERDTable, toTable: ERDTable) {
   const { fromX, fromY, toX, toY } = calculateMiddlePosition(

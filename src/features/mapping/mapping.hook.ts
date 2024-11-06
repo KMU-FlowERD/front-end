@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { getStartEndDirection } from './mapping.helper';
-import { Direction, TableDirectionChild } from './mapping.type';
+import type { Direction, TableDirectionChild } from './mapping.type';
 
-import { ERDRelation, ERDTable } from '@/features/erd-project';
+import type { ERDRelation, ERDTable } from '@/features/erd-project';
 
 export const useRelationshipData = (
   tables: ERDTable[],

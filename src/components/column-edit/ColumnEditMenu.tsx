@@ -6,7 +6,7 @@ import { FkColumns } from './FkColumns';
 import { PkColumns } from './PkColumns';
 import { PkFkColumns } from './PkFkColumns';
 
-import { ERDTable } from '@/features/erd-project';
+import type { ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 import { useTableContext } from '@/providers/TableProvider';
 

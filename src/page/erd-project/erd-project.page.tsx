@@ -13,7 +13,7 @@ import { Relationship } from '@/components/erd-project/Relationship';
 import { Table } from '@/components/table';
 import { useDrawToolsStore } from '@/features/draw-tools';
 import { useCanvasSize, usePageMove } from '@/features/erd-page';
-import { ERDTable } from '@/features/erd-project';
+import type { ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 
 export function ErdProjectPage() {

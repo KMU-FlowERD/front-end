@@ -1,4 +1,4 @@
-import { ERDRelation, ERDTable } from '@/features/erd-project';
+import type { ERDRelation, ERDTable } from '@/features/erd-project';
 
 export type TableDirectionChild = Map<
   Direction,
