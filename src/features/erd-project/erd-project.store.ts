@@ -6,9 +6,9 @@ import type {
   ERDColumn,
   ERDDiagram,
   ERDProject,
-  Relation,
   ERDSchema,
   ERDTable,
+  Relation,
   WithPosition,
 } from './erd-project.type';
 
@@ -461,6 +461,14 @@ export const createERDProjectStore = (
           to.relations = to.relations.map((r) =>
             r.id === relation.id ? relation : r,
           );
+
+          to.columns = to.columns.map((col) => ({
+            ...col,
+            nullable:
+              relation.participation.to === 'PARTIAL'
+                ? relation.constraintName === col.constraintName
+                : col.nullable,
+          }));
 
           const visited: Record<Relation['id'], boolean> = {};
           const dfs = (curr: Relation) => {
