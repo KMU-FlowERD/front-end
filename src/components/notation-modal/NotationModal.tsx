@@ -2,7 +2,7 @@ import { styles } from './NotationModal.styles';
 
 import { Dropdown } from '@/components/dropdown';
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { ERDRelation } from '@/features/erd-project';
+import type { ERDRelation } from '@/features/erd-project';
 import { useModalContext } from '@/features/modal';
 import { useERDProjectStore } from '@/providers';
 

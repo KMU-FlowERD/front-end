@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { ERDRelation } from '@/features/erd-project';
+import type { ERDRelation } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 
 export function useCanvasSize() {
