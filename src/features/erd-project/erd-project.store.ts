@@ -6,9 +6,9 @@ import type {
   ERDColumn,
   ERDDiagram,
   ERDProject,
+  ERDRelation,
   ERDSchema,
   ERDTable,
-  ERDRelation,
   WithPosition,
 } from './erd-project.type';
 
@@ -104,6 +104,25 @@ export interface ERDProjectAction {
 }
 
 export type ERDProjectStore = ERDProjectState & ERDProjectAction;
+
+const hasCycle = (schema: ERDSchema, relation: ERDRelation) => {
+  const visited = new Set<ERDTable['id']>();
+
+  const dfs = (curr: ERDTable): boolean => {
+    if (visited.has(curr.id)) return true;
+    visited.add(curr.id);
+
+    return curr.relations
+      .filter((r) => r.from === curr.id)
+      .some((r) => {
+        const to = schema.tables.find((t) => t.id === r.to);
+        return to ? dfs(to) : false;
+      });
+  };
+
+  const from = schema.tables.find((t) => t.id === relation.from);
+  return from ? dfs(from) : false;
+};
 
 export const defaultInitState: ERDProjectState = {
   id: 'default',
@@ -423,6 +442,12 @@ export const createERDProjectStore = (
           from.relations.push(relation);
           to.relations.push(relation);
 
+          if (relation.identify && hasCycle(schema, relation)) {
+            from.relations = from.relations.filter((r) => r.id !== relation.id);
+            to.relations = to.relations.filter((r) => r.id !== relation.id);
+            return;
+          }
+
           const visited: Record<ERDRelation['id'], boolean> = {};
           const dfs = (curr: ERDRelation) => {
             if (visited[curr.id]) return;
@@ -464,12 +489,25 @@ export const createERDProjectStore = (
           const to = schema.tables.find((t) => t.id === relation.to);
           if (!from || !to) return;
 
+          const prevRelation = from.relations.find((r) => r.id === relation.id);
+          if (!prevRelation) return;
+
           from.relations = from.relations.map((r) =>
             r.id === relation.id ? relation : r,
           );
           to.relations = to.relations.map((r) =>
             r.id === relation.id ? relation : r,
           );
+
+          if (relation.identify && hasCycle(schema, relation)) {
+            from.relations = from.relations.map((r) =>
+              r.id === relation.id ? prevRelation : r,
+            );
+            to.relations = to.relations.map((r) =>
+              r.id === relation.id ? prevRelation : r,
+            );
+            return;
+          }
 
           to.columns = to.columns.map((col) => ({
             ...col,

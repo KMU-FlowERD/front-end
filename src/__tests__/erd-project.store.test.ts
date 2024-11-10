@@ -39,6 +39,15 @@ describe('ERD Project Store', () => {
     relations: [],
   };
 
+  const _table3: ERDTable = {
+    id: 'table3',
+    title: 'Table3',
+    width: 100,
+    height: 100,
+    columns: [],
+    relations: [],
+  };
+
   const _relation1: ERDRelation = {
     id: 'relation1',
     from: 'table1',
@@ -57,18 +66,34 @@ describe('ERD Project Store', () => {
 
   const _relation2: ERDRelation = {
     id: 'relation2',
-    from: 'table1',
-    to: 'table2',
+    from: 'table2',
+    to: 'table3',
     cardinality: {
       from: 'ONE',
-      to: 'ONE',
+      to: 'MANY',
     },
     identify: true,
     participation: {
       from: 'FULL',
       to: 'FULL',
     },
-    constraintName: 'FK_Table2_Table1_2',
+    constraintName: 'FK_Table3_Table2',
+  };
+
+  const _relation3: ERDRelation = {
+    id: 'relation3',
+    from: 'table3',
+    to: 'table1',
+    cardinality: {
+      from: 'ONE',
+      to: 'MANY',
+    },
+    identify: true,
+    participation: {
+      from: 'FULL',
+      to: 'FULL',
+    },
+    constraintName: 'FK_Table1_Table3',
   };
 
   test('두 테이블이 연결 되어있을 때, 테이블이 삭제되면 관련된 연결 관계들이 모두 삭제되어야 한다. (부모를 삭제)', () => {
@@ -579,5 +604,126 @@ describe('ERD Project Store', () => {
     expect(
       afterTable2?.columns.find((c) => c.id === column?.id)?.nullable,
     ).toBe(false);
+  });
+
+  test('테이블이 모두 식별 관계로 연결되어 사이클을 형성할 수 없습니다.', () => {
+    const store = createERDProjectStore();
+    store.getState().createSchema(_schema);
+    store.getState().createDiagram(_schema.name, _diagram);
+    store.getState().createTable(_schema.name, _table1);
+    store.getState().createTable(_schema.name, _table2);
+    store.getState().createTable(_schema.name, _table3);
+    store.getState().createRelation(_schema.name, _relation1);
+    store.getState().createRelation(_schema.name, _relation2);
+    store.getState().createRelation(_schema.name, _relation3);
+
+    const table1 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table1.id);
+
+    const table2 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table2.id);
+
+    const table3 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table3.id);
+
+    expect(table1?.relations.length).toBe(1);
+    expect(table2?.relations.length).toBe(2);
+    expect(table3?.relations.length).toBe(1);
+  });
+
+  test('테이블이 식별 관계로 연결되더라도, 비식별로 인해서 사이클이 형셩된다면, 가능합니다.', () => {
+    const store = createERDProjectStore();
+    store.getState().createSchema(_schema);
+    store.getState().createDiagram(_schema.name, _diagram);
+    store.getState().createTable(_schema.name, _table1);
+    store.getState().createTable(_schema.name, _table2);
+    store.getState().createTable(_schema.name, _table3);
+    store.getState().createRelation(_schema.name, _relation1);
+    store.getState().createRelation(_schema.name, _relation2);
+    store
+      .getState()
+      .createRelation(_schema.name, { ..._relation3, identify: false });
+
+    const table1 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table1.id);
+
+    const table2 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table2.id);
+
+    const table3 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table3.id);
+
+    expect(table1?.relations.length).toBe(2);
+    expect(table2?.relations.length).toBe(2);
+    expect(table3?.relations.length).toBe(2);
+  });
+
+  test('테이블이 식별 관계로 연결되더라도, 비식별로 인해서 사이클이 형성이 되었을 때, 다시 식별로 변경이 불가능해야 합니다.', () => {
+    const store = createERDProjectStore();
+    store.getState().createSchema(_schema);
+    store.getState().createDiagram(_schema.name, _diagram);
+    store.getState().createTable(_schema.name, _table1);
+    store.getState().createTable(_schema.name, _table2);
+    store.getState().createTable(_schema.name, _table3);
+    store.getState().createRelation(_schema.name, _relation1);
+    store.getState().createRelation(_schema.name, _relation2);
+    store
+      .getState()
+      .createRelation(_schema.name, { ..._relation3, identify: false });
+
+    const table1 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table1.id);
+
+    const table2 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table2.id);
+
+    const table3 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table3.id);
+
+    expect(table1?.relations.length).toBe(2);
+    expect(table2?.relations.length).toBe(2);
+    expect(table3?.relations.length).toBe(2);
+
+    store.getState().updateRelation(_schema.name, {
+      ..._relation3,
+      identify: true,
+    });
+
+    const afterTable1 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table1.id);
+
+    const afterTable2 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table2.id);
+
+    const afterTable3 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table3.id);
+
+    expect(afterTable1?.relations.length).toBe(2);
+    expect(afterTable2?.relations.length).toBe(2);
+    expect(afterTable3?.relations.length).toBe(2);
   });
 });
