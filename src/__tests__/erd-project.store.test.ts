@@ -2,7 +2,7 @@ import { describe, expect, test } from '@jest/globals';
 import {
   createERDProjectStore,
   ERDDiagram,
-  Relation,
+  ERDRelation,
   ERDSchema,
   ERDTable,
 } from '@/features/erd-project';
@@ -39,7 +39,7 @@ describe('ERD Project Store', () => {
     relations: [],
   };
 
-  const _relation1: Relation = {
+  const _relation1: ERDRelation = {
     id: 'relation1',
     from: 'table1',
     to: 'table2',
@@ -55,7 +55,7 @@ describe('ERD Project Store', () => {
     constraintName: 'FK_Table2_Table1',
   };
 
-  const _relation2: Relation = {
+  const _relation2: ERDRelation = {
     id: 'relation2',
     from: 'table1',
     to: 'table2',

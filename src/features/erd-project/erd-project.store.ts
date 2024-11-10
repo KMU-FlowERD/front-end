@@ -8,7 +8,7 @@ import type {
   ERDProject,
   ERDSchema,
   ERDTable,
-  Relation,
+  ERDRelation,
   WithPosition,
 } from './erd-project.type';
 
@@ -85,11 +85,20 @@ export interface ERDProjectAction {
     column: ERDColumn,
   ) => void;
 
-  createRelation: (schemaName: ERDSchema['name'], relation: Relation) => void;
+  createRelation: (
+    schemaName: ERDSchema['name'],
+    relation: ERDRelation,
+  ) => void;
 
-  updateRelation: (schemaName: ERDSchema['name'], relation: Relation) => void;
+  updateRelation: (
+    schemaName: ERDSchema['name'],
+    relation: ERDRelation,
+  ) => void;
 
-  deleteRelation: (schemaName: ERDSchema['name'], relation: Relation) => void;
+  deleteRelation: (
+    schemaName: ERDSchema['name'],
+    relation: ERDRelation,
+  ) => void;
 
   updateTableInDiagram: (schemaName: ERDSchema['name']) => void;
 }
@@ -414,8 +423,8 @@ export const createERDProjectStore = (
           from.relations.push(relation);
           to.relations.push(relation);
 
-          const visited: Record<Relation['id'], boolean> = {};
-          const dfs = (curr: Relation) => {
+          const visited: Record<ERDRelation['id'], boolean> = {};
+          const dfs = (curr: ERDRelation) => {
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
@@ -470,8 +479,8 @@ export const createERDProjectStore = (
                 : col.nullable,
           }));
 
-          const visited: Record<Relation['id'], boolean> = {};
-          const dfs = (curr: Relation) => {
+          const visited: Record<ERDRelation['id'], boolean> = {};
+          const dfs = (curr: ERDRelation) => {
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
@@ -515,8 +524,8 @@ export const createERDProjectStore = (
           from.relations = from.relations.filter((r) => r.id !== relation.id);
           to.relations = to.relations.filter((r) => r.id !== relation.id);
 
-          const visited: Record<Relation['id'], boolean> = {};
-          const dfs = (curr: Relation) => {
+          const visited: Record<ERDRelation['id'], boolean> = {};
+          const dfs = (curr: ERDRelation) => {
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
