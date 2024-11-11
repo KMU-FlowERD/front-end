@@ -1,8 +1,15 @@
 import type { Direction, TableDirectionChild } from './mapping.type';
 
-import type { ERDRelation, ERDTable } from '@/features/erd-project';
+import type {
+  ERDRelation,
+  ERDTable,
+  WithPosition,
+} from '@/features/erd-project';
 
-export function getStartEndDirection(fromTable: ERDTable, toTable: ERDTable) {
+export function getStartEndDirection(
+  fromTable: WithPosition<ERDTable>,
+  toTable: WithPosition<ERDTable>,
+) {
   const { fromX, fromY, toX, toY } = calculateMiddlePosition(
     fromTable,
     toTable,
@@ -19,8 +26,8 @@ export function getStartEndDirection(fromTable: ERDTable, toTable: ERDTable) {
 }
 
 export function getStartEndPosition(
-  fromTable: ERDTable,
-  toTable: ERDTable,
+  fromTable: WithPosition<ERDTable>,
+  toTable: WithPosition<ERDTable>,
   tableDirection: Map<ERDTable['id'], TableDirectionChild>,
   relation: ERDRelation,
 ) {
@@ -669,7 +676,10 @@ function updatePosition(
   return update;
 }
 
-function calculateMiddlePosition(fromTable: ERDTable, toTable: ERDTable) {
+function calculateMiddlePosition(
+  fromTable: WithPosition<ERDTable>,
+  toTable: WithPosition<ERDTable>,
+) {
   const fromX = fromTable.left + fromTable.width / 2;
   const fromY = fromTable.top + fromTable.height / 2;
   const toX = toTable.left + toTable.width / 2;

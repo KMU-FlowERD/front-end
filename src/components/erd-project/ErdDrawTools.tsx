@@ -69,22 +69,38 @@ function Relationship({ notation }: { notation: NotationType }) {
   if (notation === 'IDEF1X') {
     return (
       <>
-        <RelationshipIcons type={{ type: 'ONE-TO-ONE', identify: true }} />
+        <RelationshipIcons
+          type={{ cardinality: { from: 'ONE', to: 'ONE' }, identify: true }}
+        />
         <div style={{ width: '1px', height: '40px', background: '#444' }} />
-        <RelationshipIcons type={{ type: 'ONE-TO-ONE', identify: false }} />
+        <RelationshipIcons
+          type={{ cardinality: { from: 'ONE', to: 'ONE' }, identify: false }}
+        />
       </>
     );
   }
 
   return (
     <>
-      <RelationshipIcons type={{ type: 'ONE-TO-ONE', identify: true }} />
-      <RelationshipIcons type={{ type: 'ONE-TO-MANY', identify: true }} />
-      <RelationshipIcons type={{ type: 'MANY-TO-MANY', identify: true }} />
+      <RelationshipIcons
+        type={{ cardinality: { from: 'ONE', to: 'ONE' }, identify: true }}
+      />
+      <RelationshipIcons
+        type={{ cardinality: { from: 'ONE', to: 'MANY' }, identify: true }}
+      />
+      <RelationshipIcons
+        type={{ cardinality: { from: 'MANY', to: 'MANY' }, identify: true }}
+      />
       <div style={{ width: '1px', height: '40px', background: '#444' }} />
-      <RelationshipIcons type={{ type: 'ONE-TO-ONE', identify: false }} />
-      <RelationshipIcons type={{ type: 'ONE-TO-MANY', identify: false }} />
-      <RelationshipIcons type={{ type: 'MANY-TO-MANY', identify: false }} />
+      <RelationshipIcons
+        type={{ cardinality: { from: 'ONE', to: 'ONE' }, identify: false }}
+      />
+      <RelationshipIcons
+        type={{ cardinality: { from: 'ONE', to: 'MANY' }, identify: false }}
+      />
+      <RelationshipIcons
+        type={{ cardinality: { from: 'MANY', to: 'MANY' }, identify: false }}
+      />
     </>
   );
 }

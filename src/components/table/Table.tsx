@@ -13,8 +13,9 @@ import {
   useDrag,
   useOutsideClick,
 } from '@/features/erd-page/erd-page.table.hook';
-import type { ERDTable } from '@/features/erd-project';
+import type { ERDTable, WithPosition } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
+import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 import { TableProvider, useTableContext } from '@/providers/TableProvider';
 
 interface Position {
@@ -23,9 +24,9 @@ interface Position {
 }
 
 interface TableProps {
-  table: ERDTable;
+  table: WithPosition<ERDTable>;
   child: boolean;
-  onClick: (table: ERDTable) => void;
+  onClick: (table: WithPosition<ERDTable>) => void;
   onPositionChange: (id: string, pos: Position) => void;
 }
 
@@ -72,6 +73,8 @@ function TableConsumer({
     onPositionChange(table.id, newPos),
   );
 
+  const { schema } = useDiagramContext();
+
   useOutsideClick(
     [menuRef, boxRef, editRef],
     () => {
@@ -82,17 +85,19 @@ function TableConsumer({
   );
 
   useLayoutEffect(() => {
+    if (schema === undefined) return;
+
     if (boxRef.current) {
       const { width, height } = boxRef.current.getBoundingClientRect();
       if (width !== table.width || height !== table.height) {
-        updateTable({
+        updateTable(schema.name, {
           ...table,
           width,
           height,
         });
       }
     }
-  }, [table, updateTable]);
+  }, [schema, table, updateTable]);
 
   return (
     <styles.displayWrapper $pos={{ left: table.left, top: table.top }}>

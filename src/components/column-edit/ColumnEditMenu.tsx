@@ -8,10 +8,13 @@ import { PkFkColumns } from './PkFkColumns';
 
 import type { ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
+import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 import { useTableContext } from '@/providers/TableProvider';
 
 export function ColumnEditMenu() {
   const { editRef, table, tableColumns, isEditingColumns } = useTableContext();
+
+  const { schema } = useDiagramContext();
 
   const updateTable = useERDProjectStore((state) => state.updateTable);
 
@@ -25,13 +28,17 @@ export function ColumnEditMenu() {
     orginTable: ERDTable,
     title: string,
   ) => {
+    if (schema === undefined) return;
+
     if (e.key === 'Enter') {
-      updateTable({ ...orginTable, title });
+      updateTable(schema.name, { ...orginTable, title });
     }
   };
 
   const blurTitleEdit = (orginTable: ERDTable, title: string) => {
-    updateTable({ ...orginTable, title });
+    if (schema === undefined) return;
+
+    updateTable(schema.name, { ...orginTable, title });
   };
 
   if (!isEditingColumns) return null;

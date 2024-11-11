@@ -2,6 +2,7 @@ import { styles } from './Columns.styles';
 
 import type { ERDColumn, ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
+import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 
 interface ColumnsProps {
   table: ERDTable;
@@ -12,13 +13,17 @@ export function Columns({ table, columns }: ColumnsProps) {
   const deleteColumn = useERDProjectStore((state) => state.deleteColumn);
   const updateColumn = useERDProjectStore((state) => state.updateColumn);
 
+  const { schema } = useDiagramContext();
+
   const enterNameEdit = (
     e: React.KeyboardEvent<HTMLInputElement>,
     column: ERDColumn,
     name: string,
   ) => {
+    if (schema === undefined) return;
+
     if (e.key === 'Enter') {
-      updateColumn(table, { ...column, name });
+      updateColumn(schema.name, table, { ...column, name });
     }
   };
 
@@ -27,25 +32,35 @@ export function Columns({ table, columns }: ColumnsProps) {
     column: ERDColumn,
     type: string,
   ) => {
+    if (schema === undefined) return;
+
     if (e.key === 'Enter') {
-      updateColumn(table, { ...column, type });
+      updateColumn(schema.name, table, { ...column, type });
     }
   };
 
   const blurNameEdit = (column: ERDColumn, name: string) => {
-    updateColumn(table, { ...column, name });
+    if (schema === undefined) return;
+
+    updateColumn(schema.name, table, { ...column, name });
   };
 
   const blurTypeEdit = (column: ERDColumn, type: string) => {
-    updateColumn(table, { ...column, type });
+    if (schema === undefined) return;
+
+    updateColumn(schema.name, table, { ...column, type });
   };
 
   const deleteColumnClick = (column: ERDColumn) => {
-    deleteColumn(table, column);
+    if (schema === undefined) return;
+
+    deleteColumn(schema.name, table, column);
   };
 
   const nullableClick = (column: ERDColumn) => {
-    updateColumn(table, { ...column, nullable: !column.nullable });
+    if (schema === undefined) return;
+
+    updateColumn(schema.name, table, { ...column, nullable: !column.nullable });
   };
 
   return columns.map((column) => (

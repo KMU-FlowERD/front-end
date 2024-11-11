@@ -13,25 +13,42 @@ import { Relationship } from '@/components/erd-project/Relationship';
 import { Table } from '@/components/table';
 import { useDrawToolsStore } from '@/features/draw-tools';
 import { useCanvasSize, usePageMove } from '@/features/erd-page';
-import type { ERDTable } from '@/features/erd-project';
+import type { ERDTable, WithPosition } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
+import {
+  DiagramChooseProvider,
+  useDiagramContext,
+} from '@/providers/DiagramChooseProvider';
 
-export function ErdProjectPage() {
-  const [lastTable, setLastTable] = useState<ERDTable | undefined>(undefined);
+export function ERDProjectPage() {
+  return (
+    <DiagramChooseProvider>
+      <ErdProjectPageProvider />
+    </DiagramChooseProvider>
+  );
+}
+
+function ErdProjectPageProvider() {
+  const [lastTable, setLastTable] = useState<
+    WithPosition<ERDTable> | undefined
+  >(undefined);
 
   const { projectWidth, projectHeight } = useCanvasSize();
   usePageMove();
 
-  const updateCanvasSize = useERDProjectStore(
-    (state) => state.updateCanvasSize,
-  );
+  const resizeCanvas = useERDProjectStore((state) => state.resizeCanvas);
 
-  const tables = useERDProjectStore((state) => state.tables);
+  const { schema, diagram } = useDiagramContext();
+
+  const tables = diagram?.tables;
+
   const createTable = useERDProjectStore((state) => state.createTable);
   const updateTable = useERDProjectStore((state) => state.updateTable);
   const createRelation = useERDProjectStore((state) => state.createRelation);
 
-  const relations = useERDProjectStore((state) => state.relations);
+  const insertTableIntoDiagram = useERDProjectStore(
+    (state) => state.insertTableIntoDiagram,
+  );
 
   const mapping = useDrawToolsStore((state) => state.mapping);
   const setMapping = useDrawToolsStore((state) => state.setMapping);
@@ -47,8 +64,10 @@ export function ErdProjectPage() {
 
   const childTables = new Set<string>();
 
-  tables.forEach((table) => {
-    relations[table.id]?.forEach((relation) => {
+  if (projectWidth === undefined || projectHeight === undefined) return null;
+
+  tables?.forEach((table) => {
+    table.relations.forEach((relation) => {
       childTables.add(relation.to);
     });
   });
@@ -56,17 +75,32 @@ export function ErdProjectPage() {
   const displayClicked = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
+    if (
+      schema === undefined ||
+      diagram === undefined ||
+      projectWidth === undefined ||
+      projectHeight === undefined
+    )
+      return;
+
     const { pageX, pageY } = event;
     if (cursor === 'ARROW' && entity === 'TABLE') {
-      createTable({
+      const table = {
         id: Math.random().toString(36).slice(2),
         title: 'table',
-        top: pageY,
-        left: pageX,
         width: 50,
         height: 30,
         columns: [],
+        relations: [],
+      };
+
+      createTable(schema.name, table);
+      insertTableIntoDiagram(schema.name, diagram.name, {
+        ...table,
+        top: pageY,
+        left: pageX,
       });
+
       setEntity('NONE');
 
       const updateProjectWidth = Math.max(
@@ -82,7 +116,7 @@ export function ErdProjectPage() {
         updateProjectWidth > projectWidth ||
         updateProjectHeight > projectHeight
       ) {
-        updateCanvasSize({
+        resizeCanvas(schema.name, diagram.name, {
           width: updateProjectWidth,
           height: updateProjectHeight,
         });
@@ -91,10 +125,19 @@ export function ErdProjectPage() {
   };
 
   const onPositionChange = (id: string, pos: { left: number; top: number }) => {
+    if (
+      schema === undefined ||
+      diagram === undefined ||
+      tables === undefined ||
+      projectHeight === undefined ||
+      projectWidth === undefined
+    )
+      return;
+
     const table = tables.find((t) => t.id === id);
     if (cursor === 'ARROW' && table) {
       const updatedTable = { ...table, left: pos.left, top: pos.top };
-      updateTable(updatedTable);
+      updateTable(schema.name, updatedTable);
 
       const updateProjectWidth = Math.max(
         projectWidth,
@@ -109,7 +152,7 @@ export function ErdProjectPage() {
         updateProjectWidth > projectWidth ||
         updateProjectHeight > projectHeight
       ) {
-        updateCanvasSize({
+        resizeCanvas(schema.name, diagram.name, {
           width: updateProjectWidth,
           height: updateProjectHeight,
         });
@@ -117,7 +160,9 @@ export function ErdProjectPage() {
     }
   };
 
-  const TableClick = (table: ERDTable) => {
+  const TableClick = (table: WithPosition<ERDTable>) => {
+    if (schema === undefined || diagram === undefined) return;
+
     if (cursor !== 'ARROW' || mapping === undefined) return;
 
     if (!lastTable) {
@@ -128,60 +173,74 @@ export function ErdProjectPage() {
     setLastTable(undefined);
     setMapping(undefined);
 
+    const duplicationLength = table.relations.filter((relation) =>
+      relation.constraintName.includes(`FK_${table.title}_${lastTable.title}`),
+    ).length;
+
+    const constraintName = `FK_${table.title}_${lastTable.title}_${duplicationLength}`;
+
     if (notation === 'IDEF1X') {
-      createRelation({
+      createRelation(schema.name, {
         id: Math.random().toString(36).slice(2),
         from: lastTable.id,
         to: table.id,
         identify: lastTable.id === table.id ? false : mapping.identify,
-        multiplicity: { to: 'MANDATORY' },
+        participation: { to: 'FULL' },
+        constraintName,
       });
 
       return;
     }
 
-    if (mapping.type !== 'MANY-TO-MANY') {
-      createRelation({
+    if (mapping.cardinality.from !== 'MANY') {
+      createRelation(schema.name, {
         id: Math.random().toString(36).slice(2),
         from: lastTable.id,
         to: table.id,
-        type: mapping.type,
+        cardinality: mapping.cardinality,
         identify: lastTable.id === table.id ? false : mapping.identify,
-        multiplicity: { from: 'MANDATORY', to: 'MANDATORY' },
+        participation: { from: 'FULL', to: 'FULL' },
+        constraintName,
       });
 
       return;
     }
 
-    const tableCount = tables.length;
     const mappingTable: ERDTable = {
-      id: tableCount.toString(),
+      id: Math.random().toString(36).slice(2),
       title: `${lastTable.title}_${table.title}`,
-      top: (lastTable.top + table.top) / 2,
-      left: (lastTable.left + table.left) / 2,
       width: 50,
       height: 30,
       columns: [],
+      relations: [],
     };
 
-    createTable(mappingTable);
+    createTable(schema.name, mappingTable);
 
-    createRelation({
+    insertTableIntoDiagram(schema.name, diagram?.name, {
+      ...mappingTable,
+      top: (lastTable.top + table.top) / 2,
+      left: (lastTable.left + table.left) / 2,
+    });
+
+    createRelation(schema.name, {
       id: Math.random().toString(36).slice(2),
       from: lastTable.id,
       to: mappingTable.id,
-      type: 'ONE-TO-MANY',
+      cardinality: { from: 'ONE', to: 'MANY' },
       identify: lastTable.id === table.id ? false : mapping.identify,
-      multiplicity: { from: 'MANDATORY', to: 'MANDATORY' },
+      participation: { from: 'FULL', to: 'FULL' },
+      constraintName,
     });
 
-    createRelation({
+    createRelation(schema.name, {
       id: Math.random().toString(36).slice(2),
       from: table.id,
       to: mappingTable.id,
-      type: 'ONE-TO-MANY',
+      cardinality: { from: 'ONE', to: 'MANY' },
       identify: lastTable.id === table.id ? false : mapping.identify,
-      multiplicity: { from: 'MANDATORY', to: 'MANDATORY' },
+      participation: { from: 'FULL', to: 'FULL' },
+      constraintName,
     });
   };
 
@@ -191,15 +250,16 @@ export function ErdProjectPage() {
       $pos={{ width: projectWidth, height: projectHeight }}
     >
       <Relationship />
-      {tables.map((table) => (
-        <Table
-          key={table.id}
-          table={table}
-          child={childTables.has(table.id)}
-          onClick={TableClick}
-          onPositionChange={onPositionChange}
-        />
-      ))}
+      {tables &&
+        tables.map((table) => (
+          <Table
+            key={table.id}
+            table={table}
+            child={childTables.has(table.id)}
+            onClick={TableClick}
+            onPositionChange={onPositionChange}
+          />
+        ))}
       <styles.container>
         <TableInformation />
         <ErdDrawTools />

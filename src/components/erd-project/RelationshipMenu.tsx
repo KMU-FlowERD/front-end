@@ -1,6 +1,7 @@
 import { styles } from './RelationshipMenu.styles';
 
 import { useERDProjectStore } from '@/providers';
+import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 import { useMappingContext } from '@/providers/MappingProvider';
 
 export function RelationshipMenu() {
@@ -11,6 +12,8 @@ export function RelationshipMenu() {
     closeContextMenu,
   } = useMappingContext();
 
+  const { schema } = useDiagramContext();
+
   const deleteRelation = useERDProjectStore((state) => state.deleteRelation);
   const updateRelation = useERDProjectStore((state) => state.updateRelation);
 
@@ -18,32 +21,34 @@ export function RelationshipMenu() {
     relation &&
     relation.participation &&
     relation.participation.from &&
-    relation.participation.from === 'OPTIONAL'
+    relation.participation.from === 'PARTIAL'
       ? 'FULL'
-      : 'OPTIONAL';
+      : 'PARTIAL';
 
   const toMultiplicity =
     relation &&
     relation.participation &&
     relation.participation.to &&
-    relation.participation.to === 'OPTIONAL'
+    relation.participation.to === 'PARTIAL'
       ? 'FULL'
-      : 'OPTIONAL';
+      : 'PARTIAL';
 
   const handleMenuItemClick = (
     action: 'delete' | 'fromNullable' | 'toNullable',
   ) => {
     if (!relation) return;
 
+    if (schema === undefined) return;
+
     if (action === 'delete') {
-      deleteRelation(relation);
+      deleteRelation(schema.name, relation);
     } else if (action === 'fromNullable') {
-      updateRelation({
+      updateRelation(schema.name, {
         ...relation,
         participation: { ...relation.participation, from: fromMultiplicity },
       });
     } else if (action === 'toNullable') {
-      updateRelation({
+      updateRelation(schema.name, {
         ...relation,
         participation: { ...relation.participation, to: toMultiplicity },
       });

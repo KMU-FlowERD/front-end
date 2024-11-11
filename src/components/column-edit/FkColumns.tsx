@@ -2,6 +2,7 @@ import { styles } from './FkColumns.styles';
 
 import type { ERDColumn, ERDTable } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
+import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 
 interface FkColumnsProps {
   table: ERDTable;
@@ -11,13 +12,17 @@ interface FkColumnsProps {
 export function FkColumns({ table, fkColumns }: FkColumnsProps) {
   const updateColumn = useERDProjectStore((state) => state.updateColumn);
 
+  const { schema } = useDiagramContext();
+
   const enterNameEdit = (
     e: React.KeyboardEvent<HTMLInputElement>,
     column: ERDColumn,
     name: string,
   ) => {
+    if (schema === undefined) return;
+
     if (e.key === 'Enter') {
-      updateColumn(table, { ...column, name });
+      updateColumn(schema.name, table, { ...column, name });
     }
   };
 
@@ -26,21 +31,29 @@ export function FkColumns({ table, fkColumns }: FkColumnsProps) {
     column: ERDColumn,
     type: string,
   ) => {
+    if (schema === undefined) return;
+
     if (e.key === 'Enter') {
-      updateColumn(table, { ...column, type });
+      updateColumn(schema.name, table, { ...column, type });
     }
   };
 
   const blurNameEdit = (column: ERDColumn, name: string) => {
-    updateColumn(table, { ...column, name });
+    if (schema === undefined) return;
+
+    updateColumn(schema.name, table, { ...column, name });
   };
 
   const blurTypeEdit = (column: ERDColumn, type: string) => {
-    updateColumn(table, { ...column, type });
+    if (schema === undefined) return;
+
+    updateColumn(schema.name, table, { ...column, type });
   };
 
   const nullableClick = (column: ERDColumn) => {
-    updateColumn(table, { ...column, nullable: !column.nullable });
+    if (schema === undefined) return;
+
+    updateColumn(schema.name, table, { ...column, nullable: !column.nullable });
   };
 
   return fkColumns.map((column) => (

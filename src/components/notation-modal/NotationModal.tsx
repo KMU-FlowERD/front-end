@@ -5,6 +5,7 @@ import { useDrawToolsStore } from '@/features/draw-tools';
 import type { ERDRelation } from '@/features/erd-project';
 import { useModalContext } from '@/features/modal';
 import { useERDProjectStore } from '@/providers';
+import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 
 export function NotationModal({ relations }: { relations: ERDRelation[] }) {
   const updateRelation = useERDProjectStore((state) => state.updateRelation);
@@ -13,18 +14,22 @@ export function NotationModal({ relations }: { relations: ERDRelation[] }) {
 
   const modalContext = useModalContext();
 
+  const { schema } = useDiagramContext();
+
   const changeRelations = relations.map((relation) => {
     const changeRelation: ERDRelation = {
       ...relation,
-      multiplicity: { from: 'OPTIONAL', to: relation.multiplicity.to },
-      type: 'ONE-TO-MANY',
+      participation: { from: 'PARTIAL', to: relation.participation.to },
+      cardinality: { from: 'ONE', to: 'MANY' },
     };
     return changeRelation;
   });
 
   const changeClick = () => {
+    if (schema === undefined) return;
+
     changeRelations.forEach((relation) => {
-      updateRelation(relation);
+      updateRelation(schema.name, relation);
     });
 
     setNotation('IE');
@@ -40,28 +45,31 @@ export function NotationModal({ relations }: { relations: ERDRelation[] }) {
           <Dropdown
             options={['1:1', '1:N']}
             selected={
-              changeRelations[index].type === 'ONE-TO-ONE' ? '1:1' : '1:N'
+              changeRelations[index].cardinality?.to === 'ONE' ? '1:1' : '1:N'
             }
             onSelect={(option) => {
               changeRelations[index] = {
                 ...changeRelations[index],
-                type: option === '1:1' ? 'ONE-TO-ONE' : 'ONE-TO-MANY',
+                cardinality:
+                  option === '1:1'
+                    ? { from: 'ONE', to: 'ONE' }
+                    : { from: 'ONE', to: 'MANY' },
               };
             }}
           />
           <Dropdown
             options={['부분참여', '전체참여']}
             selected={
-              changeRelations[index].multiplicity.from === 'OPTIONAL'
+              changeRelations[index].participation.from === 'PARTIAL'
                 ? '부분참여'
                 : '전체참여'
             }
             onSelect={(option) => {
               changeRelations[index] = {
                 ...changeRelations[index],
-                multiplicity: {
-                  from: option === '부분참여' ? 'OPTIONAL' : 'MANDATORY',
-                  to: changeRelations[index].multiplicity.to,
+                participation: {
+                  from: option === '부분참여' ? 'PARTIAL' : 'FULL',
+                  to: changeRelations[index].participation.to,
                 },
               };
             }}
