@@ -26,10 +26,10 @@ export interface ERDTable {
   width: number;
   height: number;
   columns: ERDColumn[];
-  relations: Relation[];
+  relations: ERDRelation[];
 }
 
-export interface Relation {
+export interface ERDRelation {
   id: string;
   from: ERDTable['id'];
   to: ERDTable['id'];

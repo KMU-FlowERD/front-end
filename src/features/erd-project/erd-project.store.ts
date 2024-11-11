@@ -6,9 +6,9 @@ import type {
   ERDColumn,
   ERDDiagram,
   ERDProject,
+  ERDRelation,
   ERDSchema,
   ERDTable,
-  Relation,
   WithPosition,
 } from './erd-project.type';
 
@@ -85,16 +85,44 @@ export interface ERDProjectAction {
     column: ERDColumn,
   ) => void;
 
-  createRelation: (schemaName: ERDSchema['name'], relation: Relation) => void;
+  createRelation: (
+    schemaName: ERDSchema['name'],
+    relation: ERDRelation,
+  ) => void;
 
-  updateRelation: (schemaName: ERDSchema['name'], relation: Relation) => void;
+  updateRelation: (
+    schemaName: ERDSchema['name'],
+    relation: ERDRelation,
+  ) => void;
 
-  deleteRelation: (schemaName: ERDSchema['name'], relation: Relation) => void;
+  deleteRelation: (
+    schemaName: ERDSchema['name'],
+    relation: ERDRelation,
+  ) => void;
 
   updateTableInDiagram: (schemaName: ERDSchema['name']) => void;
 }
 
 export type ERDProjectStore = ERDProjectState & ERDProjectAction;
+
+const hasCycle = (schema: ERDSchema, relation: ERDRelation) => {
+  const visited = new Set<ERDTable['id']>();
+
+  const dfs = (curr: ERDTable): boolean => {
+    if (visited.has(curr.id)) return true;
+    visited.add(curr.id);
+
+    return curr.relations
+      .filter((r) => r.from === curr.id)
+      .some((r) => {
+        const to = schema.tables.find((t) => t.id === r.to);
+        return to ? dfs(to) : false;
+      });
+  };
+
+  const from = schema.tables.find((t) => t.id === relation.from);
+  return from ? dfs(from) : false;
+};
 
 export const defaultInitState: ERDProjectState = {
   id: 'default',
@@ -414,8 +442,14 @@ export const createERDProjectStore = (
           from.relations.push(relation);
           to.relations.push(relation);
 
-          const visited: Record<Relation['id'], boolean> = {};
-          const dfs = (curr: Relation) => {
+          if (relation.identify && hasCycle(schema, relation)) {
+            from.relations = from.relations.filter((r) => r.id !== relation.id);
+            to.relations = to.relations.filter((r) => r.id !== relation.id);
+            return;
+          }
+
+          const visited: Record<ERDRelation['id'], boolean> = {};
+          const dfs = (curr: ERDRelation) => {
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
@@ -455,12 +489,25 @@ export const createERDProjectStore = (
           const to = schema.tables.find((t) => t.id === relation.to);
           if (!from || !to) return;
 
+          const prevRelation = from.relations.find((r) => r.id === relation.id);
+          if (!prevRelation) return;
+
           from.relations = from.relations.map((r) =>
             r.id === relation.id ? relation : r,
           );
           to.relations = to.relations.map((r) =>
             r.id === relation.id ? relation : r,
           );
+
+          if (relation.identify && hasCycle(schema, relation)) {
+            from.relations = from.relations.map((r) =>
+              r.id === relation.id ? prevRelation : r,
+            );
+            to.relations = to.relations.map((r) =>
+              r.id === relation.id ? prevRelation : r,
+            );
+            return;
+          }
 
           to.columns = to.columns.map((col) => ({
             ...col,
@@ -470,8 +517,8 @@ export const createERDProjectStore = (
                 : col.nullable,
           }));
 
-          const visited: Record<Relation['id'], boolean> = {};
-          const dfs = (curr: Relation) => {
+          const visited: Record<ERDRelation['id'], boolean> = {};
+          const dfs = (curr: ERDRelation) => {
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
@@ -515,8 +562,8 @@ export const createERDProjectStore = (
           from.relations = from.relations.filter((r) => r.id !== relation.id);
           to.relations = to.relations.filter((r) => r.id !== relation.id);
 
-          const visited: Record<Relation['id'], boolean> = {};
-          const dfs = (curr: Relation) => {
+          const visited: Record<ERDRelation['id'], boolean> = {};
+          const dfs = (curr: ERDRelation) => {
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
