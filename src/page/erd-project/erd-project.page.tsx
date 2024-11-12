@@ -64,7 +64,26 @@ function ErdProjectPageProvider() {
 
   const childTables = new Set<string>();
 
-  if (projectWidth === undefined || projectHeight === undefined) return null;
+  if (projectWidth === undefined || projectHeight === undefined)
+    return (
+      <styles.displayWrapper>
+        <Relationship />
+        {tables?.map((table) => (
+          <Table
+            key={table.id}
+            table={table}
+            child={childTables.has(table.id)}
+            onClick={TableClick}
+            onPositionChange={onPositionChange}
+          />
+        ))}
+        <styles.container>
+          <TableInformation />
+          <ErdDrawTools />
+          <RelationshipInformation />
+        </styles.container>
+      </styles.displayWrapper>
+    );
 
   tables?.forEach((table) => {
     table.relations.forEach((relation) => {
@@ -250,16 +269,15 @@ function ErdProjectPageProvider() {
       $pos={{ width: projectWidth, height: projectHeight }}
     >
       <Relationship />
-      {tables &&
-        tables.map((table) => (
-          <Table
-            key={table.id}
-            table={table}
-            child={childTables.has(table.id)}
-            onClick={TableClick}
-            onPositionChange={onPositionChange}
-          />
-        ))}
+      {tables?.map((table) => (
+        <Table
+          key={table.id}
+          table={table}
+          child={childTables.has(table.id)}
+          onClick={TableClick}
+          onPositionChange={onPositionChange}
+        />
+      ))}
       <styles.container>
         <TableInformation />
         <ErdDrawTools />
