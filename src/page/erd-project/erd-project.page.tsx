@@ -106,7 +106,7 @@ function ErdProjectPageProvider() {
     if (cursor === 'ARROW' && entity === 'TABLE') {
       const table = {
         id: Math.random().toString(36).slice(2),
-        title: 'table',
+        title: `table${schema.tables.length + 1}`,
         width: 50,
         height: 30,
         columns: [],
@@ -196,7 +196,7 @@ function ErdProjectPageProvider() {
       relation.constraintName.includes(`FK_${table.title}_${lastTable.title}`),
     ).length;
 
-    const constraintName = `FK_${table.title}_${lastTable.title}_${duplicationLength}`;
+    const constraintName = `FK_${table.title}_${lastTable.title}_${duplicationLength + 1}`;
 
     if (notation === 'IDEF1X') {
       createRelation(schema.name, {
