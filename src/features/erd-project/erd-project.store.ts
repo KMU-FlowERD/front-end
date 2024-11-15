@@ -462,13 +462,19 @@ export const createERDProjectStore = (
             fromTable.columns
               .filter((col) => col.keyType === 'PK' || col.keyType === 'PK/FK')
               .forEach((fromCol) => {
+                const { length } = toTable.relations.filter((rel) =>
+                  rel.constraintName.includes(
+                    `FK_${toTable.title}_${fromTable.title}`,
+                  ),
+                );
+
                 toTable.columns.push({
                   ...fromCol,
                   nullable: curr.identify
                     ? false
                     : curr.participation.to === 'PARTIAL',
                   keyType: curr.identify ? 'PK/FK' : 'FK',
-                  constraintName: `FK_${toTable.title}_${fromTable.title}`,
+                  constraintName: `FK_${toTable.title}_${fromTable.title}_${length}`,
                 });
               });
 
