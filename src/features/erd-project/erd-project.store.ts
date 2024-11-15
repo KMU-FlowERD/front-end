@@ -534,13 +534,15 @@ export const createERDProjectStore = (
             return;
           }
 
-          to.columns = to.columns.map((col) => ({
-            ...col,
-            nullable:
-              relation.participation.to === 'PARTIAL'
-                ? relation.constraintName === col.constraintName
-                : col.nullable,
-          }));
+          to.columns = to.columns
+            .filter((col) => col.constraintName === relation.constraintName)
+            .map((col) => ({
+              ...col,
+              nullable:
+                relation.participation.to === 'PARTIAL'
+                  ? relation.constraintName === col.constraintName
+                  : col.nullable,
+            }));
 
           const visited: Record<ERDRelation['id'], boolean> = {};
           const dfs = (curr: ERDRelation) => {
