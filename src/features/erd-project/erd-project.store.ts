@@ -100,7 +100,7 @@ export interface ERDProjectAction {
     relation: ERDRelation,
   ) => void;
 
-  updateTableInDiagram: (schemaName: ERDSchema['name']) => void;
+  updateTableInDiagram: (schema: ERDSchema) => void;
 }
 
 export type ERDProjectStore = ERDProjectState & ERDProjectAction;
@@ -243,11 +243,12 @@ export const createERDProjectStore = (
       updateTable: (schemaName, table) =>
         set((state) => {
           const schema = state.schemas.find((s) => s.name === schemaName);
-          if (schema)
+          if (schema) {
             schema.tables = schema.tables.map((t) =>
               t.id === table.id ? table : t,
             );
-          get().updateTableInDiagram(schemaName);
+            get().updateTableInDiagram(schema);
+          }
         }),
 
       deleteTable: (schemaName, tableId) =>
@@ -297,7 +298,7 @@ export const createERDProjectStore = (
           });
 
           schema.tables = schema.tables.filter((t) => t.id !== tableId);
-          get().updateTableInDiagram(schemaName);
+          get().updateTableInDiagram(schema);
         }),
 
       createColumn: (schemaName, table, isPK) =>
@@ -344,7 +345,7 @@ export const createERDProjectStore = (
           }
 
           target.columns.push(column);
-          get().updateTableInDiagram(schemaName);
+          get().updateTableInDiagram(schema);
         }),
 
       updateColumn: (schemaName, table, column) =>
@@ -395,7 +396,7 @@ export const createERDProjectStore = (
               c.id === column.id ? column : c,
             );
           }
-          get().updateTableInDiagram(schemaName);
+          get().updateTableInDiagram(schema);
         }),
 
       deleteColumn: (schemaName, table, column) =>
@@ -427,7 +428,7 @@ export const createERDProjectStore = (
           if (column.keyType === 'PK') dfs(target);
 
           target.columns = target.columns.filter((c) => c.id !== column.id);
-          get().updateTableInDiagram(schemaName);
+          get().updateTableInDiagram(schema);
         }),
 
       createRelation: (schemaName, relation) =>
@@ -477,7 +478,7 @@ export const createERDProjectStore = (
           };
 
           dfs(relation);
-          get().updateTableInDiagram(schemaName);
+          get().updateTableInDiagram(schema);
         }),
 
       updateRelation: (schemaName, relation) =>
@@ -547,7 +548,7 @@ export const createERDProjectStore = (
               .forEach(dfs);
           };
           dfs(relation);
-          get().updateTableInDiagram(schemaName);
+          get().updateTableInDiagram(schema);
         }),
 
       deleteRelation: (schemaName, relation) =>
@@ -586,14 +587,11 @@ export const createERDProjectStore = (
           };
 
           dfs(relation);
-          get().updateTableInDiagram(schemaName);
+          get().updateTableInDiagram(schema);
         }),
 
-      updateTableInDiagram: (schemaName) =>
-        set((state) => {
-          const schema = state.schemas.find((s) => s.name === schemaName);
-          if (!schema) return;
-
+      updateTableInDiagram: (schema) =>
+        set(() => {
           schema.diagrams.forEach((diagram) => {
             diagram.tables = diagram.tables.filter((table) =>
               schema.tables.find((t) => t.id === table.id),

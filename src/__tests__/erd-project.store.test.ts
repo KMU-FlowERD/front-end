@@ -726,4 +726,33 @@ describe('ERD Project Store', () => {
     expect(afterTable2?.relations.length).toBe(2);
     expect(afterTable3?.relations.length).toBe(2);
   });
+
+  test('테이블이 업데이트 되었을 때, 정상적으로 다이어그램에 업데이트 되어야 합니다.', () => {
+    const store = createERDProjectStore();
+    store.getState().createSchema(_schema);
+    store.getState().createDiagram(_schema.name, _diagram);
+    store.getState().createTable(_schema.name, _table1);
+    store.getState().insertTableIntoDiagram(_schema.name, _diagram.name, {
+      ..._table1,
+      left: 0,
+      top: 0,
+    });
+    store
+      .getState()
+      .updateTable(_schema.name, { ..._table1, title: 'Changed' });
+
+    const schemaTable1 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table1.id);
+
+    const afterTable1 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.diagrams.find((d) => d.name === _diagram.name)
+      ?.tables.find((t) => t.id === _table1.id);
+
+    expect(schemaTable1?.title).toBe('Changed');
+    expect(afterTable1?.title).toBe('Changed');
+  });
 });
