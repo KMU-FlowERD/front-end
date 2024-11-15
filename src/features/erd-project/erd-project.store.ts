@@ -454,26 +454,31 @@ export const createERDProjectStore = (
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
-            const fromTable = schema.tables.find((t) => t.id === curr.id);
-
-            if (!fromTable) return;
-
-            fromTable.relations
-              .filter((rel) => rel.from === fromTable.id)
+            curr.relations
+              .filter((rel) => rel.from === curr.id)
               .forEach((rel) => {
                 const toTable = schema.tables.find((t) => t.id === rel.to);
                 if (!toTable) return;
 
-                fromTable.columns
+                curr.columns
                   .filter(
                     (col) => col.keyType === 'PK' || col.keyType === 'PK/FK',
                   )
                   .forEach((fromCol) => {
                     const { length } = toTable.relations.filter((r) =>
                       r.constraintName.includes(
-                        `FK_${toTable.title}_${fromTable.title}`,
+                        `FK_${toTable.title}_${curr.title}`,
                       ),
                     );
+
+                    if (
+                      toTable.columns.some(
+                        (r) =>
+                          r.constraintName ===
+                          `FK_${toTable.title}_${curr.title}_${length}`,
+                      )
+                    )
+                      return;
 
                     toTable.columns.push({
                       ...fromCol,
@@ -481,16 +486,11 @@ export const createERDProjectStore = (
                         ? false
                         : rel.participation.to === 'PARTIAL',
                       keyType: rel.identify ? 'PK/FK' : 'FK',
-                      constraintName: `FK_${toTable.title}_${fromTable.title}_${length}`,
+                      constraintName: `FK_${toTable.title}_${curr.title}_${length}`,
                     });
                   });
-              });
 
-            fromTable.relations
-              .filter((rel) => rel.from === fromTable.id)
-              .forEach((rel) => {
-                const toTable = schema.tables.find((t) => t.id === rel.to);
-                if (toTable) dfs(toTable);
+                dfs(toTable);
               });
           };
 
