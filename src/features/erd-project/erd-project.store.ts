@@ -449,41 +449,53 @@ export const createERDProjectStore = (
             return;
           }
 
-          const visited: Record<ERDRelation['id'], boolean> = {};
-          const dfs = (curr: ERDRelation) => {
+          const visited: Record<ERDTable['id'], boolean> = {};
+          const dfs = (curr: ERDTable) => {
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
-            const fromTable = schema.tables.find((t) => t.id === curr.from);
-            const toTable = schema.tables.find((t) => t.id === curr.to);
+            const fromTable = schema.tables.find((t) => t.id === curr.id);
 
-            if (!fromTable || !toTable) return;
+            if (!fromTable) return;
 
-            fromTable.columns
-              .filter((col) => col.keyType === 'PK' || col.keyType === 'PK/FK')
-              .forEach((fromCol) => {
-                const { length } = toTable.relations.filter((rel) =>
-                  rel.constraintName.includes(
-                    `FK_${toTable.title}_${fromTable.title}`,
-                  ),
-                );
+            fromTable.relations
+              .filter((rel) => rel.from === fromTable.id)
+              .forEach((rel) => {
+                const toTable = schema.tables.find((t) => t.id === rel.to);
+                if (!toTable) return;
 
-                toTable.columns.push({
-                  ...fromCol,
-                  nullable: curr.identify
-                    ? false
-                    : curr.participation.to === 'PARTIAL',
-                  keyType: curr.identify ? 'PK/FK' : 'FK',
-                  constraintName: `FK_${toTable.title}_${fromTable.title}_${length}`,
-                });
+                fromTable.columns
+                  .filter(
+                    (col) => col.keyType === 'PK' || col.keyType === 'PK/FK',
+                  )
+                  .forEach((fromCol) => {
+                    const { length } = toTable.relations.filter((r) =>
+                      r.constraintName.includes(
+                        `FK_${toTable.title}_${fromTable.title}`,
+                      ),
+                    );
+
+                    toTable.columns.push({
+                      ...fromCol,
+                      nullable: rel.identify
+                        ? false
+                        : rel.participation.to === 'PARTIAL',
+                      keyType: rel.identify ? 'PK/FK' : 'FK',
+                      constraintName: `FK_${toTable.title}_${fromTable.title}_${length}`,
+                    });
+                  });
               });
 
             fromTable.relations
               .filter((rel) => rel.from === fromTable.id)
-              .forEach(dfs);
+              .forEach((rel) => {
+                const toTable = schema.tables.find((t) => t.id === rel.to);
+                if (toTable) dfs(toTable);
+              });
           };
 
-          dfs(relation);
+          const fromTable = schema.tables.find((t) => t.id === relation.from);
+          if (fromTable) dfs(fromTable);
           get().updateTableInDiagram(schema);
         }),
 
