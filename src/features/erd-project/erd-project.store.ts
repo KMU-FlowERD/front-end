@@ -606,8 +606,8 @@ export const createERDProjectStore = (
 
             toTable.columns = toTable.columns.filter(
               (c) =>
-                c.constraintName !== curr.constraintName &&
-                affectedColumns.find((col) => col.id === c.id),
+                c.constraintName !== curr.constraintName ||
+                !affectedColumns.find((col) => col.id === c.id),
             );
 
             toTable.relations
