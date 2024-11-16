@@ -534,13 +534,17 @@ export const createERDProjectStore = (
             return;
           }
 
-          to.columns = to.columns.map((col) => ({
-            ...col,
-            nullable: !(
-              relation.participation.to === 'PARTIAL' &&
-              col.constraintName === relation.constraintName
-            ),
-          }));
+          to.columns = to.columns.map((col) =>
+            col.constraintName === relation.constraintName
+              ? {
+                  ...col,
+                  nullable:
+                    relation.participation.to === 'PARTIAL'
+                      ? true
+                      : relation.identify,
+                }
+              : col,
+          );
 
           const visited: Record<ERDRelation['id'], boolean> = {};
           const dfs = (curr: ERDRelation) => {
@@ -552,26 +556,18 @@ export const createERDProjectStore = (
 
             if (!fromTable || !toTable) return;
 
-            fromTable.columns.forEach((fromCol) => {
-              const { length } = toTable.relations.filter((r) =>
-                r.constraintName.includes(
-                  `FK_${toTable.title}_${fromTable.title}`,
-                ),
-              );
-
-              toTable.columns = toTable.columns.map((toCol) =>
-                fromCol.id === toCol.id
-                  ? {
-                      ...fromCol,
-                      nullable: curr.identify
-                        ? false
-                        : curr.participation.to === 'PARTIAL',
-                      keyType: curr.identify ? 'PK/FK' : 'FK',
-                      constraintName: `FK_${toTable.title}_${fromTable.title}_${length}`,
-                    }
-                  : toCol,
-              );
-            });
+            toTable.columns = toTable.columns.map((c) =>
+              c.constraintName === curr.constraintName
+                ? {
+                    ...c,
+                    keyType: curr.identify ? 'PK/FK' : 'FK',
+                    nullable:
+                      curr.participation.to === 'PARTIAL'
+                        ? true
+                        : curr.identify,
+                  }
+                : c,
+            );
 
             toTable.relations
               .filter((rel) => rel.from === toTable.id)
@@ -604,7 +600,7 @@ export const createERDProjectStore = (
             if (!fromTable || !toTable) return;
 
             toTable.columns = toTable.columns.filter(
-              (c) => c.constraintName !== relation.constraintName,
+              (c) => c.constraintName !== curr.constraintName,
             );
 
             toTable.relations
