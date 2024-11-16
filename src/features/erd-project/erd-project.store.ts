@@ -113,7 +113,7 @@ const hasCycle = (schema: ERDSchema, relation: ERDRelation) => {
     visited.add(curr.id);
 
     return curr.relations
-      .filter((r) => r.from === curr.id)
+      .filter((r) => r.from === curr.id && r.identify)
       .some((r) => {
         const to = schema.tables.find((t) => t.id === r.to);
         return to ? dfs(to) : false;
