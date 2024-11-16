@@ -6,6 +6,7 @@ import {
   ERDSchema,
   ERDTable,
 } from '@/features/erd-project';
+import exp from 'constants';
 
 describe('ERD Project Store', () => {
   const _schema: ERDSchema = {
@@ -61,7 +62,7 @@ describe('ERD Project Store', () => {
       from: 'FULL',
       to: 'FULL',
     },
-    constraintName: 'FK_Table2_Table1',
+    constraintName: 'FK_Table2_Table1_1',
   };
 
   const _relation2: ERDRelation = {
@@ -77,7 +78,7 @@ describe('ERD Project Store', () => {
       from: 'FULL',
       to: 'FULL',
     },
-    constraintName: 'FK_Table3_Table2',
+    constraintName: 'FK_Table3_Table2_1',
   };
 
   const _relation3: ERDRelation = {
@@ -93,7 +94,7 @@ describe('ERD Project Store', () => {
       from: 'FULL',
       to: 'FULL',
     },
-    constraintName: 'FK_Table1_Table3',
+    constraintName: 'FK_Table1_Table3_1',
   };
 
   test('두 테이블이 연결 되어있을 때, 테이블이 삭제되면 관련된 연결 관계들이 모두 삭제되어야 한다. (부모를 삭제)', () => {
@@ -754,5 +755,107 @@ describe('ERD Project Store', () => {
 
     expect(schemaTable1?.title).toBe('Changed');
     expect(afterTable1?.title).toBe('Changed');
+  });
+
+  test('하나의 테이블에 다른 테이블에 여러 관계가 있을 때 하나의 관계를 삭제하면 하나의 컬럼만 삭제되어야 합니다.', () => {
+    const store = createERDProjectStore();
+    store.getState().createSchema(_schema);
+    store.getState().createTable(_schema.name, _table1);
+    store.getState().createTable(_schema.name, _table2);
+    store.getState().createColumn(_schema.name, _table1, true);
+    store.getState().createRelation(_schema.name, {
+      ..._relation1,
+      id: '1',
+      identify: false,
+      constraintName: 'FK_Table2_Table1_1',
+    });
+    store.getState().createRelation(_schema.name, {
+      ..._relation1,
+      id: '2',
+      identify: false,
+      constraintName: 'FK_Table2_Table1_2',
+    });
+    store.getState().createRelation(_schema.name, {
+      ..._relation1,
+      id: '3',
+      identify: false,
+      constraintName: 'FK_Table2_Table1_3',
+    });
+
+    const table2 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table2.id);
+
+    expect(table2?.columns.length).toBe(3);
+
+    store.getState().deleteRelation(_schema.name, {
+      ..._relation1,
+      id: '1',
+      constraintName: 'FK_Table2_Table1_1',
+    });
+
+    const afterTable2 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table2.id);
+
+    expect(afterTable2?.columns.length).toBe(2);
+  });
+
+  test('하나의 테이블에 다른 테이블에 여러 관계가 있을 때 하나의 관계를 업데이트하면 하나의 컬럼만 수정되어야 합니다.', () => {
+    const store = createERDProjectStore();
+    store.getState().createSchema(_schema);
+    store.getState().createTable(_schema.name, _table1);
+    store.getState().createTable(_schema.name, _table2);
+    store.getState().createColumn(_schema.name, _table1, true);
+    store.getState().createRelation(_schema.name, {
+      ..._relation1,
+      id: '1',
+      identify: false,
+      constraintName: 'FK_Table2_Table1_1',
+    });
+    store.getState().createRelation(_schema.name, {
+      ..._relation1,
+      id: '2',
+      identify: false,
+      constraintName: 'FK_Table2_Table1_2',
+    });
+    store.getState().createRelation(_schema.name, {
+      ..._relation1,
+      id: '3',
+      identify: false,
+      constraintName: 'FK_Table2_Table1_3',
+    });
+
+    const table2 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table2.id);
+
+    expect(table2?.columns.length).toBe(3);
+    expect(table2?.columns[0].nullable).toBe(false);
+    expect(table2?.columns[1].nullable).toBe(false);
+    expect(table2?.columns[2].nullable).toBe(false);
+
+    store.getState().updateRelation(_schema.name, {
+      ..._relation1,
+      id: '1',
+      identify: false,
+      constraintName: 'FK_Table2_Table1_1',
+      participation: {
+        to: 'PARTIAL',
+      },
+    });
+
+    const afterTable2 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table2.id);
+
+    expect(afterTable2?.columns.length).toBe(3);
+    expect(afterTable2?.columns[0].nullable).toBe(true);
+    expect(afterTable2?.columns[1].nullable).toBe(false);
+    expect(afterTable2?.columns[2].nullable).toBe(false);
   });
 });
