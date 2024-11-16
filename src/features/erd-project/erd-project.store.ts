@@ -605,7 +605,16 @@ export const createERDProjectStore = (
               .forEach(dfs);
           };
 
-          dfs(relation);
+          if (relation.identify) {
+            dfs(relation);
+          } else {
+            const toTable = schema.tables.find((t) => t.id === relation.to);
+            if (toTable) {
+              toTable.columns = toTable.columns.filter(
+                (c) => c.constraintName !== relation.constraintName,
+              );
+            }
+          }
           get().updateTableInDiagram(schema);
         }),
 
