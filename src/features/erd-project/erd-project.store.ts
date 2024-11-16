@@ -586,6 +586,10 @@ export const createERDProjectStore = (
           from.relations = from.relations.filter((r) => r.id !== relation.id);
           to.relations = to.relations.filter((r) => r.id !== relation.id);
 
+          const affectedColumns = to.columns.filter(
+            (c) => c.constraintName === relation.constraintName,
+          );
+
           const visited: Record<ERDRelation['id'], boolean> = {};
           const dfs = (curr: ERDRelation) => {
             if (visited[curr.id]) return;
@@ -597,7 +601,9 @@ export const createERDProjectStore = (
             if (!fromTable || !toTable) return;
 
             toTable.columns = toTable.columns.filter(
-              (c) => c.constraintName !== curr.constraintName,
+              (c) =>
+                c.constraintName !== curr.constraintName &&
+                affectedColumns.find((col) => col.id === c.id),
             );
 
             toTable.relations
