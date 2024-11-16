@@ -263,21 +263,26 @@ export const createERDProjectStore = (
           const target = schema.tables.find((t) => t.id === tableId);
           if (!target) return;
 
-          const visited: Record<ERDTable['id'], boolean> = {};
-          const dfs = (curr: ERDTable) => {
+          const visited: Record<ERDRelation['id'], boolean> = {};
+          const dfs = (curr: ERDRelation) => {
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
-            curr.columns = curr.columns.filter(
-              (col) => !target.columns.find((c) => c.id === col.id),
+            const from = schema.tables.find((t) => t.id === curr.from);
+            const to = schema.tables.find((t) => t.id === curr.to);
+            if (!from || !to) return;
+
+            to.columns = to.columns.filter(
+              (col) =>
+                !(
+                  target.columns.find((c) => c.id === col.id) &&
+                  curr.constraintName === col.constraintName
+                ),
             );
 
-            curr.relations
-              .filter((relation) => relation.from === curr.id)
-              .forEach((relation) => {
-                const toTable = schema.tables.find((t) => t.id === relation.to);
-                if (toTable) dfs(toTable);
-              });
+            to.relations
+              .filter((relation) => relation.from === to.id)
+              .forEach(dfs);
           };
 
           target.relations.forEach((relation) => {
@@ -291,13 +296,13 @@ export const createERDProjectStore = (
                 );
               }
             } else {
+              // relation.to !== tableId => relation.from === tableId
+              dfs(relation);
               const toTable = schema.tables.find((t) => t.id === relation.to);
-              if (toTable) {
-                dfs(toTable);
+              if (toTable)
                 toTable.relations = toTable.relations.filter(
                   (r) => r.id !== relation.id,
                 );
-              }
             }
           });
 
@@ -469,31 +474,31 @@ export const createERDProjectStore = (
               .forEach((rel) => {
                 const toTable = schema.tables.find((t) => t.id === rel.to);
                 if (!toTable) return;
-                if (
-                  toTable.columns.find(
-                    (c) => c.constraintName === rel.constraintName,
-                  )
-                )
-                  return;
+                // if (
+                //   toTable.columns.find(
+                //     (c) => c.constraintName === rel.constraintName,
+                //   )
+                // )
+                //   return;
 
                 curr.columns
                   .filter(
-                    (col) => col.keyType === 'PK' || col.keyType === 'PK/FK',
+                    (col) =>
+                      (col.keyType === 'PK' || col.keyType === 'PK/FK') &&
+                      !toTable.columns.find(
+                        (tableCol) =>
+                          tableCol.constraintName === rel.constraintName &&
+                          tableCol.id === col.id,
+                      ),
                   )
                   .forEach((fromCol) => {
-                    const { length } = toTable.relations.filter((r) =>
-                      r.constraintName.includes(
-                        `FK_${toTable.title}_${curr.title}`,
-                      ),
-                    );
-
                     toTable.columns.push({
                       ...fromCol,
                       nullable: rel.identify
                         ? false
                         : rel.participation.to === 'PARTIAL',
                       keyType: rel.identify ? 'PK/FK' : 'FK',
-                      constraintName: `FK_${toTable.title}_${curr.title}_${length}`,
+                      constraintName: rel.constraintName,
                     });
                   });
 
