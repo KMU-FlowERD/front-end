@@ -373,7 +373,13 @@ export const createERDProjectStore = (
                 const toTable = schema.tables.find((t) => t.id === relation.to);
                 if (toTable) {
                   toTable.columns = toTable.columns.map((c) =>
-                    c.id === column.id ? column : c,
+                    c.id === column.id
+                      ? {
+                          ...column,
+                          keyType: relation.identify ? 'PK/FK' : 'FK',
+                          constraintName: c.constraintName,
+                        }
+                      : c,
                   );
                   dfs(toTable);
                 }
@@ -386,7 +392,7 @@ export const createERDProjectStore = (
             target.columns = target.columns.map((c) =>
               c.constraintName === column.constraintName
                 ? {
-                    ...c,
+                    ...(c.id === column.id ? column : c),
                     nullable: column.nullable,
                   }
                 : c,
