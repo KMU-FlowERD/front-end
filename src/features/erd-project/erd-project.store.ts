@@ -479,9 +479,10 @@ export const createERDProjectStore = (
 
                     if (
                       toTable.columns.some(
-                        (r) =>
-                          r.constraintName ===
-                          `FK_${toTable.title}_${curr.title}_${length}`,
+                        (c) =>
+                          c.id === fromCol.id &&
+                          c.constraintName ===
+                            `FK_${toTable.title}_${curr.title}_${length}`,
                       )
                     )
                       return;

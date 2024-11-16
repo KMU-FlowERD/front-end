@@ -6,7 +6,6 @@ import {
   ERDSchema,
   ERDTable,
 } from '@/features/erd-project';
-import exp from 'constants';
 
 describe('ERD Project Store', () => {
   const _schema: ERDSchema = {
@@ -857,5 +856,23 @@ describe('ERD Project Store', () => {
     expect(afterTable2?.columns[0].nullable).toBe(true);
     expect(afterTable2?.columns[1].nullable).toBe(false);
     expect(afterTable2?.columns[2].nullable).toBe(false);
+  });
+
+  test('두 테이블이 연결될 때, 부모 테이블로부터 자식 테이블은 PK를 FK로 복사해야 합니다.', () => {
+    const store = createERDProjectStore();
+    store.getState().createSchema(_schema);
+    store.getState().createTable(_schema.name, _table1);
+    store.getState().createTable(_schema.name, _table2);
+    store.getState().createColumn(_schema.name, _table1, true);
+    store.getState().createColumn(_schema.name, _table1, true);
+    store.getState().createColumn(_schema.name, _table1, true);
+    store.getState().createRelation(_schema.name, _relation1);
+
+    const table2 = store
+      .getState()
+      .schemas.find((s) => s.name === _schema.name)
+      ?.tables.find((t) => t.id === _table2.id);
+
+    expect(table2?.columns.length).toBe(3);
   });
 });
