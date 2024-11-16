@@ -471,6 +471,12 @@ export const createERDProjectStore = (
               .forEach((rel) => {
                 const toTable = schema.tables.find((t) => t.id === rel.to);
                 if (!toTable) return;
+                if (
+                  toTable.columns.find(
+                    (c) => c.constraintName === rel.constraintName,
+                  )
+                )
+                  return;
 
                 curr.columns
                   .filter(
@@ -482,16 +488,6 @@ export const createERDProjectStore = (
                         `FK_${toTable.title}_${curr.title}`,
                       ),
                     );
-
-                    if (
-                      toTable.columns.some(
-                        (c) =>
-                          c.id === fromCol.id &&
-                          c.constraintName ===
-                            `FK_${toTable.title}_${curr.title}_${length}`,
-                      )
-                    )
-                      return;
 
                     toTable.columns.push({
                       ...fromCol,
