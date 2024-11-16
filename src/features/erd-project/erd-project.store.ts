@@ -327,19 +327,13 @@ export const createERDProjectStore = (
                 const toTable = schema.tables.find((t) => t.id === relation.to);
                 if (!toTable) return;
 
-                const { length } = toTable.relations.filter((r) =>
-                  r.constraintName.includes(
-                    `FK_${toTable.title}_${curr.title}`,
-                  ),
-                );
-
                 toTable.columns.push({
                   ...column,
                   keyType: relation.identify ? 'PK/FK' : 'FK',
                   nullable: relation.identify
                     ? false
                     : relation.participation.to === 'PARTIAL',
-                  constraintName: `FK_${toTable.title}_${curr.title}_${length}`,
+                  constraintName: relation.constraintName,
                 });
                 dfs(toTable);
               });
