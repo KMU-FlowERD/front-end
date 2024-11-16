@@ -112,12 +112,16 @@ const hasCycle = (schema: ERDSchema, relation: ERDRelation) => {
     if (visited.has(curr.id)) return true;
     visited.add(curr.id);
 
-    return curr.relations
+    const result = curr.relations
       .filter((r) => r.from === curr.id && r.identify)
       .some((r) => {
         const to = schema.tables.find((t) => t.id === r.to);
         return to ? dfs(to) : false;
       });
+
+    visited.delete(curr.id);
+
+    return result;
   };
 
   const from = schema.tables.find((t) => t.id === relation.from);
@@ -447,7 +451,7 @@ export const createERDProjectStore = (
           if (!from || !to) return;
 
           from.relations.push(relation);
-          to.relations.push(relation);
+          if (from.id !== to.id) to.relations.push(relation);
 
           if (relation.identify && hasCycle(schema, relation)) {
             from.relations = from.relations.filter((r) => r.id !== relation.id);
