@@ -34,7 +34,7 @@ export function RelationshipMenu() {
       : 'PARTIAL';
 
   const handleMenuItemClick = (
-    action: 'delete' | 'fromNullable' | 'toNullable',
+    action: 'delete' | 'identify' | 'fromNullable' | 'toNullable',
   ) => {
     if (!relation) return;
 
@@ -42,6 +42,11 @@ export function RelationshipMenu() {
 
     if (action === 'delete') {
       deleteRelation(schema.name, relation);
+    } else if (action === 'identify') {
+      updateRelation(schema.name, {
+        ...relation,
+        identify: !relation.identify,
+      });
     } else if (action === 'fromNullable') {
       updateRelation(schema.name, {
         ...relation,
@@ -67,12 +72,17 @@ export function RelationshipMenu() {
       <styles.menuItem onClick={() => handleMenuItemClick('delete')}>
         관계 삭제
       </styles.menuItem>
+      <styles.menuItem onClick={() => handleMenuItemClick('identify')}>
+        {relation?.identify ? '비' : ''}식별로 전환
+      </styles.menuItem>
       <styles.menuItem onClick={() => handleMenuItemClick('fromNullable')}>
         {fromMultiplicity === 'FULL' ? '✔️' : ''}부모 null 허용
       </styles.menuItem>
-      <styles.menuItem onClick={() => handleMenuItemClick('toNullable')}>
-        {toMultiplicity === 'FULL' ? '✔️' : ''}자식 null 허용
-      </styles.menuItem>
+      {!relation?.identify && (
+        <styles.menuItem onClick={() => handleMenuItemClick('toNullable')}>
+          {toMultiplicity === 'FULL' ? '✔️' : ''}자식 null 허용
+        </styles.menuItem>
+      )}
     </styles.menu>
   );
 }
