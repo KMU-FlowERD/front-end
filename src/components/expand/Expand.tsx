@@ -6,10 +6,18 @@ import { styles } from './Expand.styles';
 interface ExpandProps {
   text: string;
   children: undefined | ReactNode;
-  onClick: undefined | (() => void);
+  deleteIcon: boolean;
+  onClick: () => void;
+  onDelete: () => void;
 }
 
-export function Expand({ text, children, onClick }: ExpandProps) {
+export function Expand({
+  text,
+  children,
+  deleteIcon,
+  onClick,
+  onDelete,
+}: ExpandProps) {
   const [open, setOpen] = useState<boolean>(false);
 
   const handleClick = () => {
@@ -23,6 +31,9 @@ export function Expand({ text, children, onClick }: ExpandProps) {
       <styles.mainNode onClick={handleClick}>
         <ExpandIcon open={open} />
         {text}
+        {deleteIcon && (
+          <styles.deleteButton onClick={onDelete}>🗑</styles.deleteButton>
+        )}
       </styles.mainNode>
       <styles.childNode>{open && children}</styles.childNode>
     </styles.displayWrapper>

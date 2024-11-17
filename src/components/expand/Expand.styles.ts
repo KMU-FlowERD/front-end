@@ -7,6 +7,7 @@ export const styles = {
     gap: 8px;
     font-size: 14px;
     color: #ededed;
+    width: 100%;
   `,
 
   mainNode: styled.div`
@@ -30,5 +31,14 @@ export const styles = {
   expandButton: styled.span<{ $open: boolean }>`
     transition: transform 0.3s ease-in-out;
     transform: ${({ $open }) => ($open ? 'rotate(90deg)' : 'rotate(0deg)')};
+  `,
+
+  deleteButton: styled.div`
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: end;
+    cursor: pointer;
   `,
 };

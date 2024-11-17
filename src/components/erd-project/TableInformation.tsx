@@ -12,7 +12,10 @@ export function TableInformation() {
   const schemas = useERDProjectStore((state) => state.schemas);
 
   const createSchema = useERDProjectStore((state) => state.createSchema);
+  const deleteSchema = useERDProjectStore((state) => state.deleteSchema);
+
   const createDiagram = useERDProjectStore((state) => state.createDiagram);
+  const deleteDiagram = useERDProjectStore((state) => state.deleteDiagram);
 
   const { setDiagramName, setSchemaName } = useDiagramContext();
 
@@ -57,14 +60,20 @@ export function TableInformation() {
         <Expand
           key={schema.name}
           text={schema.name}
+          deleteIcon
           onClick={() => {
             setChooseSchemaName(schema.name);
+          }}
+          onDelete={() => {
+            deleteSchema(schema.name);
           }}
         >
           <Expand
             key={schema.name + schema.name}
             text='Tables'
-            onClick={undefined}
+            deleteIcon={false}
+            onClick={() => {}}
+            onDelete={() => {}}
           >
             {schema.tables.map((table) => (
               <div key={table.id}>{table.title}</div>
@@ -74,9 +83,13 @@ export function TableInformation() {
             <Expand
               key={diagram.name}
               text={diagram.name}
+              deleteIcon
               onClick={() => {
                 setSchemaName(schema.name);
                 setDiagramName(diagram.name);
+              }}
+              onDelete={() => {
+                deleteDiagram(schema.name, diagram.name);
               }}
             >
               {diagram.tables.map((table) => (
