@@ -98,8 +98,10 @@ function SvgComponent({ relation }: ConnectLineProps) {
         relation.participation.to &&
         relation.participation.to === 'PARTIAL'
       ) {
+        console.log('널');
         drawCircles.push(getStartIENullableCircle(fromDirection, updatedFrom));
       } else {
+        console.log('널 아님');
         drawLines.push(getStartIENotNullOneLine(fromDirection, updatedFrom));
       }
 

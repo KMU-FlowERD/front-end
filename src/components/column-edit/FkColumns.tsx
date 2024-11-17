@@ -57,7 +57,7 @@ export function FkColumns({ table, fkColumns }: FkColumnsProps) {
   };
 
   return fkColumns.map((column) => (
-    <styles.columnRow key={column.id}>
+    <styles.columnRow key={column.id + column.constraintName}>
       <styles.input
         type='text'
         placeholder='<pk column name>'

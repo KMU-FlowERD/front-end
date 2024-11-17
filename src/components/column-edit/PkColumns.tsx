@@ -58,7 +58,7 @@ export function PkColumns({ table, pkColumns }: PkColumnsProps) {
   };
 
   return pkColumns.map((column) => (
-    <styles.columnRow key={column.id}>
+    <styles.columnRow key={column.id + column.constraintName}>
       <styles.input
         type='text'
         placeholder='<pk column name>'

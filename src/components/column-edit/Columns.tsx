@@ -64,7 +64,7 @@ export function Columns({ table, columns }: ColumnsProps) {
   };
 
   return columns.map((column) => (
-    <styles.columnRow key={column.id}>
+    <styles.columnRow key={column.id + column.constraintName}>
       <styles.input
         type='text'
         placeholder='<pk column name>'

@@ -4,7 +4,7 @@ import type { ERDColumn } from '@/features/erd-project';
 
 export function Columns({ columns }: { columns: ERDColumn[] }) {
   return columns.map((column) => (
-    <styles.columnWrapper key={column.id}>
+    <styles.columnWrapper key={column.id + column.constraintName}>
       <styles.columnName>{column.name}</styles.columnName>
       {column.type && <styles.columnType>{column.type}</styles.columnType>}
       {column.keyType && (

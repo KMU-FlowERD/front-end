@@ -16,7 +16,7 @@ export const useRelationshipData = (tables: WithPosition<ERDTable>[]) => {
 
   tables.forEach((table) => {
     table.relations.forEach((relation) => {
-      if (!relationDuplicate.includes(relation))
+      if (!relationDuplicate.find((r) => r.id === relation.id))
         relationDuplicate.push(relation);
     });
   });

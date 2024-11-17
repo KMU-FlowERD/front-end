@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 import { styles } from './erd-project.page.styles';
 
@@ -192,11 +193,11 @@ function ErdProjectPageProvider() {
     setLastTable(undefined);
     setMapping(undefined);
 
-    const duplicationLength = table.relations.filter((relation) =>
-      relation.constraintName.includes(`FK_${table.title}_${lastTable.title}`),
-    ).length;
+    // const duplicationLength = table.relations.filter((relation) =>
+    //   relation.constraintName.includes(`FK_${table.title}_${lastTable.title}`),
+    // ).length;
 
-    const constraintName = `FK_${table.title}_${lastTable.title}_${duplicationLength + 1}`;
+    const constraintName = `FK_${table.title}_${lastTable.title}_${uuidv4()}`;
 
     if (notation === 'IDEF1X') {
       createRelation(schema.name, {
