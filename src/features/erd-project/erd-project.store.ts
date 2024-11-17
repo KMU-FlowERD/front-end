@@ -405,6 +405,17 @@ export const createERDProjectStore = (
             );
             if (relation) {
               relation.participation.to = column.nullable ? 'PARTIAL' : 'FULL';
+
+              const findTable = schema.tables.find(
+                (t) => t.id === relation.from,
+              );
+
+              if (!findTable) return;
+
+              const rel = findTable.relations.find((r) => r.id === relation.id);
+              if (!rel) return;
+
+              rel.participation.to = column.nullable ? 'PARTIAL' : 'FULL';
             }
           } else {
             target.columns = target.columns.map((c) =>
@@ -540,17 +551,17 @@ export const createERDProjectStore = (
             return;
           }
 
-          to.columns = to.columns.map((col) =>
-            col.constraintName === relation.constraintName
-              ? {
-                  ...col,
-                  nullable:
-                    relation.participation.to === 'PARTIAL'
-                      ? true
-                      : relation.identify,
-                }
-              : col,
-          );
+          // to.columns = to.columns.map((col) =>
+          //   col.constraintName === relation.constraintName
+          //     ? {
+          //         ...col,
+          //         nullable:
+          //           relation.participation.to === 'PARTIAL'
+          //             ? true
+          //             : !relation.identify,
+          //       }
+          //     : col,
+          // );
 
           const visited: Record<ERDRelation['id'], boolean> = {};
           const dfs = (curr: ERDRelation) => {
@@ -567,10 +578,7 @@ export const createERDProjectStore = (
                 ? {
                     ...c,
                     keyType: curr.identify ? 'PK/FK' : 'FK',
-                    nullable:
-                      curr.participation.to === 'PARTIAL'
-                        ? true
-                        : curr.identify,
+                    nullable: curr.participation.to === 'PARTIAL',
                   }
                 : c,
             );
