@@ -58,6 +58,14 @@ function TableConsumer({
     setIsEditingColumns,
   } = useTableContext();
 
+  const createColumn = useERDProjectStore((state) => state.createColumn);
+  const updateColumn = useERDProjectStore((state) => state.updateColumn);
+  const deleteColumn = useERDProjectStore((state) => state.deleteColumn);
+
+  const createRelation = useERDProjectStore((state) => state.createRelation);
+  const updateRelation = useERDProjectStore((state) => state.updateRelation);
+  const deleteRelation = useERDProjectStore((state) => state.deleteRelation);
+
   const updateTable = useERDProjectStore((state) => state.updateTable);
 
   const notation = useDrawToolsStore((state) => state.notation);
@@ -97,7 +105,17 @@ function TableConsumer({
         });
       }
     }
-  }, [schema, table, updateTable]);
+  }, [
+    schema,
+    table,
+    updateTable,
+    createColumn,
+    updateColumn,
+    deleteColumn,
+    createRelation,
+    updateRelation,
+    deleteRelation,
+  ]);
 
   return (
     <styles.displayWrapper $pos={{ left: table.left, top: table.top }}>
