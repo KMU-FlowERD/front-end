@@ -3,7 +3,7 @@
 import type { MutableRefObject, PropsWithChildren } from 'react';
 import { createContext, useContext, useMemo } from 'react';
 
-import { useERDProjectStore } from './ERDProjectProvider';
+import { useDiagramContext } from './DiagramChooseProvider';
 
 import type { ERDRelation } from '@/features/erd-project';
 import type { TableDirectionChild } from '@/features/mapping';
@@ -28,10 +28,10 @@ const MappingContext = createContext<MappingDataProps | undefined>(undefined);
 type MappingProviderProps = PropsWithChildren;
 
 export function MappingProvider({ children }: MappingProviderProps) {
-  const tables = useERDProjectStore((state) => state.tables);
-  const relations = useERDProjectStore((state) => state.relations);
+  const { diagram } = useDiagramContext();
+  const tables = diagram ? diagram.tables : [];
 
-  const relationshipData = useRelationshipData(tables, relations);
+  const relationshipData = useRelationshipData(tables);
   const contextMenu = useContextMenu();
 
   const data = useMemo(

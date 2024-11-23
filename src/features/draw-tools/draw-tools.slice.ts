@@ -1,12 +1,17 @@
 import { create } from 'zustand';
 
+import type { Cardinality } from '@/features/erd-project';
+
 type CursorType = 'ARROW' | 'POINTER';
 type EntityType = 'TABLE' | 'MEMO' | 'NONE';
 type NotationType = 'IE' | 'IDEF1X';
 
 // 식별 1:1, 1:n, m,n, 비식별 1:1, 1:n, m,n
 export interface MappingType {
-  type: 'ONE-TO-ONE' | 'ONE-TO-MANY' | 'MANY-TO-MANY';
+  cardinality: {
+    from: Cardinality;
+    to: Cardinality;
+  };
   identify: boolean;
 }
 

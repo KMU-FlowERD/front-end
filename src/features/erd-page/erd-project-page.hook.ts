@@ -3,25 +3,35 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useDrawToolsStore } from '@/features/draw-tools';
 import type { ERDRelation } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
+import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 
 export function useCanvasSize() {
-  const projectWidth = useERDProjectStore((state) => state.width);
-  const projectHeight = useERDProjectStore((state) => state.height);
-  const updateCanvasSize = useERDProjectStore(
-    (state) => state.updateCanvasSize,
-  );
+  const { schema, diagram } = useDiagramContext();
+
+  const projectWidth = diagram?.width;
+  const projectHeight = diagram?.height;
+
+  const resizeCanvas = useERDProjectStore((state) => state.resizeCanvas);
 
   const handleResize = useCallback(() => {
+    if (
+      schema === undefined ||
+      diagram === undefined ||
+      projectWidth === undefined ||
+      projectHeight === undefined
+    )
+      return;
+
     if (
       window.innerWidth > projectWidth ||
       window.innerHeight > projectHeight
     ) {
-      updateCanvasSize({
+      resizeCanvas(schema?.name, diagram.name, {
         width: Math.max(window.innerWidth, projectWidth),
         height: Math.max(window.innerHeight, projectHeight),
       });
     }
-  }, [projectWidth, projectHeight, updateCanvasSize]);
+  }, [schema, diagram, projectWidth, projectHeight, resizeCanvas]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -96,17 +106,19 @@ export function usePageMove() {
 }
 
 export function useRelationChange() {
-  const tables = useERDProjectStore((state) => state.tables);
-  const relations = useERDProjectStore((state) => state.relations);
+  const { diagram } = useDiagramContext();
+  const tables = diagram?.tables;
 
   const changedRelation: ERDRelation[] = useMemo(() => {
+    if (diagram === undefined || tables === undefined) return [];
+
     const toChangeRelations: ERDRelation[] = [];
 
     tables.forEach((table) => {
-      relations[table.id]?.forEach((relation) => {
+      table.relations.forEach((relation) => {
         if (
-          relation.multiplicity.from !== undefined &&
-          relation.type !== undefined
+          relation.participation.from !== undefined &&
+          relation.cardinality !== undefined
         )
           return;
 
@@ -116,7 +128,7 @@ export function useRelationChange() {
     });
 
     return toChangeRelations;
-  }, [relations, tables]);
+  }, [diagram, tables]);
 
   return changedRelation;
 }

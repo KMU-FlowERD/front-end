@@ -19,7 +19,7 @@ import {
   getStartIENullableCircle,
   getStartIEOneLine,
 } from '@/features/mapping';
-import { useERDProjectStore } from '@/providers';
+import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 import { useMappingContext } from '@/providers/MappingProvider';
 
 interface ConnectLineProps {
@@ -31,13 +31,17 @@ export function ConnectLine({ relation }: ConnectLineProps) {
 }
 
 function SvgComponent({ relation }: ConnectLineProps) {
-  const tables = useERDProjectStore((state) => state.tables);
+  const { diagram } = useDiagramContext();
 
   const context = useMappingContext();
 
+  const notation = useDrawToolsStore((state) => state.notation);
+
   const { tableDirection, selfReferenceMapping, openContextMenu } = context;
 
-  const notation = useDrawToolsStore((state) => state.notation);
+  if (diagram === undefined) return null;
+
+  const { tables } = diagram;
 
   const lines: JSX.Element[] = [];
 
@@ -84,15 +88,15 @@ function SvgComponent({ relation }: ConnectLineProps) {
     if (notation === 'IE') {
       drawLines.push(getStartIEOneLine(fromDirection, updatedFrom));
 
-      if (relation.cardinality === 'ONE-TO-MANY')
+      if (relation.cardinality?.to === 'MANY')
         drawLines.push(...getManyLines(toDirection, updatedTo));
-      else if (relation.cardinality === 'ONE-TO-ONE')
+      else if (relation.cardinality?.to === 'ONE')
         drawLines.push(getEndIEOneLine(toDirection, updatedTo));
 
       if (
         relation.participation &&
         relation.participation.to &&
-        relation.participation.to === 'OPTIONAL'
+        relation.participation.to === 'PARTIAL'
       ) {
         drawCircles.push(getStartIENullableCircle(fromDirection, updatedFrom));
       } else {
@@ -102,7 +106,7 @@ function SvgComponent({ relation }: ConnectLineProps) {
       if (
         relation.participation &&
         relation.participation.from &&
-        relation.participation.from === 'OPTIONAL'
+        relation.participation.from === 'PARTIAL'
       ) {
         drawCircles.push(getEndIENullableCircle(toDirection, updatedTo));
       } else {
@@ -114,7 +118,7 @@ function SvgComponent({ relation }: ConnectLineProps) {
       if (
         relation.participation &&
         relation.participation.from &&
-        relation.participation.from === 'OPTIONAL'
+        relation.participation.from === 'PARTIAL'
       ) {
         drawPolygons.push(
           getStartIDEFNullablePolygon(fromDirection, updatedFrom),

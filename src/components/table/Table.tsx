@@ -13,8 +13,9 @@ import {
   useDrag,
   useOutsideClick,
 } from '@/features/erd-page/erd-page.table.hook';
-import type { ERDTable } from '@/features/erd-project';
+import type { ERDTable, WithPosition } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
+import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 import { TableProvider, useTableContext } from '@/providers/TableProvider';
 
 interface Position {
@@ -23,9 +24,9 @@ interface Position {
 }
 
 interface TableProps {
-  table: ERDTable;
+  table: WithPosition<ERDTable>;
   child: boolean;
-  onClick: (table: ERDTable) => void;
+  onClick: (table: WithPosition<ERDTable>) => void;
   onPositionChange: (id: string, pos: Position) => void;
 }
 
@@ -57,6 +58,14 @@ function TableConsumer({
     setIsEditingColumns,
   } = useTableContext();
 
+  const createColumn = useERDProjectStore((state) => state.createColumn);
+  const updateColumn = useERDProjectStore((state) => state.updateColumn);
+  const deleteColumn = useERDProjectStore((state) => state.deleteColumn);
+
+  const createRelation = useERDProjectStore((state) => state.createRelation);
+  const updateRelation = useERDProjectStore((state) => state.updateRelation);
+  const deleteRelation = useERDProjectStore((state) => state.deleteRelation);
+
   const updateTable = useERDProjectStore((state) => state.updateTable);
 
   const notation = useDrawToolsStore((state) => state.notation);
@@ -72,6 +81,8 @@ function TableConsumer({
     onPositionChange(table.id, newPos),
   );
 
+  const { schema } = useDiagramContext();
+
   useOutsideClick(
     [menuRef, boxRef, editRef],
     () => {
@@ -82,17 +93,29 @@ function TableConsumer({
   );
 
   useLayoutEffect(() => {
+    if (schema === undefined) return;
+
     if (boxRef.current) {
       const { width, height } = boxRef.current.getBoundingClientRect();
       if (width !== table.width || height !== table.height) {
-        updateTable({
+        updateTable(schema.name, {
           ...table,
           width,
           height,
         });
       }
     }
-  }, [table, updateTable]);
+  }, [
+    schema,
+    table,
+    updateTable,
+    createColumn,
+    updateColumn,
+    deleteColumn,
+    createRelation,
+    updateRelation,
+    deleteRelation,
+  ]);
 
   return (
     <styles.displayWrapper $pos={{ left: table.left, top: table.top }}>

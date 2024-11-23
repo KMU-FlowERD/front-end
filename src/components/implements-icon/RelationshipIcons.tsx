@@ -16,7 +16,9 @@ export function RelationshipIcons({ type }: { type: MappingType }) {
   const setMapping = useDrawToolsStore((state) => state.setMapping);
 
   const fill =
-    mapping?.identify === type.identify && mapping.type === type.type
+    mapping?.identify === type.identify &&
+    mapping.cardinality.from === type.cardinality.from &&
+    mapping.cardinality.to === type.cardinality.to
       ? '#ddd'
       : '#aaa';
 
@@ -32,18 +34,18 @@ export function RelationshipIcons({ type }: { type: MappingType }) {
 }
 
 function Icon({ mapping, fill }: { mapping: MappingType; fill: string }) {
-  const { identify, type } = mapping;
+  const { identify, cardinality } = mapping;
 
-  if (identify && type === 'ONE-TO-ONE')
+  if (identify && cardinality.from === 'ONE' && cardinality.to === 'ONE')
     return <IdentifyOneToOneIcon fill={fill} />;
-  if (identify && type === 'ONE-TO-MANY')
+  if (identify && cardinality.from === 'ONE' && cardinality.to === 'MANY')
     return <IdentifyOneToManyIcon fill={fill} />;
-  if (identify && type === 'MANY-TO-MANY')
+  if (identify && cardinality.from === 'MANY' && cardinality.to === 'MANY')
     return <IdentifyManyToManyIcon fill={fill} />;
-  if (!identify && type === 'ONE-TO-ONE')
+  if (!identify && cardinality.from === 'ONE' && cardinality.to === 'ONE')
     return <NonIdentifyOneToOneIcon fill={fill} />;
-  if (!identify && type === 'ONE-TO-MANY')
+  if (!identify && cardinality.from === 'ONE' && cardinality.to === 'MANY')
     return <NonIdentifyOneToManyIcon fill={fill} />;
-  if (!identify && type === 'MANY-TO-MANY')
+  if (!identify && cardinality.from === 'MANY' && cardinality.to === 'MANY')
     return <NonIdentifyManyToManyIcon fill={fill} />;
 }

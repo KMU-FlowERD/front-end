@@ -3,19 +3,20 @@ import { useEffect, useRef, useState } from 'react';
 import { getStartEndDirection } from './mapping.helper';
 import type { Direction, TableDirectionChild } from './mapping.type';
 
-import type { ERDRelation, ERDTable } from '@/features/erd-project';
+import type {
+  ERDRelation,
+  ERDTable,
+  WithPosition,
+} from '@/features/erd-project';
 
-export const useRelationshipData = (
-  tables: ERDTable[],
-  relations: Record<ERDTable['id'], ERDRelation[]>,
-) => {
+export const useRelationshipData = (tables: WithPosition<ERDTable>[]) => {
   const relationDuplicate: ERDRelation[] = [];
   const tableDirection: Map<ERDTable['id'], TableDirectionChild> = new Map();
   const selfReferenceMapping: Map<ERDTable['id'], number> = new Map();
 
   tables.forEach((table) => {
-    relations[table.id]?.forEach((relation) => {
-      if (!relationDuplicate.includes(relation))
+    table.relations.forEach((relation) => {
+      if (!relationDuplicate.find((r) => r.id === relation.id))
         relationDuplicate.push(relation);
     });
   });

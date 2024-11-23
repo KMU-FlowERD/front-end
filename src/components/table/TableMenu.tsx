@@ -1,6 +1,7 @@
 import { styles } from './TableMenu.styles';
 
 import { useERDProjectStore } from '@/providers';
+import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 import { useTableContext } from '@/providers/TableProvider';
 
 export function TableMenu() {
@@ -10,18 +11,22 @@ export function TableMenu() {
 
   const createColumn = useERDProjectStore((state) => state.createColumn);
 
+  const { schema } = useDiagramContext();
+
   const handleMenuItemClick = (
     action: 'delete' | 'add/pk' | 'add' | 'edit',
   ) => {
+    if (schema === undefined) return;
+
     switch (action) {
       case 'delete':
-        deleteTable(table.id);
+        deleteTable(schema.name, table.id);
         break;
       case 'add/pk':
-        createColumn(table, true);
+        createColumn(schema.name, table, true);
         break;
       case 'add':
-        createColumn(table, false);
+        createColumn(schema.name, table, false);
         break;
       case 'edit':
         setIsEditingColumns(true);

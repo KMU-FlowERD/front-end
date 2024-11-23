@@ -1,5 +1,5 @@
-import { ErdProjectPage } from '@/page';
+import { ERDProjectPage } from '@/page';
 
 export default function Home() {
-  return <ErdProjectPage />;
+  return <ERDProjectPage />;
 }

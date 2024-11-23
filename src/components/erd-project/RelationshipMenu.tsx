@@ -1,6 +1,7 @@
 import { styles } from './RelationshipMenu.styles';
 
 import { useERDProjectStore } from '@/providers';
+import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 import { useMappingContext } from '@/providers/MappingProvider';
 
 export function RelationshipMenu() {
@@ -11,6 +12,8 @@ export function RelationshipMenu() {
     closeContextMenu,
   } = useMappingContext();
 
+  const { schema } = useDiagramContext();
+
   const deleteRelation = useERDProjectStore((state) => state.deleteRelation);
   const updateRelation = useERDProjectStore((state) => state.updateRelation);
 
@@ -18,32 +21,39 @@ export function RelationshipMenu() {
     relation &&
     relation.participation &&
     relation.participation.from &&
-    relation.participation.from === 'OPTIONAL'
+    relation.participation.from === 'PARTIAL'
       ? 'FULL'
-      : 'OPTIONAL';
+      : 'PARTIAL';
 
   const toMultiplicity =
     relation &&
     relation.participation &&
     relation.participation.to &&
-    relation.participation.to === 'OPTIONAL'
+    relation.participation.to === 'PARTIAL'
       ? 'FULL'
-      : 'OPTIONAL';
+      : 'PARTIAL';
 
   const handleMenuItemClick = (
-    action: 'delete' | 'fromNullable' | 'toNullable',
+    action: 'delete' | 'identify' | 'fromNullable' | 'toNullable',
   ) => {
     if (!relation) return;
 
+    if (schema === undefined) return;
+
     if (action === 'delete') {
-      deleteRelation(relation);
+      deleteRelation(schema.name, relation);
+    } else if (action === 'identify') {
+      updateRelation(schema.name, {
+        ...relation,
+        identify: !relation.identify,
+      });
     } else if (action === 'fromNullable') {
-      updateRelation({
+      updateRelation(schema.name, {
         ...relation,
         participation: { ...relation.participation, from: fromMultiplicity },
       });
     } else if (action === 'toNullable') {
-      updateRelation({
+      updateRelation(schema.name, {
         ...relation,
         participation: { ...relation.participation, to: toMultiplicity },
       });
@@ -62,12 +72,17 @@ export function RelationshipMenu() {
       <styles.menuItem onClick={() => handleMenuItemClick('delete')}>
         관계 삭제
       </styles.menuItem>
+      <styles.menuItem onClick={() => handleMenuItemClick('identify')}>
+        {relation?.identify ? '비' : ''}식별로 전환
+      </styles.menuItem>
       <styles.menuItem onClick={() => handleMenuItemClick('fromNullable')}>
         {fromMultiplicity === 'FULL' ? '✔️' : ''}부모 null 허용
       </styles.menuItem>
-      <styles.menuItem onClick={() => handleMenuItemClick('toNullable')}>
-        {toMultiplicity === 'FULL' ? '✔️' : ''}자식 null 허용
-      </styles.menuItem>
+      {!relation?.identify && (
+        <styles.menuItem onClick={() => handleMenuItemClick('toNullable')}>
+          {toMultiplicity === 'FULL' ? '✔️' : ''}자식 null 허용
+        </styles.menuItem>
+      )}
     </styles.menu>
   );
 }
