@@ -18,6 +18,7 @@ export interface ERDColumn {
   nullable: boolean;
   keyType?: KeyType;
   constraintName?: string;
+  path: string[];
 }
 
 export interface ERDTable {

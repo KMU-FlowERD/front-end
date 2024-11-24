@@ -323,37 +323,46 @@ export const createERDProjectStore = (
             name: 'column',
             nullable: false,
             constraintName: isPK ? `PK_${target.title}` : undefined,
+            path: [],
           };
 
-          const visited: Record<ERDTable['id'], boolean> = {};
-          const dfs = (curr: ERDTable) => {
+          const visited: Record<ERDRelation['id'], boolean> = {};
+          const dfs = (curr: ERDRelation, path: string[]) => {
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
-            curr.relations
-              .filter((relation) => relation.from === curr.id)
-              .forEach((relation) => {
-                const toTable = schema.tables.find((t) => t.id === relation.to);
-                if (!toTable) return;
+            const from = schema.tables.find((t) => t.id === curr.from);
+            if (!from) return;
 
-                toTable.columns.push({
-                  ...column,
-                  keyType: relation.identify ? 'PK/FK' : 'FK',
-                  nullable: relation.identify
-                    ? false
-                    : relation.participation.to === 'PARTIAL',
-                  constraintName: relation.constraintName,
-                });
-                dfs(toTable);
-              });
+            const to = schema.tables.find((t) => t.id === curr.to);
+            if (!to) return;
+
+            to.columns.push({
+              ...column,
+              keyType: curr.identify ? 'PK/FK' : 'FK',
+              nullable: curr.identify
+                ? false
+                : curr.participation.to === 'PARTIAL',
+              constraintName: curr.constraintName,
+              path: [...path, curr.constraintName],
+            });
+
+            to.relations
+              .filter((r) => r.from === to.id)
+              .forEach((r) => dfs(r, [...path, curr.constraintName]));
+
+            visited[curr.id] = false;
           };
+
+          target.columns.push(column);
 
           if (isPK) {
             column.keyType = 'PK';
-            dfs(target);
+            target.relations
+              .filter((r) => r.from === target.id)
+              .forEach((relation) => dfs(relation, []));
           }
 
-          target.columns.push(column);
           get().updateTableInDiagram(schema);
         }),
 
@@ -376,7 +385,9 @@ export const createERDProjectStore = (
                 const toTable = schema.tables.find((t) => t.id === relation.to);
                 if (toTable) {
                   toTable.columns = toTable.columns.map((c) =>
-                    c.id === column.id
+                    c.id === column.id &&
+                    c.constraintName === relation.constraintName &&
+                    c.path.join('').startsWith(column.path.join(''))
                       ? {
                           ...column,
                           keyType: relation.identify ? 'PK/FK' : 'FK',
@@ -389,15 +400,21 @@ export const createERDProjectStore = (
               });
           };
 
-          if (column.keyType === 'PK') {
+          if (column.keyType === 'PK' || column.keyType === 'PK/FK') {
+            target.columns = target.columns.map((c) =>
+              c.id === column.id &&
+              c.constraintName === column.constraintName &&
+              c.path.join('').startsWith(column.path.join(''))
+                ? column
+                : c,
+            );
             dfs(target);
           } else if (column.keyType === 'FK') {
             target.columns = target.columns.map((c) =>
-              c.constraintName === column.constraintName
-                ? {
-                    ...(c.id === column.id ? column : c),
-                    nullable: column.nullable,
-                  }
+              c.id === column.id &&
+              c.constraintName === column.constraintName &&
+              c.path.join('').startsWith(column.path.join(''))
+                ? column
                 : c,
             );
             const relation = target.relations.find(
@@ -417,10 +434,6 @@ export const createERDProjectStore = (
 
               rel.participation.to = column.nullable ? 'PARTIAL' : 'FULL';
             }
-          } else {
-            target.columns = target.columns.map((c) =>
-              c.id === column.id ? column : c,
-            );
           }
           get().updateTableInDiagram(schema);
         }),
@@ -475,50 +488,71 @@ export const createERDProjectStore = (
             return;
           }
 
-          const visited: Record<ERDTable['id'], boolean> = {};
-          const dfs = (curr: ERDTable) => {
+          const visited: Record<ERDRelation['id'], boolean> = {};
+          const dfs = (curr: ERDRelation) => {
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
-            curr.relations
-              .filter((rel) => rel.from === curr.id)
-              .forEach((rel) => {
-                const toTable = schema.tables.find((t) => t.id === rel.to);
-                if (!toTable) return;
-                // if (
-                //   toTable.columns.find(
-                //     (c) => c.constraintName === rel.constraintName,
-                //   )
-                // )
-                //   return;
+            const fromTable = schema.tables.find((t) => t.id === curr.from);
+            const toTable = schema.tables.find((t) => t.id === curr.to);
+            if (!fromTable || !toTable) return;
 
-                curr.columns
-                  .filter(
-                    (col) =>
-                      (col.keyType === 'PK' || col.keyType === 'PK/FK') &&
-                      !toTable.columns.find(
-                        (tableCol) =>
-                          tableCol.constraintName === rel.constraintName &&
-                          tableCol.id === col.id,
-                      ),
+            fromTable.columns
+              .filter((col) => col.keyType === 'PK' || col.keyType === 'PK/FK')
+              .forEach((fromCol) => {
+                if (
+                  toTable.columns.find(
+                    (toCol) =>
+                      toCol.constraintName === curr.constraintName &&
+                      toCol.path.join('') ===
+                        [...fromCol.path, curr.constraintName].join('') &&
+                      toCol.id === fromCol.id,
                   )
-                  .forEach((fromCol) => {
-                    toTable.columns.push({
-                      ...fromCol,
-                      nullable: rel.identify
-                        ? false
-                        : rel.participation.to === 'PARTIAL',
-                      keyType: rel.identify ? 'PK/FK' : 'FK',
-                      constraintName: rel.constraintName,
-                    });
-                  });
+                )
+                  return;
 
-                dfs(toTable);
+                toTable.columns.push({
+                  ...fromCol,
+                  nullable: curr.identify
+                    ? false
+                    : curr.participation.to === 'PARTIAL',
+                  keyType: curr.identify ? 'PK/FK' : 'FK',
+                  constraintName: curr.constraintName,
+                  path: [...fromCol.path, curr.constraintName],
+                });
               });
+
+            toTable.relations
+              .filter((rel) => rel.from === toTable.id)
+              .forEach(dfs);
+            visited[curr.id] = false;
           };
 
-          const fromTable = schema.tables.find((t) => t.id === relation.from);
-          if (fromTable) dfs(fromTable);
+          if (relation.identify) {
+            dfs(relation);
+          } else {
+            from.columns
+              .filter(
+                (col) =>
+                  (col.keyType === 'PK' || col.keyType === 'PK/FK') &&
+                  !to.columns.find(
+                    (tableCol) =>
+                      tableCol.constraintName === relation.constraintName &&
+                      tableCol.id === col.id,
+                  ),
+              )
+              .forEach((fromCol) => {
+                to.columns.push({
+                  ...fromCol,
+                  nullable: relation.identify
+                    ? false
+                    : relation.participation.to === 'PARTIAL',
+                  keyType: relation.identify ? 'PK/FK' : 'FK',
+                  constraintName: relation.constraintName,
+                  path: [...fromCol.path, relation.constraintName],
+                });
+              });
+          }
           get().updateTableInDiagram(schema);
         }),
 
