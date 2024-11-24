@@ -607,6 +607,14 @@ export const createERDProjectStore = (
 
             if (!fromTable || !toTable) return;
 
+            fromTable.columns
+              .filter((c) => !(c.keyType === 'PK' || c.keyType === 'PK/FK'))
+              .forEach((fromCol) => {
+                toTable.columns = toTable.columns.filter(
+                  (toCol) => fromCol.id !== toCol.id,
+                );
+              });
+
             toTable.columns = toTable.columns.map((c) =>
               c.constraintName === curr.constraintName
                 ? {
