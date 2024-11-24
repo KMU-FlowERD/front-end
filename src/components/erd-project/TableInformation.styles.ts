@@ -23,17 +23,46 @@ export const styles = {
   buttonWrapper: styled.div`
     width: 100%;
     display: flex;
-    align-items: end;
     justify-content: end;
     font-size: 18px;
     gap: 10px;
+    margin-bottom: 0.5rem;
   `,
 
-  addSchemaButton: styled.div`
+  addSchemaButton: styled.button`
+    all: unset;
+    height: 21px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 14px;
+    background-color: transparent;
+
     cursor: pointer;
+
+    &:hover {
+      background-color: #2d2d2d;
+    }
   `,
 
-  addDiagramButton: styled.div`
-    cursor: pointer;
+  addDiagramButton: styled.button`
+    all: unset;
+    height: 21px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 14px;
+    background-color: transparent;
+
+    &:hover {
+      background-color: #2d2d2d;
+    }
+  `,
+
+  childMargin: styled.div`
+    display: flex;
+    margin-left: 20px;
+    flex-direction: column;
+    gap: 8px;
   `,
 };

@@ -27,9 +27,9 @@ export const styles = {
     align-items: center;
   `,
 
-  relationPath: styled.rect`
+  relationPath: styled.div`
     &:hover {
-      fill: #ddd;
+      color: #ddd;
     }
   `,
 };

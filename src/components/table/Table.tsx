@@ -72,10 +72,36 @@ function TableConsumer({
 
   const boxRef = useRef<HTMLDivElement | null>(null);
 
-  const pkColumns = table.columns.filter((val) => val.keyType === 'PK');
-  const pkfkColumns = table.columns.filter((val) => val.keyType === 'PK/FK');
-  const fkColumns = table.columns.filter((val) => val.keyType === 'FK');
-  const columns = table.columns.filter((val) => val.keyType === undefined);
+  const pkColumns = table.columns
+    .filter((val) => val.keyType === 'PK')
+    .sort((a, b) =>
+      (a.constraintName || '').localeCompare(b.constraintName || ''),
+    );
+  const pkfkColumns = table.columns
+    .filter((val) => val.keyType === 'PK/FK')
+    .filter(
+      (column, index, self) =>
+        index ===
+        self.findIndex((c) => c.id === column.id && c.name === column.name),
+    )
+    .sort((a, b) =>
+      (a.constraintName || '').localeCompare(b.constraintName || ''),
+    );
+  const fkColumns = table.columns
+    .filter((val) => val.keyType === 'FK')
+    .filter(
+      (column, index, self) =>
+        index ===
+        self.findIndex((c) => c.id === column.id && c.name === column.name),
+    )
+    .sort((a, b) =>
+      (a.constraintName || '').localeCompare(b.constraintName || ''),
+    );
+  const columns = table.columns
+    .filter((val) => val.keyType === undefined)
+    .sort((a, b) =>
+      (a.constraintName || '').localeCompare(b.constraintName || ''),
+    );
 
   const { handleMouseDown } = useDrag((newPos) =>
     onPositionChange(table.id, newPos),
@@ -118,7 +144,10 @@ function TableConsumer({
   ]);
 
   return (
-    <styles.displayWrapper $pos={{ left: table.left, top: table.top }}>
+    <styles.displayWrapper
+      $pos={{ left: table.left, top: table.top }}
+      ref={boxRef}
+    >
       <styles.titleMenuWrapper>
         <styles.tableTitle>{table.title}</styles.tableTitle>
         <MenuIcon onClick={() => setMenuOpen(!menuOpen)} />

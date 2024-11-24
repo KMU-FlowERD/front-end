@@ -55,7 +55,31 @@ export function useDrag(onPositionChange: (pos: Position) => void) {
 }
 
 export function useOutsideClick(
-  refs: React.RefObject<HTMLElement>[],
+  refs: React.RefObject<HTMLElement | SVGElement>[],
+  callback: () => void,
+  active: boolean,
+) {
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!refs.some((ref) => ref.current?.contains(e.target as Node))) {
+        callback();
+      }
+    };
+
+    if (active) {
+      window.addEventListener('mousedown', handleClickOutside);
+    } else {
+      window.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      window.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [refs, callback, active]);
+}
+
+export function useIconOutsideClick(
+  refs: React.RefObject<HTMLElement | SVGElement>[],
   callback: () => void,
   active: boolean,
 ) {

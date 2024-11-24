@@ -1,5 +1,6 @@
 import { styles } from './RelationshipMenu.styles';
 
+import type { ERDRelation } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 import { useMappingContext } from '@/providers/MappingProvider';
@@ -14,6 +15,7 @@ export function RelationshipMenu() {
 
   const { schema } = useDiagramContext();
 
+  const createRelation = useERDProjectStore((state) => state.createRelation);
   const deleteRelation = useERDProjectStore((state) => state.deleteRelation);
   const updateRelation = useERDProjectStore((state) => state.updateRelation);
 
@@ -43,10 +45,18 @@ export function RelationshipMenu() {
     if (action === 'delete') {
       deleteRelation(schema.name, relation);
     } else if (action === 'identify') {
-      updateRelation(schema.name, {
+      // updateRelation(schema.name, {
+      //   ...relation,
+      //   identify: !relation.identify,
+      // });
+
+      const updatedRelation: ERDRelation = {
         ...relation,
         identify: !relation.identify,
-      });
+      };
+
+      deleteRelation(schema.name, relation);
+      createRelation(schema.name, updatedRelation);
     } else if (action === 'fromNullable') {
       updateRelation(schema.name, {
         ...relation,

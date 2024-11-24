@@ -1,14 +1,28 @@
 'use client';
 
+import type { MutableRefObject } from 'react';
+import { useRef } from 'react';
+
 import { styles } from './icon.styles';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
+import { useOutsideClick } from '@/features/erd-page/erd-page.table.hook';
 
 export function MemoIcon() {
+  const iconRef = useRef<SVGSVGElement | null>(null);
+
   const entity = useDrawToolsStore((state) => state.entity);
   const setEntity = useDrawToolsStore((state) => state.setEntity);
 
   const fill = entity === 'MEMO' ? '#ddd' : '#aaa';
+
+  // useOutsideClick(
+  //   [iconRef],
+  //   () => {
+  //     setEntity('NONE');
+  //   },
+  //   true,
+  // );
 
   return (
     <styles.container
@@ -16,12 +30,18 @@ export function MemoIcon() {
         setEntity('MEMO');
       }}
     >
-      <Icon fill={fill} />
+      <Icon fill={fill} iconRef={iconRef} />
     </styles.container>
   );
 }
 
-function Icon({ fill }: { fill: string }) {
+function Icon({
+  fill,
+  iconRef,
+}: {
+  fill: string;
+  iconRef: MutableRefObject<SVGSVGElement | null>;
+}) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -29,6 +49,7 @@ function Icon({ fill }: { fill: string }) {
       height='24'
       viewBox='0 0 24 24'
       fill='none'
+      ref={iconRef}
     >
       <g id='Layer_Grid' />
       <g id='Layer_2'>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { IoMdAdd } from 'react-icons/io';
 
 import { styles } from './TableInformation.styles';
 import { Expand } from '../expand/Expand';
@@ -17,18 +18,26 @@ export function TableInformation() {
   const createDiagram = useERDProjectStore((state) => state.createDiagram);
   const deleteDiagram = useERDProjectStore((state) => state.deleteDiagram);
 
-  const { setDiagramName, setSchemaName } = useDiagramContext();
+  const {
+    diagram: chooseDiagram,
+    setDiagramName,
+    setSchemaName,
+  } = useDiagramContext();
 
   const [chooseSchemaName, setChooseSchemaName] = useState<string | undefined>(
     undefined,
   );
 
   const addSchemaClick = () => {
+    const schemaName = `schema${schemas.length + 1}`;
+
     createSchema({
-      name: `schema${schemas.length + 1}`,
+      name: schemaName,
       tables: [],
       diagrams: [],
     });
+
+    setChooseSchemaName(schemaName);
   };
 
   const addDiagramClick = () => {
@@ -38,22 +47,28 @@ export function TableInformation() {
 
     if (schema === undefined) return;
 
+    const diagrmaName = `Diagram${schema.diagrams.length + 1}`;
+
     createDiagram(schema.name, {
-      name: `Diagram${schema.diagrams.length + 1}`,
+      name: diagrmaName,
       tables: [],
       width: 0,
       height: 0,
     });
+
+    setDiagramName(diagrmaName);
   };
 
   return (
     <styles.container>
       <styles.buttonWrapper>
         <styles.addSchemaButton onClick={addSchemaClick}>
-          +
+          <IoMdAdd />
+          스키마
         </styles.addSchemaButton>
         <styles.addDiagramButton onClick={addDiagramClick}>
-          +
+          <IoMdAdd />
+          다이어그램
         </styles.addDiagramButton>
       </styles.buttonWrapper>
       {schemas.map((schema) => (
@@ -61,6 +76,7 @@ export function TableInformation() {
           key={schema.name}
           text={schema.name}
           deleteIcon
+          highlight={schema.name === chooseSchemaName}
           onClick={() => {
             setChooseSchemaName(schema.name);
           }}
@@ -72,18 +88,22 @@ export function TableInformation() {
             key={schema.name + schema.name}
             text='Tables'
             deleteIcon={false}
+            highlight={false}
             onClick={() => {}}
             onDelete={() => {}}
           >
-            {schema.tables.map((table) => (
-              <div key={table.id}>{table.title}</div>
-            ))}
+            <styles.childMargin>
+              {schema.tables.map((table) => (
+                <div key={table.id}>{table.title}</div>
+              ))}
+            </styles.childMargin>
           </Expand>
           {schema.diagrams.map((diagram) => (
             <Expand
               key={diagram.name}
               text={diagram.name}
               deleteIcon
+              highlight={diagram.name === chooseDiagram?.name}
               onClick={() => {
                 setSchemaName(schema.name);
                 setDiagramName(diagram.name);
@@ -92,9 +112,11 @@ export function TableInformation() {
                 deleteDiagram(schema.name, diagram.name);
               }}
             >
-              {diagram.tables.map((table) => (
-                <div key={table.id + table.id}>{table.title}</div>
-              ))}
+              <styles.childMargin>
+                {diagram.tables.map((table) => (
+                  <div key={table.id + table.id}>{table.title}</div>
+                ))}
+              </styles.childMargin>
             </Expand>
           ))}
         </Expand>

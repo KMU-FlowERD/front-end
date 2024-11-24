@@ -7,6 +7,7 @@ interface ExpandProps {
   text: string;
   children: undefined | ReactNode;
   deleteIcon: boolean;
+  highlight: boolean;
   onClick: () => void;
   onDelete: () => void;
 }
@@ -15,6 +16,7 @@ export function Expand({
   text,
   children,
   deleteIcon,
+  highlight,
   onClick,
   onDelete,
 }: ExpandProps) {
@@ -28,9 +30,9 @@ export function Expand({
 
   return (
     <styles.displayWrapper>
-      <styles.mainNode onClick={handleClick}>
+      <styles.mainNode onClick={handleClick} $highlight={highlight}>
         <ExpandIcon open={open} />
-        {text}
+        <span>{text}</span>
         {deleteIcon && (
           <styles.deleteButton onClick={onDelete}>🗑</styles.deleteButton>
         )}
