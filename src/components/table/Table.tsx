@@ -112,9 +112,9 @@ function TableConsumer({
       (a.constraintName || '').localeCompare(b.constraintName || ''),
     );
 
-  const { handleMouseDown } = useDrag((newPos) =>
-    onPositionChange(table.id, newPos),
-  );
+  const { handleMouseDown } = useDrag((newPos) => {
+    if (!menuOpen && !isEditingColumns) onPositionChange(table.id, newPos);
+  });
 
   const { schema } = useDiagramContext();
 
