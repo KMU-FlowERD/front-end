@@ -8,7 +8,7 @@ export const styles = {
     border-radius: 8px;
     padding: 16px;
     width: 400px;
-    z-index: 1;
+    z-index: 3;
   `,
 
   title: styled.input`
