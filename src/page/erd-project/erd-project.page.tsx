@@ -244,6 +244,9 @@ function ErdProjectPageProvider() {
       left: (lastTable.left + table.left) / 2,
     });
 
+    const firstConstraint = `FK_${mappingTable.title}_${lastTable.title}_${uuidv4()}`;
+    const lastConstraint = `FK_${mappingTable.title}_${table.title}_${uuidv4()}`;
+
     createRelation(schema.name, {
       id: Math.random().toString(36).slice(2),
       from: lastTable.id,
@@ -251,7 +254,7 @@ function ErdProjectPageProvider() {
       cardinality: { from: 'ONE', to: 'MANY' },
       identify: lastTable.id === table.id ? false : mapping.identify,
       participation: { from: 'FULL', to: 'FULL' },
-      constraintName,
+      constraintName: firstConstraint,
     });
 
     createRelation(schema.name, {
@@ -261,7 +264,7 @@ function ErdProjectPageProvider() {
       cardinality: { from: 'ONE', to: 'MANY' },
       identify: lastTable.id === table.id ? false : mapping.identify,
       participation: { from: 'FULL', to: 'FULL' },
-      constraintName,
+      constraintName: lastConstraint,
     });
   };
 
