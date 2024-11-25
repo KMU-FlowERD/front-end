@@ -383,40 +383,41 @@ export const createERDProjectStore = (
               .filter((relation) => relation.from === curr.id)
               .forEach((relation) => {
                 const toTable = schema.tables.find((t) => t.id === relation.to);
-                if (toTable) {
-                  toTable.columns = toTable.columns.map((c) =>
-                    c.id === column.id &&
+                if (!toTable) return;
+
+                toTable.columns = toTable.columns.map((c) => ({
+                  ...(c.id === column.id ? column : c),
+                  keyType:
                     c.constraintName === relation.constraintName &&
-                    c.path.join('').startsWith(column.path.join(''))
-                      ? {
-                          ...column,
-                          keyType: relation.identify ? 'PK/FK' : 'FK',
-                          constraintName: c.constraintName,
-                        }
-                      : c,
-                  );
-                  dfs(toTable);
-                }
+                    c.path.join('').startsWith(column.path.join('')) &&
+                    relation.identify
+                      ? 'PK/FK'
+                      : 'FK',
+                  nullable:
+                    c.constraintName === relation.constraintName &&
+                    c.path.join('').startsWith(column.path.join('')) &&
+                    relation.identify
+                      ? false
+                      : column.nullable,
+                }));
+                dfs(toTable);
               });
           };
 
           if (column.keyType === 'PK' || column.keyType === 'PK/FK') {
             target.columns = target.columns.map((c) =>
-              c.id === column.id &&
-              c.constraintName === column.constraintName &&
-              c.path.join('').startsWith(column.path.join(''))
-                ? column
-                : c,
+              c.id === column.id ? column : c,
             );
             dfs(target);
           } else if (column.keyType === 'FK') {
-            target.columns = target.columns.map((c) =>
-              c.id === column.id &&
-              c.constraintName === column.constraintName &&
-              c.path.join('').startsWith(column.path.join(''))
-                ? column
-                : c,
-            );
+            target.columns = target.columns.map((c) => ({
+              ...(c.id === column.id ? column : c),
+              nullable:
+                c.constraintName === column.constraintName &&
+                c.path.join('').startsWith(column.path.join(''))
+                  ? column.nullable
+                  : c.nullable,
+            }));
             const relation = target.relations.find(
               (r) => r.constraintName === column.constraintName,
             );
