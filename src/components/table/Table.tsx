@@ -144,10 +144,7 @@ function TableConsumer({
   ]);
 
   return (
-    <styles.displayWrapper
-      $pos={{ left: table.left, top: table.top }}
-      ref={boxRef}
-    >
+    <styles.displayWrapper $pos={{ left: table.left, top: table.top }}>
       <styles.titleMenuWrapper>
         <styles.tableTitle>{table.title}</styles.tableTitle>
         <MenuIcon onClick={() => setMenuOpen(!menuOpen)} />
