@@ -6,7 +6,6 @@ import { useRef } from 'react';
 import { styles } from './icon.styles';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { useOutsideClick } from '@/features/erd-page/erd-page.table.hook';
 
 export function TableIcon() {
   const iconRef = useRef<SVGSVGElement | null>(null);

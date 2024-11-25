@@ -1,5 +1,7 @@
 'use client';
 
+import { useRef } from 'react';
+
 import { styles } from './ErdDrawTools.styles';
 import {
   ArrowIcon,
@@ -12,15 +14,30 @@ import { NotationModal } from '../notation-modal/NotationModal';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
 import { useRelationChange } from '@/features/erd-page';
+import { useInsideClick } from '@/features/erd-page/erd-page.table.hook';
 import { useModal } from '@/features/modal';
 
 type NotationType = 'IE' | 'IDEF1X';
 
 export function ErdDrawTools() {
+  const boxRef = useRef<HTMLDivElement | null>(null);
+
   const notation = useDrawToolsStore((state) => state.notation);
+  const setMapping = useDrawToolsStore((state) => state.setMapping);
+  const setEntity = useDrawToolsStore((state) => state.setEntity);
   const setNotation = useDrawToolsStore((state) => state.setNotation);
 
   const changeRelations = useRelationChange();
+
+  useInsideClick(
+    [boxRef],
+    [],
+    () => {
+      setEntity('NONE');
+      setMapping(undefined);
+    },
+    true,
+  );
 
   const { Modal, openModal } = useModal(
     <NotationModal relations={changeRelations} />,
@@ -41,7 +58,7 @@ export function ErdDrawTools() {
   };
 
   return (
-    <styles.container>
+    <styles.container ref={boxRef}>
       <PointerIcon />
       <ArrowIcon />
       <div

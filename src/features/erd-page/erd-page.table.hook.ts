@@ -78,6 +78,34 @@ export function useOutsideClick(
   }, [refs, callback, active]);
 }
 
+export function useInsideClick(
+  refs: React.RefObject<HTMLElement | SVGElement>[],
+  exceptionRefs: React.RefObject<HTMLElement | SVGElement>[],
+  callback: () => void,
+  active: boolean,
+) {
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        refs.some((ref) => ref.current?.contains(e.target as Node)) &&
+        !exceptionRefs.some((ref) => ref.current?.contains(e.target as Node))
+      ) {
+        callback();
+      }
+    };
+
+    if (active) {
+      window.addEventListener('mousedown', handleClickOutside);
+    } else {
+      window.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      window.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [refs, callback, active, exceptionRefs]);
+}
+
 export function useIconOutsideClick(
   refs: React.RefObject<HTMLElement | SVGElement>[],
   callback: () => void,

@@ -1,15 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { IoMdAdd } from 'react-icons/io';
 
 import { styles } from './TableInformation.styles';
 import { Expand } from '../expand/Expand';
 
+import { useDrawToolsStore } from '@/features/draw-tools';
+import { useInsideClick } from '@/features/erd-page/erd-page.table.hook';
 import { useERDProjectStore } from '@/providers';
 import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 
 export function TableInformation() {
+  const boxRef = useRef<HTMLDivElement | null>(null);
+
   const schemas = useERDProjectStore((state) => state.schemas);
 
   const createSchema = useERDProjectStore((state) => state.createSchema);
@@ -17,6 +21,19 @@ export function TableInformation() {
 
   const createDiagram = useERDProjectStore((state) => state.createDiagram);
   const deleteDiagram = useERDProjectStore((state) => state.deleteDiagram);
+
+  const setEntity = useDrawToolsStore((state) => state.setEntity);
+  const setMapping = useDrawToolsStore((state) => state.setMapping);
+
+  useInsideClick(
+    [boxRef],
+    [],
+    () => {
+      setEntity('NONE');
+      setMapping(undefined);
+    },
+    true,
+  );
 
   const {
     diagram: chooseDiagram,
@@ -60,7 +77,7 @@ export function TableInformation() {
   };
 
   return (
-    <styles.container>
+    <styles.container ref={boxRef}>
       <styles.buttonWrapper>
         <styles.addSchemaButton onClick={addSchemaClick}>
           <IoMdAdd />
