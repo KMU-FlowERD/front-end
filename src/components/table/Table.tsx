@@ -26,16 +26,24 @@ interface Position {
 interface TableProps {
   table: WithPosition<ERDTable>;
   child: boolean;
+  highlight: boolean;
   onClick: (table: WithPosition<ERDTable>) => void;
   onPositionChange: (id: string, pos: Position) => void;
 }
 
-export function Table({ table, child, onClick, onPositionChange }: TableProps) {
+export function Table({
+  table,
+  child,
+  highlight,
+  onClick,
+  onPositionChange,
+}: TableProps) {
   return (
     <TableProvider table={table}>
       <TableConsumer
         table={table}
         child={child}
+        highlight={highlight}
         onClick={onClick}
         onPositionChange={onPositionChange}
       />
@@ -46,6 +54,7 @@ export function Table({ table, child, onClick, onPositionChange }: TableProps) {
 function TableConsumer({
   table,
   child,
+  highlight,
   onClick,
   onPositionChange,
 }: TableProps) {
@@ -152,6 +161,7 @@ function TableConsumer({
       <styles.container
         ref={boxRef}
         $child={child && notation === 'IDEF1X'}
+        $highlight={highlight}
         onClick={() => onClick(table)}
         onMouseDown={(e) => handleMouseDown(e, boxRef)}
       >

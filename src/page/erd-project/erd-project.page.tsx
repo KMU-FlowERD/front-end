@@ -73,6 +73,7 @@ function ErdProjectPageProvider() {
           <Table
             key={table.id}
             table={table}
+            highlight={lastTable?.id === table.id}
             child={childTables.has(table.id)}
             onClick={TableClick}
             onPositionChange={onPositionChange}
@@ -274,6 +275,7 @@ function ErdProjectPageProvider() {
         <Table
           key={table.id}
           table={table}
+          highlight={lastTable?.id === table.id}
           child={childTables.has(table.id)}
           onClick={TableClick}
           onPositionChange={onPositionChange}
