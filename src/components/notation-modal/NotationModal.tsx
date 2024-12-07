@@ -41,7 +41,8 @@ export function NotationModal({ relations }: { relations: ERDRelation[] }) {
       <styles.middleText>Notation 변환 시 필수 데이터 추가</styles.middleText>
       {relations.map((relation, index) => (
         <styles.relationWrapper key={relation.id}>
-          {`${relation.from.substring(0, 5)}_${relation.to.substring(0, 5)}`}:
+          {`${schema?.tables.find((t) => t.id === relation.from)?.title}->${schema?.tables.find((t) => t.id === relation.to)?.title}`}
+          :
           <Dropdown
             options={['1:1', '1:N']}
             selected={
