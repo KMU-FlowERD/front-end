@@ -121,6 +121,7 @@ function TableConsumer({
 
   useOutsideClick(
     [menuRef, boxRef, editRef],
+    [],
     () => {
       setIsEditingColumns(false);
       setMenuOpen(false);

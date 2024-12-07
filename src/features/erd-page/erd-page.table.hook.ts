@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useEffect, useState } from 'react';
 
 interface Position {
@@ -56,11 +57,15 @@ export function useDrag(onPositionChange: (pos: Position) => void) {
 
 export function useOutsideClick(
   refs: React.RefObject<HTMLElement | SVGElement>[],
+  excludeRefs: React.RefObject<HTMLElement | SVGElement>[],
   callback: () => void,
   active: boolean,
 ) {
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
+      if (excludeRefs.some((ref) => ref.current?.contains(e.target as Node)))
+        return;
+
       if (!refs.some((ref) => ref.current?.contains(e.target as Node))) {
         callback();
       }
@@ -75,7 +80,7 @@ export function useOutsideClick(
     return () => {
       window.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [refs, callback, active]);
+  }, [refs, callback, active, excludeRefs]);
 }
 
 export function useInsideClick(

@@ -1,5 +1,7 @@
 'use client';
 
+import type { RefObject } from 'react';
+
 import { ConnectLine } from './ConnectLine';
 import { styles } from './Relationship.styles';
 import { RelationshipMenu } from './RelationshipMenu';
@@ -9,15 +11,19 @@ import {
   useMappingContext,
 } from '@/providers/MappingProvider';
 
-export function Relationship() {
+interface RelationProps {
+  relationRef: RefObject<HTMLDivElement>;
+}
+
+export function Relationship({ relationRef }: RelationProps) {
   return (
     <MappingProvider>
-      <RelationshipConsumer />
+      <RelationshipConsumer relationRef={relationRef} />
     </MappingProvider>
   );
 }
 
-function RelationshipConsumer() {
+function RelationshipConsumer({ relationRef }: RelationProps) {
   const context = useMappingContext();
 
   return (
@@ -33,6 +39,7 @@ function RelationshipConsumer() {
           <ConnectLine
             key={Math.random().toString(36).slice(2)}
             relation={relation}
+            relationRef={relationRef}
           />
         ))}
       </styles.wrapper>

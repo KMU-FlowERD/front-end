@@ -6,7 +6,6 @@ import { useRef } from 'react';
 import { styles } from './icon.styles';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { useOutsideClick } from '@/features/erd-page/erd-page.table.hook';
 
 export function MemoIcon() {
   const iconRef = useRef<SVGSVGElement | null>(null);
@@ -15,14 +14,6 @@ export function MemoIcon() {
   const setEntity = useDrawToolsStore((state) => state.setEntity);
 
   const fill = entity === 'MEMO' ? '#ddd' : '#aaa';
-
-  // useOutsideClick(
-  //   [iconRef],
-  //   () => {
-  //     setEntity('NONE');
-  //   },
-  //   true,
-  // );
 
   return (
     <styles.container

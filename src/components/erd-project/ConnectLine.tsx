@@ -1,9 +1,10 @@
 'use client';
 
-import type { JSX } from 'react';
-import React from 'react';
+import type { JSX, RefObject } from 'react';
+import React, { useRef } from 'react';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
+import { useOutsideClick } from '@/features/erd-page/erd-page.table.hook';
 import type { ERDRelation } from '@/features/erd-project';
 import {
   getDrawLines,
@@ -24,20 +25,31 @@ import { useMappingContext } from '@/providers/MappingProvider';
 
 interface ConnectLineProps {
   relation: ERDRelation;
+  relationRef: RefObject<HTMLDivElement>;
 }
 
-export function ConnectLine({ relation }: ConnectLineProps) {
-  return <SvgComponent relation={relation} />;
+export function ConnectLine({ relation, relationRef }: ConnectLineProps) {
+  return <SvgComponent relation={relation} relationRef={relationRef} />;
 }
 
-function SvgComponent({ relation }: ConnectLineProps) {
-  const { diagram } = useDiagramContext();
-
-  const context = useMappingContext();
+function SvgComponent({ relation, relationRef }: ConnectLineProps) {
+  const { diagram, mapping, setMappingId } = useDiagramContext();
 
   const notation = useDrawToolsStore((state) => state.notation);
 
-  const { tableDirection, selfReferenceMapping, openContextMenu } = context;
+  const { tableDirection, selfReferenceMapping, openContextMenu } =
+    useMappingContext();
+
+  const ref = useRef<SVGLineElement | null>(null);
+
+  useOutsideClick(
+    [ref],
+    [relationRef],
+    () => {
+      setMappingId(undefined);
+    },
+    true,
+  );
 
   if (diagram === undefined) return null;
 
@@ -134,7 +146,7 @@ function SvgComponent({ relation }: ConnectLineProps) {
           y1={line.fromY}
           x2={line.toX}
           y2={line.toY}
-          stroke='#ededed'
+          stroke={relation.id === mapping?.id ? '#f2ff00' : '#ededed'}
           strokeWidth='1'
           strokeDasharray={relation.identify ? '0' : '5,5'}
         />,
@@ -143,6 +155,7 @@ function SvgComponent({ relation }: ConnectLineProps) {
       // 이벤트용 투명 선
       lines.push(
         <line
+          ref={ref}
           key={Math.random().toString(36).slice(2)}
           x1={line.fromX}
           y1={line.fromY}
@@ -152,6 +165,9 @@ function SvgComponent({ relation }: ConnectLineProps) {
           strokeWidth='10'
           style={{ cursor: 'pointer' }}
           onContextMenu={(e) => openContextMenu(e, relation)}
+          onClick={() => {
+            setMappingId(relation.id);
+          }}
         />,
       );
     });
