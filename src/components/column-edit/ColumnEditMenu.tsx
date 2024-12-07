@@ -11,7 +11,7 @@ import { useERDProjectStore } from '@/providers';
 import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 import { useTableContext } from '@/providers/TableProvider';
 
-export function ColumnEditMenu() {
+export function ColumnEditMenu({ left, top }: { left: number; top: number }) {
   const { editRef, table, tableColumns, isEditingColumns } = useTableContext();
 
   const { schema } = useDiagramContext();
@@ -44,7 +44,7 @@ export function ColumnEditMenu() {
   if (!isEditingColumns) return null;
 
   return (
-    <styles.wrapper ref={editRef}>
+    <styles.wrapper ref={editRef} $left={left} $top={top}>
       <styles.title
         type='text'
         placeholder='table title'

@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 
 export const styles = {
-  wrapper: styled.div`
+  wrapper: styled.div<{ $left: number; $top: number }>`
     position: absolute;
     background-color: #333;
     border: 1px solid #444;
@@ -9,6 +9,8 @@ export const styles = {
     padding: 16px;
     width: 400px;
     z-index: 3;
+    left: ${({ $left }) => `${$left}px`};
+    top: ${({ $top }) => `${$top}px`};
   `,
 
   title: styled.input`
