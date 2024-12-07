@@ -14,7 +14,7 @@ import { useTableContext } from '@/providers/TableProvider';
 export function ColumnEditMenu({ left, top }: { left: number; top: number }) {
   const { editRef, table, tableColumns, isEditingColumns } = useTableContext();
 
-  const { schema } = useDiagramContext();
+  const { schema, diagram } = useDiagramContext();
 
   const updateTable = useERDProjectStore((state) => state.updateTable);
 
@@ -28,7 +28,11 @@ export function ColumnEditMenu({ left, top }: { left: number; top: number }) {
     orginTable: ERDTable,
     title: string,
   ) => {
-    if (schema === undefined) return;
+    if (schema === undefined || diagram === undefined) return;
+    if (diagram.tables.find((t) => t.id === title)) {
+      alert('이미 존재하는 테이블 명입니다');
+      return;
+    }
 
     if (e.key === 'Enter') {
       updateTable(schema.name, { ...orginTable, title });
@@ -36,7 +40,11 @@ export function ColumnEditMenu({ left, top }: { left: number; top: number }) {
   };
 
   const blurTitleEdit = (orginTable: ERDTable, title: string) => {
-    if (schema === undefined) return;
+    if (schema === undefined || diagram === undefined) return;
+    if (diagram.tables.find((t) => t.id === title)) {
+      alert('이미 존재하는 테이블 명입니다');
+      return;
+    }
 
     updateTable(schema.name, { ...orginTable, title });
   };
