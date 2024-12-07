@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import { styles } from './ColumnEditMenu.styles';
 import { Columns } from './Columns';
 import { FkColumns } from './FkColumns';
@@ -18,6 +20,8 @@ export function ColumnEditMenu({ left, top }: { left: number; top: number }) {
 
   const updateTable = useERDProjectStore((state) => state.updateTable);
 
+  const [tableTitle, setTableTitle] = useState<string>(table.title);
+
   const pkColumns = tableColumns.filter((val) => val.keyType === 'PK');
   const pkfkColumns = tableColumns.filter((val) => val.keyType === 'PK/FK');
   const fkColumns = tableColumns.filter((val) => val.keyType === 'FK');
@@ -26,28 +30,27 @@ export function ColumnEditMenu({ left, top }: { left: number; top: number }) {
   const enterTitleEdit = (
     e: React.KeyboardEvent<HTMLInputElement>,
     orginTable: ERDTable,
-    title: string,
   ) => {
     if (schema === undefined || diagram === undefined) return;
 
     if (e.key === 'Enter') {
-      if (diagram.tables.find((t) => t.title === title)) {
-        alert('이미 존재하는 테이블 명입니다');
+      if (diagram.tables.find((t) => t.title === tableTitle)) {
+        setTableTitle(table.title);
         return;
       }
 
-      updateTable(schema.name, { ...orginTable, title });
+      updateTable(schema.name, { ...orginTable, title: tableTitle });
     }
   };
 
-  const blurTitleEdit = (orginTable: ERDTable, title: string) => {
+  const blurTitleEdit = (orginTable: ERDTable) => {
     if (schema === undefined || diagram === undefined) return;
-    if (diagram.tables.find((t) => t.title === title)) {
-      alert('이미 존재하는 테이블 명입니다');
+    if (diagram.tables.find((t) => t.title === tableTitle)) {
+      setTableTitle(table.title);
       return;
     }
 
-    updateTable(schema.name, { ...orginTable, title });
+    updateTable(schema.name, { ...orginTable, title: tableTitle });
   };
 
   if (!isEditingColumns) return null;
@@ -57,9 +60,12 @@ export function ColumnEditMenu({ left, top }: { left: number; top: number }) {
       <styles.title
         type='text'
         placeholder='table title'
-        defaultValue={table.title}
-        onBlur={(e) => blurTitleEdit(table, e.target.value)}
-        onKeyDown={(e) => enterTitleEdit(e, table, e.currentTarget.value)}
+        value={tableTitle}
+        onChange={(e) => {
+          setTableTitle(e.target.value);
+        }}
+        onBlur={() => blurTitleEdit(table)}
+        onKeyDown={(e) => enterTitleEdit(e, table)}
       />
       <PkColumns table={table} pkColumns={pkColumns} />
       <PkFkColumns table={table} pkfkColumns={pkfkColumns} />
