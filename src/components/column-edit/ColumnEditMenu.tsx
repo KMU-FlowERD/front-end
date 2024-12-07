@@ -29,19 +29,20 @@ export function ColumnEditMenu({ left, top }: { left: number; top: number }) {
     title: string,
   ) => {
     if (schema === undefined || diagram === undefined) return;
-    if (diagram.tables.find((t) => t.id === title)) {
-      alert('이미 존재하는 테이블 명입니다');
-      return;
-    }
 
     if (e.key === 'Enter') {
+      if (diagram.tables.find((t) => t.title === title)) {
+        alert('이미 존재하는 테이블 명입니다');
+        return;
+      }
+
       updateTable(schema.name, { ...orginTable, title });
     }
   };
 
   const blurTitleEdit = (orginTable: ERDTable, title: string) => {
     if (schema === undefined || diagram === undefined) return;
-    if (diagram.tables.find((t) => t.id === title)) {
+    if (diagram.tables.find((t) => t.title === title)) {
       alert('이미 존재하는 테이블 명입니다');
       return;
     }
