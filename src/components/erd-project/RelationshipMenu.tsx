@@ -1,5 +1,6 @@
 import { styles } from './RelationshipMenu.styles';
 
+import { useDrawToolsStore } from '@/features/draw-tools';
 import type { ERDRelation } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 import { useDiagramContext } from '@/providers/DiagramChooseProvider';
@@ -14,6 +15,8 @@ export function RelationshipMenu() {
   } = useMappingContext();
 
   const { schema } = useDiagramContext();
+
+  const notation = useDrawToolsStore((state) => state.notation);
 
   const createRelation = useERDProjectStore((state) => state.createRelation);
   const deleteRelation = useERDProjectStore((state) => state.deleteRelation);
@@ -45,11 +48,6 @@ export function RelationshipMenu() {
     if (action === 'delete') {
       deleteRelation(schema.name, relation);
     } else if (action === 'identify') {
-      // updateRelation(schema.name, {
-      //   ...relation,
-      //   identify: !relation.identify,
-      // });
-
       const updatedRelation: ERDRelation = {
         ...relation,
         identify: !relation.identify,
@@ -85,9 +83,11 @@ export function RelationshipMenu() {
       <styles.menuItem onClick={() => handleMenuItemClick('identify')}>
         {relation?.identify ? '비' : ''}식별로 전환
       </styles.menuItem>
-      <styles.menuItem onClick={() => handleMenuItemClick('fromNullable')}>
-        {fromMultiplicity === 'FULL' ? '✔️' : ''}부모 null 허용
-      </styles.menuItem>
+      {notation === 'IE' && (
+        <styles.menuItem onClick={() => handleMenuItemClick('fromNullable')}>
+          {fromMultiplicity === 'FULL' ? '✔️' : ''}부모 null 허용
+        </styles.menuItem>
+      )}
       {!relation?.identify && (
         <styles.menuItem onClick={() => handleMenuItemClick('toNullable')}>
           {toMultiplicity === 'FULL' ? '✔️' : ''}자식 null 허용
