@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { useState } from 'react';
 
 import { styles } from './SignInModal.styles';
@@ -71,7 +72,8 @@ export function SignInModal() {
   const handleLogin = async () => {
     try {
       const response = await postLogin({ email: loginEmail, password: loginPassword });
-      login(response.data);
+      login(response);
+      axios.defaults.headers.common.Authorization = `Bearer ${response}`;
       console.log('로그인 성공');
     } catch (error) {
       console.error('로그인 실패', error);

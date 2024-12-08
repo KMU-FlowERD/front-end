@@ -31,6 +31,12 @@ export const postRegisterMember = ({ email, password, name }: PostRegisterMember
 export const getReissueToken = () => axios.get<GetReissueTokenResponseDTO>('/api/reissue').then((res) => res.data);
 
 export const postLogin = ({ email, password }: PostLoginRequestDTO) =>
-  axios.post<PostLoginResponseDTO>('/api/login', { email, password }).then((res) => res.data);
+  axios.post<PostLoginResponseDTO>('/api/login', { email, password }).then((res) => {
+    const token = res.headers.authorization;
+    if (token && token.startsWith('Bearer ')) {
+      return token.slice(7);
+    }
+    throw new Error('Authorization token not found');
+  });
 
 export const getLogout = () => axios.get<GetLogoutResponseDTO>('/api/logout').then((res) => res.data);
