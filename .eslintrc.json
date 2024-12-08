@@ -1,6 +1,6 @@
 {
   "ignorePatterns": [
-    "src/__test__/*",
+    "src/__tests__",
     ".next",
     "jest.config.ts",
     "babel.config.js"
@@ -9,33 +9,27 @@
     "airbnb",
     "airbnb-typescript",
     "airbnb/hooks",
-    "airbnb/whitespace",
     "next/core-web-vitals",
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier"
   ],
-  "plugins": [
-    "@typescript-eslint",
-    "react",
-    "@tanstack/query"
-  ],
+  "plugins": ["@typescript-eslint", "react", "@tanstack/query"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "./tsconfig.json"
   },
   "rules": {
-    "semi": [
-      "error",
-      "always"
-    ],
-    "max-depth": [
-      "error",
-      3
-    ],
+    "semi": ["error", "always"],
+    "max-depth": ["error", 3],
     "import/prefer-default-export": "off",
     "import/no-default-export": "error",
     "@typescript-eslint/no-floating-promises": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      { "prefer": "type-imports" }
+    ],
     "max-lines-per-function": [
       "error",
       {
@@ -54,15 +48,7 @@
     "import/order": [
       "error",
       {
-        "groups": [
-          "builtin",
-          "external",
-          [
-            "parent",
-            "sibling"
-          ],
-          "index"
-        ],
+        "groups": ["builtin", "external", ["parent", "sibling"], "index"],
         "pathGroups": [
           {
             "pattern": "react",
@@ -87,47 +73,52 @@
         "tsx": "never"
       }
     ],
+    "sort-imports": [
+      "error",
+      {
+        "ignoreCase": true,
+        "ignoreDeclarationSort": true,
+        "ignoreMemberSort": true,
+        "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
+        "allowSeparatedGroups": true
+      }
+    ],
     "react/jsx-filename-extension": [
       "error",
       {
-        "extensions": [
-          ".tsx"
-        ]
+        "extensions": [".tsx"]
       }
     ],
     "no-use-before-define": "off",
-    "@typescript-eslint/no-use-before-define": "off",
-    "@next/next/no-img-element": "off"
+    "@next/next/no-img-element": "off",
+    "no-param-reassign": [
+      "error",
+      {
+        "props": false
+      }
+    ]
   },
   "overrides": [
     {
-      "files": [
-        "src/**/*.tsx"
-      ],
+      "files": ["src/**/*.tsx", "src/features/**/*"],
       "rules": {
         "max-lines-per-function": "off"
       }
     },
     {
-      "files": [
-        "src/app/**/*.tsx"
-      ],
+      "files": ["src/app/**/*.tsx"],
       "rules": {
         "import/no-default-export": "off"
       }
     },
     {
-      "files": [
-        "src/app/layout.tsx"
-      ],
+      "files": ["src/app/layout.tsx"],
       "rules": {
         "react/jsx-max-depth": "off"
       }
     },
     {
-      "files": [
-        "src/__tests__/**/*"
-      ],
+      "files": ["src/__tests__/**/*"],
       "env": {
         "jest": true
       }
