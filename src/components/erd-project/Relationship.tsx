@@ -33,15 +33,19 @@ function RelationshipConsumer({ relationRef }: RelationProps) {
 
   useEffect(() => {
     const keyEvent = (e: KeyboardEvent) => {
-      if (schema === undefined) return;
+      if (schema === undefined || mapping === undefined) return;
 
-      if (e.key === 'Delete' && mapping !== undefined) {
-        setMappingId(undefined);
+      if (e.key === 'Delete') {
         deleteRelation(schema.name, mapping);
+        setMappingId(undefined);
       }
     };
 
     window.addEventListener('keyup', keyEvent);
+
+    return () => {
+      window.removeEventListener('keyup', keyEvent);
+    };
   }, [deleteRelation, mapping, schema, setMappingId]);
 
   return (
