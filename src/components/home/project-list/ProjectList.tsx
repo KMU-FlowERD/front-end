@@ -1,3 +1,4 @@
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { styles } from './ProjectList.styles';
@@ -9,6 +10,7 @@ import type { PostAddProjectRequest, Project } from '@/features/erd-project/erd-
 
 export function ProjectList() {
   const { accessToken } = useAuthStore();
+  const router = useRouter();
 
   const [projectList, setProjectList] = useState<Project[]>([]);
 
@@ -37,6 +39,10 @@ export function ProjectList() {
       });
   };
 
+  const handleProjectClick = (projectId: string) => {
+    router.push(`/projects/${projectId}`);
+  };
+
   useEffect(() => {
     if (accessToken) {
       getProjectList()
@@ -61,7 +67,7 @@ export function ProjectList() {
         <styles.button onClick={handleAddProject}>새 프로젝트</styles.button>
       </styles.searchOptions>
       {projectList.map((project) => (
-        <ProjectItem key={project.id} project={project} />
+        <ProjectItem key={project.id} project={project} onClick={() => handleProjectClick(project.id)} />
       ))}
     </styles.container>
   );

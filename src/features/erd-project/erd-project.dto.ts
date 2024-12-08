@@ -39,7 +39,9 @@ export interface GetProjectResponse {
           columnName: string;
           nullable: boolean;
           unique: boolean;
-          isKey: string;
+          path: string;
+          constraintName: string;
+          isKey: 'PRIMARY_KEY' | 'PRIMARY_KEY_AND_FOREIGN_KEY' | 'FOREIGN_KEY' | 'NORMAL';
           dataType: string;
           length: number;
         }>;
