@@ -1,11 +1,13 @@
 'use client';
 
-import type { RefObject } from 'react';
+import { useEffect, type RefObject } from 'react';
 
 import { ConnectLine } from './ConnectLine';
 import { styles } from './Relationship.styles';
 import { RelationshipMenu } from './RelationshipMenu';
 
+import { useERDProjectStore } from '@/providers';
+import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 import {
   MappingProvider,
   useMappingContext,
@@ -25,6 +27,22 @@ export function Relationship({ relationRef }: RelationProps) {
 
 function RelationshipConsumer({ relationRef }: RelationProps) {
   const context = useMappingContext();
+  const { schema, mapping, setMappingId } = useDiagramContext();
+
+  const deleteRelation = useERDProjectStore((state) => state.deleteRelation);
+
+  useEffect(() => {
+    const keyEvent = (e: KeyboardEvent) => {
+      if (schema === undefined) return;
+
+      if (e.key === 'Delete' && mapping !== undefined) {
+        setMappingId(undefined);
+        deleteRelation(schema.name, mapping);
+      }
+    };
+
+    window.addEventListener('keyup', keyEvent);
+  }, [deleteRelation, mapping, schema, setMappingId]);
 
   return (
     <styles.display>
