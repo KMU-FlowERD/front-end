@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
-import { getProjectById } from './erd-project.api';
+import { getProjectAll, getProjectById } from './erd-project.api';
 import type {
   Cardinality,
   ERDColumn,
@@ -594,7 +594,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
         }),
 
       fetchAndSetProject: async (projectId) => {
-        const response = await getProjectById({ projectId });
+        const response = await getProjectAll({ projectId });
         const projectData = response.data;
 
         const keyTypeMap: Record<string, ERDColumn['keyType']> = {
@@ -605,9 +605,9 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
         };
 
         const project: ERDProject = {
-          id: projectData.id,
-          name: projectData.projectName,
-          schemas: projectData.schemaReturns.map((schema) => ({
+          id: projectData.projectReturns[0].id,
+          name: projectData.projectReturns[0].projectName,
+          schemas: projectData.projectReturns[0].schemaReturns.map((schema) => ({
             name: schema.schemaName,
             tables: schema.tableReturns.map((table) => ({
               id: table.id,
@@ -642,6 +642,51 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
             diagrams: [],
           })),
         };
+
+        const diagrams = projectData.projectDrawReturns[0].diagramReturns.map((draw) => ({
+          name: draw.id,
+          width: draw.pixel_x,
+          height: draw.pixel_y,
+          tables: draw.tables.map((table) => ({
+            id: table.id,
+            title: table.tableName,
+            width: 0,
+            height: 0,
+            top: table.pos_x,
+            left: table.pos_y,
+            columns: table.columns.map((column) => ({
+              id: column.id,
+              name: column.columnName,
+              nullable: column.nullable,
+              keyType: keyTypeMap[column.isKey],
+              type: column.dataType,
+              constraintName: column.constraintName,
+              path: JSON.parse(column.path),
+            })),
+            relations: table.constraints.map((constraint) => ({
+              id: constraint.id,
+              from: constraint.parentTableId,
+              to: constraint.childTableId,
+              cardinality: {
+                from: constraint.parentCardinality as Cardinality,
+                to: constraint.childCardinality as Cardinality,
+              },
+              identify: constraint.relType === 'IDENTIFYING',
+              participation: {
+                from: constraint.parentParticipation as Participation,
+                to: constraint.childParticipation as Participation,
+              },
+              constraintName: constraint.id,
+            })),
+          })),
+        }));
+
+        project.schemas.forEach((schema) => {
+          schema.diagrams = diagrams.filter((diagram) =>
+            diagram.tables.some((table) => schema.tables.some((t) => t.id === table.id)),
+          );
+        });
+
         get().setProject(project);
       },
     })),
