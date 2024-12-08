@@ -26,9 +26,7 @@ export function ProfileSetting() {
         <ProfileInformation />
       </styles.profileInformationContainer>
       <styles.buttons>
-        <styles.confirmButton onClick={onClickConfirm}>
-          확인
-        </styles.confirmButton>
+        <styles.confirmButton onClick={onClickConfirm}>확인</styles.confirmButton>
         <styles.cancelButton onClick={onClickCancel}>취소</styles.cancelButton>
       </styles.buttons>
     </styles.container>
