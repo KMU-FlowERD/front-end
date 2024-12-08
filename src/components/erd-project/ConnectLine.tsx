@@ -127,11 +127,7 @@ function SvgComponent({ relation, relationRef }: ConnectLineProps) {
     } else {
       drawCircles.push(getEndIDEFCircle(toDirection, updatedTo));
 
-      if (
-        relation.participation &&
-        relation.participation.from &&
-        relation.participation.from === 'PARTIAL'
-      ) {
+      if (relation.participation.to === 'PARTIAL') {
         drawPolygons.push(
           getStartIDEFNullablePolygon(fromDirection, updatedFrom),
         );

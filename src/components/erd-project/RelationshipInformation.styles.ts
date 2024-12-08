@@ -15,5 +15,13 @@ export const styles = {
     border: 0.5px solid #606060;
     background: #222;
     pointer-events: all;
+    font-size: 12px;
+    color: #ededed;
+  `,
+
+  identifyWrapper: styled.div`
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
   `,
 };
