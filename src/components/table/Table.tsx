@@ -1,6 +1,7 @@
 'use client';
 
 import { useLayoutEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 import { Columns } from './Columns';
 import { styles } from './Table.styles';
@@ -120,6 +121,7 @@ function TableConsumer({
 
   useOutsideClick(
     [menuRef, boxRef, editRef],
+    [],
     () => {
       setIsEditingColumns(false);
       setMenuOpen(false);
@@ -172,7 +174,10 @@ function TableConsumer({
         <Columns columns={columns} />
         <Columns columns={fkColumns} />
         <TableMenu />
-        <ColumnEditMenu />
+        {createPortal(
+          <ColumnEditMenu left={table.left} top={table.top} />,
+          document.body,
+        )}
       </styles.container>
     </styles.displayWrapper>
   );

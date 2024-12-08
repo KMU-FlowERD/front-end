@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { styles } from './erd-project.page.styles';
@@ -61,6 +61,8 @@ function ErdProjectPageProvider() {
 
   const notation = useDrawToolsStore((state) => state.notation);
 
+  const relationshipInformationRef = useRef<HTMLDivElement | null>(null);
+
   const projectMaxDistance = 300;
 
   const childTables = new Set<string>();
@@ -68,7 +70,7 @@ function ErdProjectPageProvider() {
   if (projectWidth === undefined || projectHeight === undefined)
     return (
       <styles.displayWrapper>
-        <Relationship />
+        <Relationship relationRef={relationshipInformationRef} />
         {tables?.map((table) => (
           <Table
             key={table.id}
@@ -82,7 +84,9 @@ function ErdProjectPageProvider() {
         <styles.container>
           <TableInformation />
           <ErdDrawTools />
-          <RelationshipInformation />
+          <RelationshipInformation
+            relationshipRef={relationshipInformationRef}
+          />
         </styles.container>
       </styles.displayWrapper>
     );
@@ -273,7 +277,7 @@ function ErdProjectPageProvider() {
       onClick={displayClicked}
       $pos={{ width: projectWidth, height: projectHeight }}
     >
-      <Relationship />
+      <Relationship relationRef={relationshipInformationRef} />
       {tables?.map((table) => (
         <Table
           key={table.id}
@@ -287,7 +291,7 @@ function ErdProjectPageProvider() {
       <styles.container>
         <TableInformation />
         <ErdDrawTools />
-        <RelationshipInformation />
+        <RelationshipInformation relationshipRef={relationshipInformationRef} />
       </styles.container>
     </styles.displayWrapper>
   );

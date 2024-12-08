@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { styles } from './Expand.styles';
 
@@ -27,6 +27,10 @@ export function Expand({
 
     if (onClick) onClick();
   };
+
+  useEffect(() => {
+    if (highlight) setOpen(true);
+  }, [highlight]);
 
   return (
     <styles.displayWrapper>

@@ -15,14 +15,6 @@ export function TableIcon() {
 
   const fill = entity === 'TABLE' ? '#ddd' : '#aaa';
 
-  // useOutsideClick(
-  //   [iconRef],
-  //   () => {
-  //     setEntity('NONE');
-  //   },
-  //   true,
-  // );
-
   return (
     <styles.container
       onClick={() => {

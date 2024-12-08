@@ -73,6 +73,7 @@ export function TableInformation() {
       height: 0,
     });
 
+    setSchemaName(schema.name);
     setDiagramName(diagrmaName);
   };
 
