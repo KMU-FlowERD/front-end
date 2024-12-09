@@ -14,6 +14,7 @@ import type {
 } from './erd-project.type';
 
 import { loadFromLocalStorage, saveToLocalStorage } from '@/shared/storage';
+import { totalmem } from 'os';
 
 export type ERDProjectState = ERDProject;
 
@@ -466,13 +467,17 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
                 )
                   return;
 
-                const duplicatedNameCount = toTable.columns.filter(
-                  (tableCol) => tableCol.name.includes(fromCol.name) && tableCol.id !== fromCol.id,
-                ).length;
+                let columnName = fromCol.name;
+                while (toTable.columns.find((c) => c.name === columnName)) {
+                  const regex = /_(\d+)$/;
+                  const match = columnName.match(regex);
+                  const duplicatedNameCount = match ? parseInt(match[1], 10) + 1 : 1;
+                  columnName = `${columnName}_${duplicatedNameCount}`;
+                }
 
                 toTable.columns.push({
                   ...fromCol,
-                  name: `${fromCol.name}${duplicatedNameCount ? `_${duplicatedNameCount}` : ''}`,
+                  name: columnName,
                   nullable: curr.identify ? false : curr.participation.to === 'PARTIAL',
                   keyType: curr.identify ? 'PK/FK' : 'FK',
                   constraintName: curr.constraintName,
@@ -496,13 +501,17 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
                   ),
               )
               .forEach((fromCol) => {
-                const duplicatedNameCount = to.columns.filter(
-                  (tableCol) => tableCol.name.includes(fromCol.name) && tableCol.id !== fromCol.id,
-                ).length;
+                let columnName = fromCol.name;
+                while (to.columns.find((c) => c.name === columnName)) {
+                  const regex = /_(\d+)$/;
+                  const match = columnName.match(regex);
+                  const duplicatedNameCount = match ? parseInt(match[1], 10) + 1 : 1;
+                  columnName = `${columnName}_${duplicatedNameCount}`;
+                }
 
                 to.columns.push({
                   ...fromCol,
-                  name: `${fromCol.name}${duplicatedNameCount ? `_${duplicatedNameCount}` : ''}`,
+                  name: columnName,
                   nullable: relation.identify ? false : relation.participation.to === 'PARTIAL',
                   keyType: relation.identify ? 'PK/FK' : 'FK',
                   constraintName: relation.constraintName,
