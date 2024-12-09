@@ -755,9 +755,21 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
           ddl += `\n);\n\n`;
         });
 
+        const countConstraintName: Record<string, number> = {};
+
         schema.tables.forEach((table) => {
           table.relations
             .filter((relation) => relation.from === table.id)
+            .map((relation) => ({ ...relation, ddlConstraintName: relation.constraintName.replace(/_\(\w+\)$/, '') }))
+            .map((relation) => {
+              const count = countConstraintName[relation.ddlConstraintName] ?? 0;
+              if (count) countConstraintName[relation.ddlConstraintName] = count + 1;
+              else countConstraintName[relation.ddlConstraintName] = 1;
+              return {
+                ...relation,
+                ddlConstraintName: `${relation.ddlConstraintName}${count ? `_${count + 1}` : ''}`,
+              };
+            })
             .forEach((relation) => {
               const fromTable = schema.tables.find((t) => t.id === relation.from);
               const toTable = schema.tables.find((t) => t.id === relation.to);
@@ -770,7 +782,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
                     const fromColumn = fromTable.columns.find((c) => c.id === toColumn.id);
                     if (fromColumn) columns.push({ from: fromColumn.name, to: toColumn.name });
                   });
-                ddl += `ALTER TABLE ${toTable.title} ADD CONSTRAINT ${relation.constraintName} FOREIGN KEY (${columns.map((c) => c.to).join(', ')}) REFERENCES ${fromTable.title}(${columns.map((c) => c.from).join(', ')});\n`;
+                ddl += `ALTER TABLE ${toTable.title} ADD CONSTRAINT ${relation.ddlConstraintName} FOREIGN KEY (${columns.map((c) => c.to).join(', ')}) REFERENCES ${fromTable.title}(${columns.map((c) => c.from).join(', ')});\n`;
               }
             });
         });
