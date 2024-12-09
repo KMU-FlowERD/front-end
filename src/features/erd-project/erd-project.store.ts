@@ -466,8 +466,13 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
                 )
                   return;
 
+                const duplicatedNameCount = toTable.columns.filter(
+                  (tableCol) => tableCol.name.includes(fromCol.name) && tableCol.id !== fromCol.id,
+                ).length;
+
                 toTable.columns.push({
                   ...fromCol,
+                  name: `${fromCol.name}${duplicatedNameCount ? `_${duplicatedNameCount}` : ''}`,
                   nullable: curr.identify ? false : curr.participation.to === 'PARTIAL',
                   keyType: curr.identify ? 'PK/FK' : 'FK',
                   constraintName: curr.constraintName,
@@ -491,8 +496,13 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
                   ),
               )
               .forEach((fromCol) => {
+                const duplicatedNameCount = to.columns.filter(
+                  (tableCol) => tableCol.name.includes(fromCol.name) && tableCol.id !== fromCol.id,
+                ).length;
+
                 to.columns.push({
                   ...fromCol,
+                  name: `${fromCol.name}${duplicatedNameCount ? `_${duplicatedNameCount}` : ''}`,
                   nullable: relation.identify ? false : relation.participation.to === 'PARTIAL',
                   keyType: relation.identify ? 'PK/FK' : 'FK',
                   constraintName: relation.constraintName,
@@ -745,10 +755,12 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
               const columns: { from: string; to: string }[] = [];
 
               if (fromTable && toTable) {
-                toTable.columns.forEach((toColumn) => {
-                  const fromColumn = fromTable.columns.find((c) => c.id === toColumn.id);
-                  if (fromColumn) columns.push({ from: fromColumn.name, to: toColumn.name });
-                });
+                toTable.columns
+                  .filter((c) => c.constraintName === relation.constraintName)
+                  .forEach((toColumn) => {
+                    const fromColumn = fromTable.columns.find((c) => c.id === toColumn.id);
+                    if (fromColumn) columns.push({ from: fromColumn.name, to: toColumn.name });
+                  });
                 ddl += `ALTER TABLE ${toTable.title} ADD CONSTRAINT ${relation.constraintName} FOREIGN KEY (${columns.map((c) => c.to).join(', ')}) REFERENCES ${fromTable.title}(${columns.map((c) => c.from).join(', ')});\n`;
               }
             });
