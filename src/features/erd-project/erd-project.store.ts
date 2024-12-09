@@ -2,18 +2,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
-import { getProjectAll, getProjectById } from './erd-project.api';
 import type {
-  Cardinality,
   ERDColumn,
   ERDDiagram,
   ERDProject,
   ERDRelation,
   ERDSchema,
   ERDTable,
-  Participation,
   WithPosition,
 } from './erd-project.type';
+import { loadFromLocalStorage, saveToLocalStorage } from '@/shared/storage';
+import { getProjectAll } from './erd-project.api';
 
 export type ERDProjectState = ERDProject;
 
@@ -79,6 +78,8 @@ export interface ERDProjectAction {
   updateTableInDiagram: (schema: ERDSchema) => void;
 
   fetchAndSetProject: (projectId: string) => Promise<void>;
+
+  generateDDL: (schemaName: ERDSchema['name']) => string;
 }
 
 export type ERDProjectStore = ERDProjectState & ERDProjectAction;
@@ -124,45 +125,53 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
           state.name = project.name;
           state.description = project.description;
           state.schemas = project.schemas;
+          saveToLocalStorage(project.id, state);
         }),
 
       updateProjectInfo: ({ title, description }) =>
         set((state) => {
           state.name = title;
           state.description = description;
+          saveToLocalStorage(state.id, state);
         }),
 
       createSchema: (schema) =>
         set((state) => {
           state.schemas.push(schema);
+          saveToLocalStorage(state.id, state);
         }),
 
       updateSchema: (schema) =>
         set((state) => {
           state.schemas = state.schemas.map((s) => (s.name === schema.name ? schema : s));
+          saveToLocalStorage(state.id, state);
         }),
 
       deleteSchema: (schemaName) =>
         set((state) => {
           state.schemas = state.schemas.filter((s) => s.name !== schemaName);
+          saveToLocalStorage(state.id, state);
         }),
 
       createDiagram: (schemaName, diagram) =>
         set((state) => {
           const schema = state.schemas.find((s) => s.name === schemaName);
           if (schema) schema.diagrams.push(diagram);
+          saveToLocalStorage(state.id, state);
         }),
 
       updateDiagram: (schemaName, diagram) =>
         set((state) => {
           const schema = state.schemas.find((s) => s.name === schemaName);
           if (schema) schema.diagrams = schema.diagrams.map((d) => (d.name === diagram.name ? diagram : d));
+          saveToLocalStorage(state.id, state);
         }),
 
       deleteDiagram: (schemaName, diagramName) =>
         set((state) => {
           const schema = state.schemas.find((s) => s.name === schemaName);
           if (schema) schema.diagrams = schema.diagrams.filter((d) => d.name !== diagramName);
+          saveToLocalStorage(state.id, state);
         }),
 
       insertTableIntoDiagram: (schemaName, diagramName, table) =>
@@ -172,6 +181,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
             const diagram = schema.diagrams.find((d) => d.name === diagramName);
             if (diagram) diagram.tables.push(table);
           }
+          saveToLocalStorage(state.id, state);
         }),
 
       removeTableFromDiagram: (schemaName, diagramName, table) =>
@@ -181,6 +191,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
             const diagram = schema.diagrams.find((d) => d.name === diagramName);
             if (diagram) diagram.tables = diagram.tables.filter((t) => t.id !== table.id);
           }
+          saveToLocalStorage(state.id, state);
         }),
 
       moveTableInDiagram: (schemaName, diagramName, table) =>
@@ -190,12 +201,14 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
             const diagram = schema.diagrams.find((d) => d.name === diagramName);
             if (diagram) diagram.tables = diagram.tables.map((t) => (t.id === table.id ? table : t));
           }
+          saveToLocalStorage(state.id, state);
         }),
 
       resizeCanvas: (schemaName, diagramName, size) => {
         set((state) => {
           const schema = state.schemas.find((s) => s.name === schemaName);
           if (schema) schema.diagrams = schema.diagrams.map((d) => (d.name === diagramName ? { ...d, ...size } : d));
+          saveToLocalStorage(state.id, state);
         });
       },
 
@@ -203,6 +216,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
         set((state) => {
           const schema = state.schemas.find((s) => s.name === schemaName);
           if (schema) schema.tables.push(table);
+          saveToLocalStorage(state.id, state);
         }),
 
       updateTable: (schemaName, table) =>
@@ -212,6 +226,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
             schema.tables = schema.tables.map((t) => (t.id === table.id ? table : t));
             get().updateTableInDiagram(schema);
           }
+          saveToLocalStorage(state.id, state);
         }),
 
       deleteTable: (schemaName, tableId) =>
@@ -254,6 +269,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
 
           schema.tables = schema.tables.filter((t) => t.id !== tableId);
           get().updateTableInDiagram(schema);
+          saveToLocalStorage(state.id, state);
         }),
 
       createColumn: (schemaName, table, isPK) =>
@@ -304,6 +320,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
           }
 
           get().updateTableInDiagram(schema);
+          saveToLocalStorage(state.id, state);
         }),
 
       updateColumn: (schemaName, table, column) =>
@@ -370,6 +387,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
             }
           }
           get().updateTableInDiagram(schema);
+          saveToLocalStorage(state.id, state);
         }),
 
       deleteColumn: (schemaName, table, column) =>
@@ -400,6 +418,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
 
           target.columns = target.columns.filter((c) => c.id !== column.id);
           get().updateTableInDiagram(schema);
+          saveToLocalStorage(state.id, state);
         }),
 
       createRelation: (schemaName, relation) =>
@@ -477,6 +496,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
               });
           }
           get().updateTableInDiagram(schema);
+          saveToLocalStorage(state.id, state);
         }),
 
       updateRelation: (schemaName, relation) =>
@@ -496,7 +516,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
 
           if (relation.identify && hasCycle(schema, relation)) {
             from.relations = from.relations.map((r) => (r.id === relation.id ? prevRelation : r));
-            to.relations = to.relations.map((r) => (r.id === relation.id ? prevRelation : r));
+            to.relations = from.relations.map((r) => (r.id === relation.id ? prevRelation : r));
             return;
           }
 
@@ -536,6 +556,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
           };
           dfs(relation);
           get().updateTableInDiagram(schema);
+          saveToLocalStorage(state.id, state);
         }),
 
       deleteRelation: (schemaName, relation) =>
@@ -578,10 +599,11 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
             }
           }
           get().updateTableInDiagram(schema);
+          saveToLocalStorage(state.id, state);
         }),
 
       updateTableInDiagram: (schema) =>
-        set(() => {
+        set((state) => {
           schema.diagrams.forEach((diagram) => {
             diagram.tables = diagram.tables.filter((table) => schema.tables.find((t) => t.id === table.id));
           });
@@ -591,103 +613,135 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
               diagram.tables = diagram.tables.map((t) => (t.id === table.id ? { ...t, ...table } : t));
             });
           });
+
+          saveToLocalStorage(state.id, state);
         }),
 
       fetchAndSetProject: async (projectId) => {
+        const project = loadFromLocalStorage(projectId);
         const response = await getProjectAll({ projectId });
-        const projectData = response.data;
+        const { projectName } = response.data.projectReturns[0];
 
-        const keyTypeMap: Record<string, ERDColumn['keyType']> = {
-          PRIMARY_KEY: 'PK',
-          PRIMARY_KEY_AND_FOREIGN_KEY: 'PK/FK',
-          FOREIGN_KEY: 'FK',
-          NORMAL: undefined,
-        };
+        // const keyTypeMap: Record<string, ERDColumn['keyType']> = {
+        //   PRIMARY_KEY: 'PK',
+        //   PRIMARY_KEY_AND_FOREIGN_KEY: 'PK/FK',
+        //   FOREIGN_KEY: 'FK',
+        //   NORMAL: undefined,
+        // };
 
-        const project: ERDProject = {
-          id: projectData.projectReturns[0].id,
-          name: projectData.projectReturns[0].projectName,
-          schemas: projectData.projectReturns[0].schemaReturns.map((schema) => ({
-            name: schema.schemaName,
-            tables: schema.tableReturns.map((table) => ({
-              id: table.id,
-              title: table.tableName,
-              width: 0,
-              height: 0,
-              columns: table.columns.map((column) => ({
-                id: column.id,
-                name: column.columnName,
-                nullable: column.nullable,
-                keyType: keyTypeMap[column.isKey],
-                type: column.dataType,
-                constraintName: column.constraintName,
-                path: JSON.parse(column.path),
-              })),
-              relations: table.constraints.map((constraint) => ({
-                id: constraint.id,
-                from: constraint.parentTableId,
-                to: constraint.childTableId,
-                cardinality: {
-                  from: constraint.parentCardinality as Cardinality,
-                  to: constraint.childCardinality as Cardinality,
-                },
-                identify: constraint.relType === 'IDENTIFYING',
-                participation: {
-                  from: constraint.parentParticipation as Participation,
-                  to: constraint.childParticipation as Participation,
-                },
-                constraintName: constraint.id,
-              })),
-            })),
-            diagrams: [],
-          })),
-        };
+        // const project: ERDProject = {
+        //   id: projectData.projectReturns[0].id,
+        //   name: projectData.projectReturns[0].projectName,
+        //   schemas: projectData.projectReturns[0].schemaReturns.map((schema) => ({
+        //     name: schema.schemaName,
+        //     tables: schema.tableReturns.map((table) => ({
+        //       id: table.id,
+        //       title: table.tableName,
+        //       width: 0,
+        //       height: 0,
+        //       columns: table.columns.map((column) => ({
+        //         id: column.id,
+        //         name: column.columnName,
+        //         nullable: column.nullable,
+        //         keyType: keyTypeMap[column.isKey],
+        //         type: column.dataType,
+        //         constraintName: column.constraintName,
+        //         path: JSON.parse(column.path),
+        //       })),
+        //       relations: table.constraints.map((constraint) => ({
+        //         id: constraint.id,
+        //         from: constraint.parentTableId,
+        //         to: constraint.childTableId,
+        //         cardinality: {
+        //           from: constraint.parentCardinality as Cardinality,
+        //           to: constraint.childCardinality as Cardinality,
+        //         },
+        //         identify: constraint.relType === 'IDENTIFYING',
+        //         participation: {
+        //           from: constraint.parentParticipation as Participation,
+        //           to: constraint.childParticipation as Participation,
+        //         },
+        //         constraintName: constraint.id,
+        //       })),
+        //     })),
+        //     diagrams: [],
+        //   })),
+        // };
 
-        const diagrams = projectData.projectDrawReturns[0].diagramReturns.map((draw) => ({
-          name: draw.id,
-          width: draw.pixel_x,
-          height: draw.pixel_y,
-          tables: draw.tables.map((table) => ({
-            id: table.id,
-            title: table.tableName,
-            width: 0,
-            height: 0,
-            top: table.pos_x,
-            left: table.pos_y,
-            columns: table.columns.map((column) => ({
-              id: column.id,
-              name: column.columnName,
-              nullable: column.nullable,
-              keyType: keyTypeMap[column.isKey],
-              type: column.dataType,
-              constraintName: column.constraintName,
-              path: JSON.parse(column.path),
-            })),
-            relations: table.constraints.map((constraint) => ({
-              id: constraint.id,
-              from: constraint.parentTableId,
-              to: constraint.childTableId,
-              cardinality: {
-                from: constraint.parentCardinality as Cardinality,
-                to: constraint.childCardinality as Cardinality,
-              },
-              identify: constraint.relType === 'IDENTIFYING',
-              participation: {
-                from: constraint.parentParticipation as Participation,
-                to: constraint.childParticipation as Participation,
-              },
-              constraintName: constraint.id,
-            })),
-          })),
-        }));
+        // const diagrams = projectData.projectDrawReturns[0].diagramReturns.map((draw) => ({
+        //   name: draw.id,
+        //   width: draw.pixel_x,
+        //   height: draw.pixel_y,
+        //   tables: draw.tables.map((table) => ({
+        //     id: table.id,
+        //     title: table.tableName,
+        //     width: 0,
+        //     height: 0,
+        //     top: table.pos_x,
+        //     left: table.pos_y,
+        //     columns: table.columns.map((column) => ({
+        //       id: column.id,
+        //       name: column.columnName,
+        //       nullable: column.nullable,
+        //       keyType: keyTypeMap[column.isKey],
+        //       type: column.dataType,
+        //       constraintName: column.constraintName,
+        //       path: JSON.parse(column.path),
+        //     })),
+        //     relations: table.constraints.map((constraint) => ({
+        //       id: constraint.id,
+        //       from: constraint.parentTableId,
+        //       to: constraint.childTableId,
+        //       cardinality: {
+        //         from: constraint.parentCardinality as Cardinality,
+        //         to: constraint.childCardinality as Cardinality,
+        //       },
+        //       identify: constraint.relType === 'IDENTIFYING',
+        //       participation: {
+        //         from: constraint.parentParticipation as Participation,
+        //         to: constraint.childParticipation as Participation,
+        //       },
+        //       constraintName: constraint.id,
+        //     })),
+        //   })),
+        // }));
 
-        project.schemas.forEach((schema) => {
-          schema.diagrams = diagrams.filter((diagram) =>
-            diagram.tables.some((table) => schema.tables.some((t) => t.id === table.id)),
-          );
+        // project.schemas.forEach((schema) => {
+        //   schema.diagrams = diagrams.filter((diagram) =>
+        //     diagram.tables.some((table) => schema.tables.some((t) => t.id === table.id)),
+        //   );2
+        // });
+
+        get().setProject({ ...initState, id: projectId, name: projectName, ...project });
+      },
+
+      generateDDL: (schemaName) => {
+        const state = get();
+        const schema = state.schemas.find((s) => s.name === schemaName);
+        if (!schema) return '';
+
+        let ddl = `CREATE SCHEMA ${schema.name};\n\n`;
+
+        schema.tables.forEach((table) => {
+          ddl += `CREATE TABLE ${table.title} (\n`;
+          table.columns.forEach((column, index) => {
+            ddl += `  ${column.name} ${column.type}${column.nullable ? '' : ' NOT NULL'}`;
+            if (index < table.columns.length - 1) ddl += ',\n';
+          });
+          ddl += `\n);\n\n`;
         });
 
-        get().setProject(project);
+        schema.tables.forEach((table) => {
+          table.relations.forEach((relation) => {
+            const fromTable = schema.tables.find((t) => t.id === relation.from);
+            const toTable = schema.tables.find((t) => t.id === relation.to);
+            if (fromTable && toTable) {
+              ddl += `ALTER TABLE ${toTable.title} ADD CONSTRAINT ${relation.constraintName} FOREIGN KEY (${relation.constraintName}) REFERENCES ${fromTable.title}(${relation.constraintName});\n`;
+            }
+          });
+        });
+
+        return ddl;
       },
     })),
   );

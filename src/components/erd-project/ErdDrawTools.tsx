@@ -2,18 +2,24 @@
 
 import { useRef } from 'react';
 
-import { styles } from './ErdDrawTools.styles';
 import { ArrowIcon, MemoIcon, PointerIcon, RelationshipIcons, TableIcon } from '../implements-icon';
 import { NotationModal } from '../notation-modal/NotationModal';
+import { styles } from './ErdDrawTools.styles';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
 import { useRelationChange } from '@/features/erd-page';
 import { useInsideClick } from '@/features/erd-page/erd-page.table.hook';
 import { useModal } from '@/features/modal';
+import { useERDProjectStore } from '@/providers';
+import { useDiagramContext } from '@/providers/DiagramChooseProvider';
+import { generate } from 'rxjs';
 
 type NotationType = 'IE' | 'IDEF1X';
 
 export function ErdDrawTools() {
+  const { schema } = useDiagramContext();
+  const generateDDL = useERDProjectStore((state) => state.generateDDL);
+
   const boxRef = useRef<HTMLDivElement | null>(null);
 
   const notation = useDrawToolsStore((state) => state.notation);
@@ -67,6 +73,13 @@ export function ErdDrawTools() {
       <Relationship notation={notation} />
       <div style={{ width: '1px', height: '40px', background: '#444' }} />
       <styles.notationChange onClick={notationChange}>{notation} ↕️</styles.notationChange>
+      <button
+        onClick={() => {
+          if (schema) alert(generateDDL(schema.name));
+        }}
+      >
+        DDL
+      </button>
       {Modal}
     </styles.container>
   );
@@ -90,6 +103,7 @@ function Relationship({ notation }: { notation: NotationType }) {
       <RelationshipIcons type={{ cardinality: { from: 'ONE', to: 'ONE' }, identify: true }} />
       <RelationshipIcons type={{ cardinality: { from: 'ONE', to: 'MANY' }, identify: true }} />
       <RelationshipIcons type={{ cardinality: { from: 'MANY', to: 'MANY' }, identify: true }} />
+
       {/* <div style={{ width: '1px', height: '40px', background: '#444' }} />
       <RelationshipIcons
         type={{ cardinality: { from: 'ONE', to: 'ONE' }, identify: false }}
