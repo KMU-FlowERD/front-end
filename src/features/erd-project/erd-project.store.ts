@@ -280,9 +280,11 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
           const target = schema.tables.find((t) => t.id === table.id);
           if (!target) return;
 
+          const columnName = 'column';
+          const existingColumns = target.columns.filter((col) => col.name.startsWith(columnName));
           const column: ERDColumn = {
             id: uuidv4(),
-            name: 'column',
+            name: existingColumns.length ? `${columnName}_${existingColumns.length}` : columnName,
             nullable: false,
             constraintName: isPK ? `PK_${target.title}` : undefined,
             path: [],
@@ -330,6 +332,8 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
 
           const target = schema.tables.find((t) => t.id === table.id);
           if (!target) return;
+
+          if (target.columns.find((c) => c.id !== column.id && c.name === column.name)) return;
 
           const visited: Record<ERDTable['id'], boolean> = {};
           const dfs = (curr: ERDTable) => {
@@ -732,13 +736,19 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
         });
 
         schema.tables.forEach((table) => {
-          table.relations.forEach((relation) => {
-            const fromTable = schema.tables.find((t) => t.id === relation.from);
-            const toTable = schema.tables.find((t) => t.id === relation.to);
-            if (fromTable && toTable) {
-              ddl += `ALTER TABLE ${toTable.title} ADD CONSTRAINT ${relation.constraintName} FOREIGN KEY (${relation.constraintName}) REFERENCES ${fromTable.title}(${relation.constraintName});\n`;
-            }
-          });
+          table.relations
+            .filter((relation) => relation.from === table.id)
+            .forEach((relation) => {
+              const fromTable = schema.tables.find((t) => t.id === relation.from);
+              const toTable = schema.tables.find((t) => t.id === relation.to);
+              if (fromTable && toTable) {
+                const fromColumn = fromTable.columns.find((col) => col.constraintName === relation.constraintName);
+                const toColumn = toTable.columns.find((col) => col.constraintName === relation.constraintName);
+                if (fromColumn && toColumn) {
+                  ddl += `ALTER TABLE ${toTable.title} ADD CONSTRAINT ${relation.constraintName} FOREIGN KEY (${toColumn.name}) REFERENCES ${fromTable.title}(${fromColumn.name});\n`;
+                }
+              }
+            });
         });
 
         return ddl;

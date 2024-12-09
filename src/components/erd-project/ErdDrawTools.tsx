@@ -12,7 +12,6 @@ import { useInsideClick } from '@/features/erd-page/erd-page.table.hook';
 import { useModal } from '@/features/modal';
 import { useERDProjectStore } from '@/providers';
 import { useDiagramContext } from '@/providers/DiagramChooseProvider';
-import { generate } from 'rxjs';
 
 type NotationType = 'IE' | 'IDEF1X';
 
