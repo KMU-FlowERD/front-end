@@ -8,10 +8,7 @@ import { RelationshipMenu } from './RelationshipMenu';
 
 import { useERDProjectStore } from '@/providers';
 import { useDiagramContext } from '@/providers/DiagramChooseProvider';
-import {
-  MappingProvider,
-  useMappingContext,
-} from '@/providers/MappingProvider';
+import { MappingProvider, useMappingContext } from '@/providers/MappingProvider';
 
 interface RelationProps {
   relationRef: RefObject<HTMLDivElement>;
@@ -51,18 +48,9 @@ function RelationshipConsumer({ relationRef }: RelationProps) {
   return (
     <styles.display>
       <RelationshipMenu />
-      <styles.wrapper
-        width='100%'
-        height='100%'
-        version='1.1'
-        xmlns='http://www.w3.org/2000/svg'
-      >
+      <styles.wrapper width='100%' height='100%' version='1.1' xmlns='http://www.w3.org/2000/svg'>
         {context.relationDuplicate.map((relation) => (
-          <ConnectLine
-            key={Math.random().toString(36).slice(2)}
-            relation={relation}
-            relationRef={relationRef}
-          />
+          <ConnectLine key={Math.random().toString(36).slice(2)} relation={relation} relationRef={relationRef} />
         ))}
       </styles.wrapper>
     </styles.display>

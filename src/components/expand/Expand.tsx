@@ -12,14 +12,7 @@ interface ExpandProps {
   onDelete: () => void;
 }
 
-export function Expand({
-  text,
-  children,
-  deleteIcon,
-  highlight,
-  onClick,
-  onDelete,
-}: ExpandProps) {
+export function Expand({ text, children, deleteIcon, highlight, onClick, onDelete }: ExpandProps) {
   const [open, setOpen] = useState<boolean>(false);
 
   const handleClick = () => {
@@ -37,9 +30,7 @@ export function Expand({
       <styles.mainNode onClick={handleClick} $highlight={highlight}>
         <ExpandIcon open={open} />
         <span>{text}</span>
-        {deleteIcon && (
-          <styles.deleteButton onClick={onDelete}>🗑</styles.deleteButton>
-        )}
+        {deleteIcon && <styles.deleteButton onClick={onDelete}>🗑</styles.deleteButton>}
       </styles.mainNode>
       <styles.childNode>{open && children}</styles.childNode>
     </styles.displayWrapper>
@@ -49,20 +40,8 @@ export function Expand({
 function ExpandIcon({ open }: { open: boolean }) {
   return (
     <styles.expandButton $open={open}>
-      <svg
-        width='16'
-        height='16'
-        viewBox='0 0 24 24'
-        fill='none'
-        xmlns='http://www.w3.org/2000/svg'
-      >
-        <path
-          d='M9 5L15 12L9 19'
-          stroke='#ededed'
-          strokeWidth='2'
-          strokeLinecap='round'
-          strokeLinejoin='round'
-        />
+      <svg width='16' height='16' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+        <path d='M9 5L15 12L9 19' stroke='#ededed' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
       </svg>
     </styles.expandButton>
   );

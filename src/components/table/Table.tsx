@@ -10,10 +10,7 @@ import { TableMenu } from './TableMenu';
 import { ColumnEditMenu } from '@/components/column-edit';
 import { MenuIcon } from '@/components/implements-icon';
 import { useDrawToolsStore } from '@/features/draw-tools';
-import {
-  useDrag,
-  useOutsideClick,
-} from '@/features/erd-page/erd-page.table.hook';
+import { useDrag, useOutsideClick } from '@/features/erd-page/erd-page.table.hook';
 import type { ERDTable, WithPosition } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 import { useDiagramContext } from '@/providers/DiagramChooseProvider';
@@ -32,13 +29,7 @@ interface TableProps {
   onPositionChange: (id: string, pos: Position) => void;
 }
 
-export function Table({
-  table,
-  child,
-  highlight,
-  onClick,
-  onPositionChange,
-}: TableProps) {
+export function Table({ table, child, highlight, onClick, onPositionChange }: TableProps) {
   return (
     <TableProvider table={table}>
       <TableConsumer
@@ -52,21 +43,8 @@ export function Table({
   );
 }
 
-function TableConsumer({
-  table,
-  child,
-  highlight,
-  onClick,
-  onPositionChange,
-}: TableProps) {
-  const {
-    menuOpen,
-    setMenuOpen,
-    menuRef,
-    editRef,
-    isEditingColumns,
-    setIsEditingColumns,
-  } = useTableContext();
+function TableConsumer({ table, child, highlight, onClick, onPositionChange }: TableProps) {
+  const { menuOpen, setMenuOpen, menuRef, editRef, isEditingColumns, setIsEditingColumns } = useTableContext();
 
   const createColumn = useERDProjectStore((state) => state.createColumn);
   const updateColumn = useERDProjectStore((state) => state.updateColumn);
@@ -84,34 +62,18 @@ function TableConsumer({
 
   const pkColumns = table.columns
     .filter((val) => val.keyType === 'PK')
-    .sort((a, b) =>
-      (a.constraintName || '').localeCompare(b.constraintName || ''),
-    );
+    .sort((a, b) => (a.constraintName || '').localeCompare(b.constraintName || ''));
   const pkfkColumns = table.columns
     .filter((val) => val.keyType === 'PK/FK')
-    .filter(
-      (column, index, self) =>
-        index ===
-        self.findIndex((c) => c.id === column.id && c.name === column.name),
-    )
-    .sort((a, b) =>
-      (a.constraintName || '').localeCompare(b.constraintName || ''),
-    );
+    .filter((column, index, self) => index === self.findIndex((c) => c.id === column.id && c.name === column.name))
+    .sort((a, b) => (a.constraintName || '').localeCompare(b.constraintName || ''));
   const fkColumns = table.columns
     .filter((val) => val.keyType === 'FK')
-    .filter(
-      (column, index, self) =>
-        index ===
-        self.findIndex((c) => c.id === column.id && c.name === column.name),
-    )
-    .sort((a, b) =>
-      (a.constraintName || '').localeCompare(b.constraintName || ''),
-    );
+    .filter((column, index, self) => index === self.findIndex((c) => c.id === column.id && c.name === column.name))
+    .sort((a, b) => (a.constraintName || '').localeCompare(b.constraintName || ''));
   const columns = table.columns
     .filter((val) => val.keyType === undefined)
-    .sort((a, b) =>
-      (a.constraintName || '').localeCompare(b.constraintName || ''),
-    );
+    .sort((a, b) => (a.constraintName || '').localeCompare(b.constraintName || ''));
 
   const { handleMouseDown } = useDrag((newPos) => {
     if (!menuOpen && !isEditingColumns) onPositionChange(table.id, newPos);
@@ -169,15 +131,13 @@ function TableConsumer({
       >
         <Columns columns={pkColumns} />
         <Columns columns={pkfkColumns} />
-        {(pkColumns.length > 0 || pkfkColumns.length > 0) &&
-          (fkColumns.length > 0 || columns.length > 0) && <styles.contour />}
+        {(pkColumns.length > 0 || pkfkColumns.length > 0) && (fkColumns.length > 0 || columns.length > 0) && (
+          <styles.contour />
+        )}
         <Columns columns={columns} />
         <Columns columns={fkColumns} />
         <TableMenu />
-        {createPortal(
-          <ColumnEditMenu left={table.left} top={table.top} />,
-          document.body,
-        )}
+        {createPortal(<ColumnEditMenu left={table.left} top={table.top} />, document.body)}
       </styles.container>
     </styles.displayWrapper>
   );

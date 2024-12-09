@@ -10,11 +10,7 @@ import type { ERDRelation } from '@/features/erd-project';
 import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 import { useERDProjectStore } from '@/providers/ERDProjectProvider';
 
-export function RelationshipInformation({
-  relationshipRef,
-}: {
-  relationshipRef: RefObject<HTMLDivElement>;
-}) {
+export function RelationshipInformation({ relationshipRef }: { relationshipRef: RefObject<HTMLDivElement> }) {
   const notation = useDrawToolsStore((state) => state.notation);
   const setEntity = useDrawToolsStore((state) => state.setEntity);
   const setMapping = useDrawToolsStore((state) => state.setMapping);
@@ -36,24 +32,16 @@ export function RelationshipInformation({
   );
 
   const fromMultiplicity =
-    mapping &&
-    mapping.participation &&
-    mapping.participation.from &&
-    mapping.participation.from === 'PARTIAL'
+    mapping && mapping.participation && mapping.participation.from && mapping.participation.from === 'PARTIAL'
       ? 'FULL'
       : 'PARTIAL';
 
   const toMultiplicity =
-    mapping &&
-    mapping.participation &&
-    mapping.participation.to &&
-    mapping.participation.to === 'PARTIAL'
+    mapping && mapping.participation && mapping.participation.to && mapping.participation.to === 'PARTIAL'
       ? 'FULL'
       : 'PARTIAL';
 
-  const handleMenuItemClick = (
-    action: 'identify' | 'fromNullable' | 'toNullable' | 'cardinality',
-  ) => {
+  const handleMenuItemClick = (action: 'identify' | 'fromNullable' | 'toNullable' | 'cardinality') => {
     if (!mapping) return;
 
     if (schema === undefined) return;
@@ -101,8 +89,7 @@ export function RelationshipInformation({
             type='checkbox'
             checked={mapping.cardinality && mapping.cardinality.to === 'ONE'}
             onChange={() => {
-              if (mapping.cardinality && mapping.cardinality.to === 'ONE')
-                return;
+              if (mapping.cardinality && mapping.cardinality.to === 'ONE') return;
 
               handleMenuItemClick('cardinality');
             }}
@@ -113,8 +100,7 @@ export function RelationshipInformation({
             style={{ marginLeft: '20px' }}
             checked={mapping.cardinality && mapping.cardinality.to === 'MANY'}
             onChange={() => {
-              if (mapping.cardinality && mapping.cardinality.to === 'MANY')
-                return;
+              if (mapping.cardinality && mapping.cardinality.to === 'MANY') return;
 
               handleMenuItemClick('cardinality');
             }}
@@ -126,10 +112,7 @@ export function RelationshipInformation({
         <styles.identifyWrapper>
           <input
             type='checkbox'
-            defaultChecked={
-              mapping.participation.from &&
-              mapping.participation.from === 'PARTIAL'
-            }
+            defaultChecked={mapping.participation.from && mapping.participation.from === 'PARTIAL'}
             onChange={() => handleMenuItemClick('fromNullable')}
           />
           부모 null 허용
@@ -146,11 +129,7 @@ export function RelationshipInformation({
         </styles.identifyWrapper>
       )}
       <styles.identifyWrapper>
-        <input
-          type='checkbox'
-          defaultChecked={mapping.identify}
-          onChange={() => handleMenuItemClick('identify')}
-        />
+        <input type='checkbox' defaultChecked={mapping.identify} onChange={() => handleMenuItemClick('identify')} />
         식별
       </styles.identifyWrapper>
     </styles.container>

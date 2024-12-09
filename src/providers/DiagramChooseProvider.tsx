@@ -5,11 +5,7 @@ import { createContext, useContext, useMemo, useState } from 'react';
 
 import { useERDProjectStore } from './ERDProjectProvider';
 
-import type {
-  ERDDiagram,
-  ERDRelation,
-  ERDSchema,
-} from '@/features/erd-project';
+import type { ERDDiagram, ERDRelation, ERDSchema } from '@/features/erd-project';
 
 interface DiagramDataProps {
   schema: ERDSchema | undefined;
@@ -49,9 +45,7 @@ export function DiagramChooseProvider({ children }: DiagramProviderProps) {
     [findSchema, findDiagram, findMapping],
   );
 
-  return (
-    <DiagramContext.Provider value={data}>{children}</DiagramContext.Provider>
-  );
+  return <DiagramContext.Provider value={data}>{children}</DiagramContext.Provider>;
 }
 
 export function useDiagramContext() {

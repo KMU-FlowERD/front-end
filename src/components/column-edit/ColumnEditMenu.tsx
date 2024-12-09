@@ -27,10 +27,7 @@ export function ColumnEditMenu({ left, top }: { left: number; top: number }) {
   const fkColumns = tableColumns.filter((val) => val.keyType === 'FK');
   const columns = tableColumns.filter((val) => val.keyType === undefined);
 
-  const enterTitleEdit = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    orginTable: ERDTable,
-  ) => {
+  const enterTitleEdit = (e: React.KeyboardEvent<HTMLInputElement>, orginTable: ERDTable) => {
     if (schema === undefined || diagram === undefined) return;
 
     if (e.key === 'Enter') {
@@ -69,8 +66,9 @@ export function ColumnEditMenu({ left, top }: { left: number; top: number }) {
       />
       <PkColumns table={table} pkColumns={pkColumns} />
       <PkFkColumns table={table} pkfkColumns={pkfkColumns} />
-      {(pkColumns.length > 0 || pkfkColumns.length > 0) &&
-        (fkColumns.length > 0 || columns.length > 0) && <styles.contour />}
+      {(pkColumns.length > 0 || pkfkColumns.length > 0) && (fkColumns.length > 0 || columns.length > 0) && (
+        <styles.contour />
+      )}
       <Columns table={table} columns={columns} />
       <FkColumns table={table} fkColumns={fkColumns} />
     </styles.wrapper>

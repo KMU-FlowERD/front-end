@@ -60,6 +60,7 @@ export const useModal = (children: ReactNode) => {
 
   return {
     Modal,
+    isOpen,
     openModal,
     closeModal,
   };

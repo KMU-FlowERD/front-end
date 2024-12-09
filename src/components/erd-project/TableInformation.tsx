@@ -35,15 +35,9 @@ export function TableInformation() {
     true,
   );
 
-  const {
-    diagram: chooseDiagram,
-    setDiagramName,
-    setSchemaName,
-  } = useDiagramContext();
+  const { diagram: chooseDiagram, setDiagramName, setSchemaName } = useDiagramContext();
 
-  const [chooseSchemaName, setChooseSchemaName] = useState<string | undefined>(
-    undefined,
-  );
+  const [chooseSchemaName, setChooseSchemaName] = useState<string | undefined>(undefined);
 
   const addSchemaClick = () => {
     const schemaName = `schema${schemas.length + 1}`;

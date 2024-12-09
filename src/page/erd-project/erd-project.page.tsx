@@ -5,21 +5,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { styles } from './erd-project.page.styles';
 
-import {
-  ErdDrawTools,
-  RelationshipInformation,
-  TableInformation,
-} from '@/components';
+import { ErdDrawTools, RelationshipInformation, TableInformation } from '@/components';
 import { Relationship } from '@/components/erd-project/Relationship';
 import { Table } from '@/components/table';
 import { useDrawToolsStore } from '@/features/draw-tools';
 import { useCanvasSize, usePageMove } from '@/features/erd-page';
 import type { ERDTable, WithPosition } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
-import {
-  DiagramChooseProvider,
-  useDiagramContext,
-} from '@/providers/DiagramChooseProvider';
+import { DiagramChooseProvider, useDiagramContext } from '@/providers/DiagramChooseProvider';
 
 export function ERDProjectPage() {
   return (
@@ -30,9 +23,7 @@ export function ERDProjectPage() {
 }
 
 function ErdProjectPageProvider() {
-  const [lastTable, setLastTable] = useState<
-    WithPosition<ERDTable> | undefined
-  >(undefined);
+  const [lastTable, setLastTable] = useState<WithPosition<ERDTable> | undefined>(undefined);
 
   const { projectWidth, projectHeight } = useCanvasSize();
   usePageMove();
@@ -47,9 +38,7 @@ function ErdProjectPageProvider() {
   const updateTable = useERDProjectStore((state) => state.updateTable);
   const createRelation = useERDProjectStore((state) => state.createRelation);
 
-  const insertTableIntoDiagram = useERDProjectStore(
-    (state) => state.insertTableIntoDiagram,
-  );
+  const insertTableIntoDiagram = useERDProjectStore((state) => state.insertTableIntoDiagram);
 
   const mapping = useDrawToolsStore((state) => state.mapping);
   const setMapping = useDrawToolsStore((state) => state.setMapping);
@@ -84,9 +73,7 @@ function ErdProjectPageProvider() {
         <styles.container>
           <TableInformation />
           <ErdDrawTools />
-          <RelationshipInformation
-            relationshipRef={relationshipInformationRef}
-          />
+          <RelationshipInformation relationshipRef={relationshipInformationRef} />
         </styles.container>
       </styles.displayWrapper>
     );
@@ -97,15 +84,8 @@ function ErdProjectPageProvider() {
     });
   });
 
-  const displayClicked = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
-  ) => {
-    if (
-      schema === undefined ||
-      diagram === undefined ||
-      projectWidth === undefined ||
-      projectHeight === undefined
-    )
+  const displayClicked = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (schema === undefined || diagram === undefined || projectWidth === undefined || projectHeight === undefined)
       return;
 
     const { pageX, pageY } = event;
@@ -128,19 +108,10 @@ function ErdProjectPageProvider() {
 
       setEntity('NONE');
 
-      const updateProjectWidth = Math.max(
-        projectWidth,
-        pageX + projectMaxDistance + 50,
-      );
-      const updateProjectHeight = Math.max(
-        projectHeight,
-        pageY + projectMaxDistance + 30,
-      );
+      const updateProjectWidth = Math.max(projectWidth, pageX + projectMaxDistance + 50);
+      const updateProjectHeight = Math.max(projectHeight, pageY + projectMaxDistance + 30);
 
-      if (
-        updateProjectWidth > projectWidth ||
-        updateProjectHeight > projectHeight
-      ) {
+      if (updateProjectWidth > projectWidth || updateProjectHeight > projectHeight) {
         resizeCanvas(schema.name, diagram.name, {
           width: updateProjectWidth,
           height: updateProjectHeight,
@@ -164,19 +135,10 @@ function ErdProjectPageProvider() {
       const updatedTable = { ...table, left: pos.left, top: pos.top };
       updateTable(schema.name, updatedTable);
 
-      const updateProjectWidth = Math.max(
-        projectWidth,
-        updatedTable.left + updatedTable.width + projectMaxDistance,
-      );
-      const updateProjectHeight = Math.max(
-        projectHeight,
-        updatedTable.top + updatedTable.height + projectMaxDistance,
-      );
+      const updateProjectWidth = Math.max(projectWidth, updatedTable.left + updatedTable.width + projectMaxDistance);
+      const updateProjectHeight = Math.max(projectHeight, updatedTable.top + updatedTable.height + projectMaxDistance);
 
-      if (
-        updateProjectWidth > projectWidth ||
-        updateProjectHeight > projectHeight
-      ) {
+      if (updateProjectWidth > projectWidth || updateProjectHeight > projectHeight) {
         resizeCanvas(schema.name, diagram.name, {
           width: updateProjectWidth,
           height: updateProjectHeight,
@@ -273,10 +235,7 @@ function ErdProjectPageProvider() {
   };
 
   return (
-    <styles.displayWrapper
-      onClick={displayClicked}
-      $pos={{ width: projectWidth, height: projectHeight }}
-    >
+    <styles.displayWrapper onClick={displayClicked} $pos={{ width: projectWidth, height: projectHeight }}>
       <Relationship relationRef={relationshipInformationRef} />
       {tables?.map((table) => (
         <Table

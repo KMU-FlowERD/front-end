@@ -26,22 +26,9 @@ export function TableIcon() {
   );
 }
 
-function Icon({
-  fill,
-  iconRef,
-}: {
-  fill: string;
-  iconRef: MutableRefObject<SVGSVGElement | null>;
-}) {
+function Icon({ fill, iconRef }: { fill: string; iconRef: MutableRefObject<SVGSVGElement | null> }) {
   return (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      width='24'
-      height='24'
-      viewBox='0 0 475 475'
-      fill='none'
-      ref={iconRef}
-    >
+    <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 475 475' fill='none' ref={iconRef}>
       <g>
         <styles.pathStyle
           d='M461.667,49.963c-8.949-8.947-19.698-13.418-32.265-13.418H45.682c-12.562,0-23.317,4.471-32.264,13.418

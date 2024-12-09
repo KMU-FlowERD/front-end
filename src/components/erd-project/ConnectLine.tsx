@@ -37,8 +37,7 @@ function SvgComponent({ relation, relationRef }: ConnectLineProps) {
 
   const notation = useDrawToolsStore((state) => state.notation);
 
-  const { tableDirection, selfReferenceMapping, openContextMenu } =
-    useMappingContext();
+  const { tableDirection, selfReferenceMapping, openContextMenu } = useMappingContext();
 
   const ref = useRef<SVGLineElement | null>(null);
 
@@ -63,18 +62,15 @@ function SvgComponent({ relation, relationRef }: ConnectLineProps) {
   if (fromTable && toTable) {
     const navigateLines = [];
 
-    const { fromDirection, toDirection, lastFromPosition, lastToPosition } =
-      getStartEndPosition(fromTable, toTable, tableDirection, relation);
+    const { fromDirection, toDirection, lastFromPosition, lastToPosition } = getStartEndPosition(
+      fromTable,
+      toTable,
+      tableDirection,
+      relation,
+    );
 
     if (fromTable.id !== toTable.id) {
-      navigateLines.push(
-        ...getDrawLines(
-          fromDirection,
-          toDirection,
-          lastFromPosition,
-          lastToPosition,
-        ),
-      );
+      navigateLines.push(...getDrawLines(fromDirection, toDirection, lastFromPosition, lastToPosition));
     } else {
       const selfReferenceMappingCount = selfReferenceMapping.get(fromTable.id);
       if (selfReferenceMappingCount !== undefined)
@@ -100,26 +96,16 @@ function SvgComponent({ relation, relationRef }: ConnectLineProps) {
     if (notation === 'IE') {
       drawLines.push(getStartIEOneLine(fromDirection, updatedFrom));
 
-      if (relation.cardinality?.to === 'MANY')
-        drawLines.push(...getManyLines(toDirection, updatedTo));
-      else if (relation.cardinality?.to === 'ONE')
-        drawLines.push(getEndIEOneLine(toDirection, updatedTo));
+      if (relation.cardinality?.to === 'MANY') drawLines.push(...getManyLines(toDirection, updatedTo));
+      else if (relation.cardinality?.to === 'ONE') drawLines.push(getEndIEOneLine(toDirection, updatedTo));
 
-      if (
-        relation.participation &&
-        relation.participation.to &&
-        relation.participation.to === 'PARTIAL'
-      ) {
+      if (relation.participation && relation.participation.to && relation.participation.to === 'PARTIAL') {
         drawCircles.push(getStartIENullableCircle(fromDirection, updatedFrom));
       } else {
         drawLines.push(getStartIENotNullOneLine(fromDirection, updatedFrom));
       }
 
-      if (
-        relation.participation &&
-        relation.participation.from &&
-        relation.participation.from === 'PARTIAL'
-      ) {
+      if (relation.participation && relation.participation.from && relation.participation.from === 'PARTIAL') {
         drawCircles.push(getEndIENullableCircle(toDirection, updatedTo));
       } else {
         drawLines.push(getEndIENotNullOneLine(toDirection, updatedTo));
@@ -128,9 +114,7 @@ function SvgComponent({ relation, relationRef }: ConnectLineProps) {
       drawCircles.push(getEndIDEFCircle(toDirection, updatedTo));
 
       if (relation.participation.to === 'PARTIAL') {
-        drawPolygons.push(
-          getStartIDEFNullablePolygon(fromDirection, updatedFrom),
-        );
+        drawPolygons.push(getStartIDEFNullablePolygon(fromDirection, updatedFrom));
       }
     }
 

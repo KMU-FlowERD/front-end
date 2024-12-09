@@ -41,10 +41,8 @@ export function RelationshipIcons({ type }: { type: MappingType }) {
 function Icon({ mapping, fill }: { mapping: MappingType; fill: string }) {
   const { identify, cardinality } = mapping;
 
-  if (identify && cardinality.from === 'ONE' && cardinality.to === 'ONE')
-    return <IdentifyOneToOneIcon fill={fill} />;
-  if (identify && cardinality.from === 'ONE' && cardinality.to === 'MANY')
-    return <IdentifyOneToManyIcon fill={fill} />;
+  if (identify && cardinality.from === 'ONE' && cardinality.to === 'ONE') return <IdentifyOneToOneIcon fill={fill} />;
+  if (identify && cardinality.from === 'ONE' && cardinality.to === 'MANY') return <IdentifyOneToManyIcon fill={fill} />;
   if (identify && cardinality.from === 'MANY' && cardinality.to === 'MANY')
     return <IdentifyManyToManyIcon fill={fill} />;
   if (!identify && cardinality.from === 'ONE' && cardinality.to === 'ONE')

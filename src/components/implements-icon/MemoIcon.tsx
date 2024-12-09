@@ -26,22 +26,9 @@ export function MemoIcon() {
   );
 }
 
-function Icon({
-  fill,
-  iconRef,
-}: {
-  fill: string;
-  iconRef: MutableRefObject<SVGSVGElement | null>;
-}) {
+function Icon({ fill, iconRef }: { fill: string; iconRef: MutableRefObject<SVGSVGElement | null> }) {
   return (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      width='24'
-      height='24'
-      viewBox='0 0 24 24'
-      fill='none'
-      ref={iconRef}
-    >
+    <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' ref={iconRef}>
       <g id='Layer_Grid' />
       <g id='Layer_2'>
         <styles.pathStyle

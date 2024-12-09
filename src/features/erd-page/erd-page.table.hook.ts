@@ -10,10 +10,7 @@ export function useDrag(onPositionChange: (pos: Position) => void) {
   const [dragging, setDragging] = useState(false);
   const [offset, setOffset] = useState<Position>({ left: 0, top: 0 });
 
-  const handleMouseDown = (
-    e: React.MouseEvent,
-    ref: React.RefObject<HTMLDivElement>,
-  ) => {
+  const handleMouseDown = (e: React.MouseEvent, ref: React.RefObject<HTMLDivElement>) => {
     if (ref.current) {
       const rect = ref.current.getBoundingClientRect();
       setDragging(true);
@@ -63,8 +60,7 @@ export function useOutsideClick(
 ) {
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (excludeRefs.some((ref) => ref.current?.contains(e.target as Node)))
-        return;
+      if (excludeRefs.some((ref) => ref.current?.contains(e.target as Node))) return;
 
       if (!refs.some((ref) => ref.current?.contains(e.target as Node))) {
         callback();
