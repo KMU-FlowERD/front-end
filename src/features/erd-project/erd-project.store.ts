@@ -741,12 +741,14 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
             .forEach((relation) => {
               const fromTable = schema.tables.find((t) => t.id === relation.from);
               const toTable = schema.tables.find((t) => t.id === relation.to);
+              const columns: { from: string; to: string }[] = [];
+
               if (fromTable && toTable) {
-                const fromColumn = fromTable.columns.find((col) => col.constraintName === relation.constraintName);
-                const toColumn = toTable.columns.find((col) => col.constraintName === relation.constraintName);
-                if (fromColumn && toColumn) {
-                  ddl += `ALTER TABLE ${toTable.title} ADD CONSTRAINT ${relation.constraintName} FOREIGN KEY (${toColumn.name}) REFERENCES ${fromTable.title}(${fromColumn.name});\n`;
-                }
+                toTable.columns.forEach((toColumn) => {
+                  const fromColumn = fromTable.columns.find((c) => c.id === toColumn.id);
+                  if (fromColumn) columns.push({ from: fromColumn.name, to: toColumn.name });
+                });
+                ddl += `ALTER TABLE ${toTable.title} ADD CONSTRAINT ${relation.constraintName} FOREIGN KEY (${columns.map((c) => c.to).join(', ')}) REFERENCES ${fromTable.title}(${columns.map((c) => c.from).join(', ')});\n`;
               }
             });
         });
