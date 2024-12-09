@@ -506,7 +506,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
                   const regex = /_(\d+)$/;
                   const match = columnName.match(regex);
                   const duplicatedNameCount = match ? parseInt(match[1], 10) + 1 : 1;
-                  columnName = `${columnName}_${duplicatedNameCount}`;
+                  columnName = columnName.replace(/_\d+$/, '') + `_${duplicatedNameCount}`;
                 }
 
                 to.columns.push({
