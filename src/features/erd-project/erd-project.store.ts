@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
+import { getProjectAll } from './erd-project.api';
 import type {
   ERDColumn,
   ERDDiagram,
@@ -11,8 +12,8 @@ import type {
   ERDTable,
   WithPosition,
 } from './erd-project.type';
+
 import { loadFromLocalStorage, saveToLocalStorage } from '@/shared/storage';
-import { getProjectAll } from './erd-project.api';
 
 export type ERDProjectState = ERDProject;
 
@@ -729,7 +730,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
         schema.tables.forEach((table) => {
           ddl += `CREATE TABLE ${table.title} (\n`;
           table.columns.forEach((column, index) => {
-            ddl += `  ${column.name} ${column.type}${column.nullable ? '' : ' NOT NULL'}`;
+            ddl += `  ${column.name} ${column.type ?? 'TEXT'}${column.nullable ? '' : ' NOT NULL'}`;
             if (index < table.columns.length - 1) ddl += ',\n';
           });
           ddl += `\n);\n\n`;

@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 
 import { styles } from './erd-project.page.styles';
 
@@ -160,11 +159,11 @@ function ErdProjectPageProvider() {
     setLastTable(undefined);
     setMapping(undefined);
 
-    // const duplicationLength = table.relations.filter((relation) =>
-    //   relation.constraintName.includes(`FK_${table.title}_${lastTable.title}`),
-    // ).length;
+    const duplicationLength = table.relations.filter((relation) =>
+      relation.constraintName.includes(`FK_${table.title}_${lastTable.title}`),
+    ).length;
 
-    const constraintName = `FK_${table.title}_${lastTable.title}_${uuidv4()}`;
+    const constraintName = `FK_${table.title}_${lastTable.title}${duplicationLength > 0 ? `_${duplicationLength.toString()}` : ''}`;
 
     if (notation === 'IDEF1X') {
       createRelation(schema.name, {
@@ -210,8 +209,16 @@ function ErdProjectPageProvider() {
       left: (lastTable.left + table.left) / 2,
     });
 
-    const firstConstraint = `FK_${mappingTable.title}_${lastTable.title}_${uuidv4()}`;
-    const lastConstraint = `FK_${mappingTable.title}_${table.title}_${uuidv4()}`;
+    const duplicationLengthFirst = table.relations.filter((relation) =>
+      relation.constraintName.includes(`FK_${mappingTable.title}_${lastTable.title}`),
+    ).length;
+
+    const duplicationLengthLast = table.relations.filter((relation) =>
+      relation.constraintName.includes(`FK_${mappingTable.title}_${table.title}`),
+    ).length;
+
+    const firstConstraint = `FK_${mappingTable.title}_${lastTable.title}${duplicationLength > 0 ? `_${duplicationLengthFirst.toString()}` : ''}`;
+    const lastConstraint = `FK_${mappingTable.title}_${table.title}${duplicationLength > 0 ? `_${duplicationLengthLast.toString()}` : ''}`;
 
     createRelation(schema.name, {
       id: Math.random().toString(36).slice(2),

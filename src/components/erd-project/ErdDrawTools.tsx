@@ -1,10 +1,11 @@
 'use client';
 
 import { useRef } from 'react';
+import { generate } from 'rxjs';
 
+import { styles } from './ErdDrawTools.styles';
 import { ArrowIcon, MemoIcon, PointerIcon, RelationshipIcons, TableIcon } from '../implements-icon';
 import { NotationModal } from '../notation-modal/NotationModal';
-import { styles } from './ErdDrawTools.styles';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
 import { useRelationChange } from '@/features/erd-page';
@@ -74,7 +75,10 @@ export function ErdDrawTools() {
       <styles.notationChange onClick={notationChange}>{notation} ↕️</styles.notationChange>
       <button
         onClick={() => {
-          if (schema) alert(generateDDL(schema.name));
+          if (schema) {
+            navigator.clipboard.writeText(generateDDL(schema.name));
+            alert('클립보드로 복사되었습니다');
+          }
         }}
       >
         DDL
