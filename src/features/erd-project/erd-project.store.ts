@@ -711,7 +711,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
                 toTable.columns
                   .filter((c) => c.constraintName === relation.constraintName)
                   .forEach((toColumn) => {
-                    const fromColumn = table.columns.find((c) => c.id === toColumn.id);
+                    const fromColumn = fromTable.columns.find((c) => c.id === toColumn.id);
                     if (fromColumn) columns.push({ from: fromColumn.name, to: toColumn.name });
                   });
 
