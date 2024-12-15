@@ -1,9 +1,11 @@
+import { TbRelationOneToOneFilled } from 'react-icons/tb';
+
 import { styles } from './icon.styles';
 
 export function NonIdentifyOneToOneIcon({ fill }: { fill: string }) {
   return (
-    <svg width='24' height='24'>
-      <styles.relationPath width='24' height='24' fill={fill} />
-    </svg>
+    <styles.relationPath>
+      <TbRelationOneToOneFilled size={32} color={fill} />
+    </styles.relationPath>
   );
 }
