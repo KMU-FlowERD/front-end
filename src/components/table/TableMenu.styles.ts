@@ -1,15 +1,15 @@
 import styled from '@emotion/styled';
 
 export const styles = {
-  menu: styled.div`
+  menu: styled.div<{ $left: number; $top: number }>`
     position: absolute;
-    top: 0px;
-    right: 5px;
     background-color: #333;
     border: 1px solid #444;
     border-radius: 4px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
     z-index: 3;
+    left: ${({ $left }) => `${$left}px`};
+    top: ${({ $top }) => `${$top}px`};
   `,
 
   menuItem: styled.div`

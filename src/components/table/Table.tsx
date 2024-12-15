@@ -136,7 +136,7 @@ function TableConsumer({ table, child, highlight, onClick, onPositionChange }: T
         )}
         <Columns columns={columns} />
         <Columns columns={fkColumns} />
-        <TableMenu />
+        {createPortal(<TableMenu left={table.left} top={table.top} />, document.body)}
         {createPortal(<ColumnEditMenu left={table.left} top={table.top} />, document.body)}
       </styles.container>
     </styles.displayWrapper>

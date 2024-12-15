@@ -4,7 +4,7 @@ import { useERDProjectStore } from '@/providers';
 import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 import { useTableContext } from '@/providers/TableProvider';
 
-export function TableMenu() {
+export function TableMenu({ left, top }: { left: number; top: number }) {
   const { menuRef, table, menuOpen, setIsEditingColumns, setMenuOpen } = useTableContext();
   const deleteTable = useERDProjectStore((state) => state.deleteTable);
 
@@ -38,7 +38,7 @@ export function TableMenu() {
   if (!menuOpen) return null;
 
   return (
-    <styles.menu ref={menuRef}>
+    <styles.menu ref={menuRef} $left={left} $top={top}>
       <styles.menuItem onClick={() => handleMenuItemClick('delete')}>테이블 삭제</styles.menuItem>
       <styles.menuItem onClick={() => handleMenuItemClick('add/pk')}>컬럼 추가(pk)</styles.menuItem>
       <styles.menuItem onClick={() => handleMenuItemClick('add')}>컬럼 추가</styles.menuItem>
