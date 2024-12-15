@@ -10,6 +10,8 @@ export const styles = {
     border-radius: 0.5rem;
     border: 1px solid #676772;
     background: #27272a;
+
+    cursor: pointer;
   `,
 
   projectInformation: styled.div`
