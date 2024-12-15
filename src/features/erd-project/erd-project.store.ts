@@ -13,9 +13,6 @@ import type {
   WithPosition,
 } from './erd-project.type';
 
-import { loadFromLocalStorage, saveToLocalStorage } from '@/shared/storage';
-import { totalmem } from 'os';
-
 export type ERDProjectState = ERDProject;
 
 export interface ERDProjectAction {
@@ -348,35 +345,42 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
                 const toTable = schema.tables.find((t) => t.id === relation.to);
                 if (!toTable) return;
 
-                toTable.columns = toTable.columns.map((c) => ({
-                  ...(c.id === column.id ? column : c),
-                  keyType:
-                    c.constraintName === relation.constraintName &&
-                    c.path.join('').startsWith(column.path.join('')) &&
-                    relation.identify
-                      ? 'PK/FK'
-                      : 'FK',
-                  nullable:
-                    c.constraintName === relation.constraintName &&
-                    c.path.join('').startsWith(column.path.join('')) &&
-                    relation.identify
-                      ? false
-                      : column.nullable,
-                }));
+                const columnCount: Record<string, number> = {};
+                toTable.columns = toTable.columns
+                  .map((c) =>
+                    c.id === column.id && c.constraintName === relation.constraintName
+                      ? {
+                          ...c,
+                          ...column,
+                          nullable: c.nullable,
+                          constraintName: c.constraintName,
+                          path: c.path,
+                          keyType: c.keyType,
+                        }
+                      : c,
+                  )
+                  .map((c) => {
+                    const count = columnCount[c.name] ?? 0;
+                    columnCount[c.name] = count + 1;
+                    return {
+                      ...c,
+                      name: `${c.name}${count ? `_${count}` : ''}`,
+                    };
+                  });
+
                 dfs(toTable);
               });
           };
 
           if (column.keyType === 'PK' || column.keyType === 'PK/FK') {
-            target.columns = target.columns.map((c) => (c.id === column.id ? column : c));
+            target.columns = target.columns.map((c) =>
+              c.id === column.id && c.constraintName === column.constraintName ? column : c,
+            );
             dfs(target);
           } else if (column.keyType === 'FK') {
             target.columns = target.columns.map((c) => ({
-              ...(c.id === column.id ? column : c),
-              nullable:
-                c.constraintName === column.constraintName && c.path.join('').startsWith(column.path.join(''))
-                  ? column.nullable
-                  : c.nullable,
+              ...(c.id === column.id && c.constraintName === column.constraintName ? column : c),
+              nullable: c.constraintName === column.constraintName ? column.nullable : c.nullable,
             }));
             const relation = target.relations.find((r) => r.constraintName === column.constraintName);
             if (relation) {
@@ -467,14 +471,6 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
                 )
                   return;
 
-                let columnName = fromCol.name;
-                while (toTable.columns.find((c) => c.name === columnName)) {
-                  const regex = /_(\d+)$/;
-                  const match = columnName.match(regex);
-                  const duplicatedNameCount = match ? parseInt(match[1], 10) + 1 : 1;
-                  columnName = columnName.replace(/_\d+$/, '') + `_${duplicatedNameCount}`;
-                }
-
                 toTable.columns.push({
                   ...fromCol,
                   name: columnName,
@@ -501,14 +497,6 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
                   ),
               )
               .forEach((fromCol) => {
-                let columnName = fromCol.name;
-                while (to.columns.find((c) => c.name === columnName)) {
-                  const regex = /_(\d+)$/;
-                  const match = columnName.match(regex);
-                  const duplicatedNameCount = match ? parseInt(match[1], 10) + 1 : 1;
-                  columnName = columnName.replace(/_\d+$/, '') + `_${duplicatedNameCount}`;
-                }
-
                 to.columns.push({
                   ...fromCol,
                   name: columnName,
@@ -736,58 +724,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
         //   );2
         // });
 
-        get().setProject({ ...initState, id: projectId, name: projectName, ...project });
-      },
-
-      generateDDL: (schemaName) => {
-        const state = get();
-        const schema = state.schemas.find((s) => s.name === schemaName);
-        if (!schema) return '';
-
-        let ddl = `CREATE SCHEMA ${schema.name};\n\n`;
-
-        schema.tables.forEach((table) => {
-          ddl += `CREATE TABLE ${table.title} (\n`;
-          table.columns.forEach((column, index) => {
-            ddl += `  ${column.name} ${column.type ?? 'TEXT'}${column.nullable ? '' : ' NOT NULL'}`;
-            if (index < table.columns.length - 1) ddl += ',\n';
-          });
-          ddl += `\n);\n\n`;
-        });
-
-        const countConstraintName: Record<string, number> = {};
-
-        schema.tables.forEach((table) => {
-          table.relations
-            .filter((relation) => relation.from === table.id)
-            .map((relation) => ({ ...relation, ddlConstraintName: relation.constraintName.replace(/_\(\w+\)$/, '') }))
-            .map((relation) => {
-              const count = countConstraintName[relation.ddlConstraintName] ?? 0;
-              if (count) countConstraintName[relation.ddlConstraintName] = count + 1;
-              else countConstraintName[relation.ddlConstraintName] = 1;
-              return {
-                ...relation,
-                ddlConstraintName: `${relation.ddlConstraintName}${count ? `_${count + 1}` : ''}`,
-              };
-            })
-            .forEach((relation) => {
-              const fromTable = schema.tables.find((t) => t.id === relation.from);
-              const toTable = schema.tables.find((t) => t.id === relation.to);
-              const columns: { from: string; to: string }[] = [];
-
-              if (fromTable && toTable) {
-                toTable.columns
-                  .filter((c) => c.constraintName === relation.constraintName)
-                  .forEach((toColumn) => {
-                    const fromColumn = fromTable.columns.find((c) => c.id === toColumn.id);
-                    if (fromColumn) columns.push({ from: fromColumn.name, to: toColumn.name });
-                  });
-                ddl += `ALTER TABLE ${toTable.title} ADD CONSTRAINT ${relation.ddlConstraintName} FOREIGN KEY (${columns.map((c) => c.to).join(', ')}) REFERENCES ${fromTable.title}(${columns.map((c) => c.from).join(', ')});\n`;
-              }
-            });
-        });
-
-        return ddl;
+        get().setProject(project);
       },
     })),
   );

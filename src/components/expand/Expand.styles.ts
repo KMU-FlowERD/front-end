@@ -18,8 +18,8 @@ export const styles = {
     gap: 4px;
     cursor: pointer;
     padding-bottom: 2px;
-    border-bottom: ${({ $highlight }) =>
-      $highlight ? '1px solid #eee' : 'none'};
+    border-bottom: ${({ $highlight }) => ($highlight ? '1px solid #eee' : 'none')};
+    margin-bottom: 0.25rem;
 
     span {
       flex: 1;

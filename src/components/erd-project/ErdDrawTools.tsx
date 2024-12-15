@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef } from 'react';
-import { generate } from 'rxjs';
 
 import { styles } from './ErdDrawTools.styles';
 import { ArrowIcon, MemoIcon, PointerIcon, RelationshipIcons, TableIcon } from '../implements-icon';
@@ -74,6 +73,7 @@ export function ErdDrawTools() {
       <div style={{ width: '1px', height: '40px', background: '#444' }} />
       <styles.notationChange onClick={notationChange}>{notation} ↕️</styles.notationChange>
       <button
+        type='button'
         onClick={() => {
           if (schema) {
             navigator.clipboard.writeText(generateDDL(schema.name));
