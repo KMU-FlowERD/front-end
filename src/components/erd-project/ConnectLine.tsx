@@ -160,7 +160,7 @@ function SvgComponent({ relation, relationRef }: ConnectLineProps) {
           y1={line.fromY}
           x2={line.toX}
           y2={line.toY}
-          stroke='#ededed'
+          stroke={relation.id === mapping?.id ? '#f2ff00' : '#ededed'}
           strokeWidth='1'
         />,
       );
@@ -173,7 +173,7 @@ function SvgComponent({ relation, relationRef }: ConnectLineProps) {
           r={circle.radius}
           cx={circle.x}
           cy={circle.y}
-          stroke='#ededed'
+          stroke={relation.id === mapping?.id ? '#f2ff00' : '#ededed'}
           strokeWidth='1'
         />,
       );
@@ -184,7 +184,7 @@ function SvgComponent({ relation, relationRef }: ConnectLineProps) {
         <polygon
           key={Math.random().toString(36).slice(2)}
           points={polygon.positions}
-          stroke='#ededed'
+          stroke={relation.id === mapping?.id ? '#f2ff00' : '#ededed'}
           strokeWidth='1'
           fill='#2f2f2f'
         />,
