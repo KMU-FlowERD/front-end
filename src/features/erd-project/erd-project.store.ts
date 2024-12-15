@@ -341,43 +341,48 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
-            const columnCount: Record<string, number> = {};
             curr.relations
               .filter((relation) => relation.from === curr.id)
               .forEach((relation) => {
                 const toTable = schema.tables.find((t) => t.id === relation.to);
                 if (!toTable) return;
 
+                const columnCount: Record<string, number> = {};
                 toTable.columns = toTable.columns
                   .map((c) =>
                     c.id === column.id && c.constraintName === relation.constraintName
-                      ? { ...c, ...column, keyType: c.keyType }
+                      ? {
+                          ...c,
+                          ...column,
+                          nullable: c.nullable,
+                          constraintName: c.constraintName,
+                          path: c.path,
+                          keyType: c.keyType,
+                        }
                       : c,
                   )
                   .map((c) => {
                     const count = columnCount[c.name] ?? 0;
                     columnCount[c.name] = count + 1;
-                    return c.id === column.id && c.constraintName === relation.constraintName
-                      ? {
-                          ...c,
-                          name: `${c.name}${count ? `_${count + 1}` : ''}`,
-                        }
-                      : c;
+                    return {
+                      ...c,
+                      name: `${c.name}${count ? `_${count}` : ''}`,
+                    };
                   });
+
                 dfs(toTable);
               });
           };
 
           if (column.keyType === 'PK' || column.keyType === 'PK/FK') {
-            target.columns = target.columns.map((c) => (c.id === column.id ? column : c));
+            target.columns = target.columns.map((c) =>
+              c.id === column.id && c.constraintName === column.constraintName ? column : c,
+            );
             dfs(target);
           } else if (column.keyType === 'FK') {
             target.columns = target.columns.map((c) => ({
-              ...(c.id === column.id ? column : c),
-              nullable:
-                c.constraintName === column.constraintName && c.path.join('').startsWith(column.path.join(''))
-                  ? column.nullable
-                  : c.nullable,
+              ...(c.id === column.id && c.constraintName === column.constraintName ? column : c),
+              nullable: c.constraintName === column.constraintName ? column.nullable : c.nullable,
             }));
             const relation = target.relations.find((r) => r.constraintName === column.constraintName);
             if (relation) {

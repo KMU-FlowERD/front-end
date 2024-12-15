@@ -63,6 +63,7 @@ export const styles = {
     display: flex;
     margin-left: 20px;
     flex-direction: column;
-    gap: 8px;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
   `,
 };
