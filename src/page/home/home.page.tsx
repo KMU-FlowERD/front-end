@@ -4,7 +4,7 @@ import { useLayoutEffect } from 'react';
 
 import { styles } from './home.page.styles';
 
-import { Sidebar } from '@/components/home';
+// import { Sidebar } from '@/components/home';
 import { ProjectList } from '@/components/home/project-list';
 import { SignInModal } from '@/components/home/signin';
 import { useAuthStore } from '@/features/auth';
@@ -25,7 +25,7 @@ export function HomePage() {
 
   return (
     <styles.container>
-      <Sidebar />
+      {/* <Sidebar /> */}
       <ProjectList />
       {SignIn}
     </styles.container>

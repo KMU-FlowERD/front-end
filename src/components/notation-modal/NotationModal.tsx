@@ -41,29 +41,21 @@ export function NotationModal({ relations }: { relations: ERDRelation[] }) {
       <styles.middleText>Notation 변환 시 필수 데이터 추가</styles.middleText>
       {relations.map((relation, index) => (
         <styles.relationWrapper key={relation.id}>
-          {`${relation.from.substring(0, 5)}_${relation.to.substring(0, 5)}`}:
+          {`${schema?.tables.find((t) => t.id === relation.from)?.title}->${schema?.tables.find((t) => t.id === relation.to)?.title}`}
+          :
           <Dropdown
             options={['1:1', '1:N']}
-            selected={
-              changeRelations[index].cardinality?.to === 'ONE' ? '1:1' : '1:N'
-            }
+            selected={changeRelations[index].cardinality?.to === 'ONE' ? '1:1' : '1:N'}
             onSelect={(option) => {
               changeRelations[index] = {
                 ...changeRelations[index],
-                cardinality:
-                  option === '1:1'
-                    ? { from: 'ONE', to: 'ONE' }
-                    : { from: 'ONE', to: 'MANY' },
+                cardinality: option === '1:1' ? { from: 'ONE', to: 'ONE' } : { from: 'ONE', to: 'MANY' },
               };
             }}
           />
           <Dropdown
             options={['부분참여', '전체참여']}
-            selected={
-              changeRelations[index].participation.from === 'PARTIAL'
-                ? '부분참여'
-                : '전체참여'
-            }
+            selected={changeRelations[index].participation.from === 'PARTIAL' ? '부분참여' : '전체참여'}
             onSelect={(option) => {
               changeRelations[index] = {
                 ...changeRelations[index],

@@ -15,11 +15,7 @@ export function Columns({ table, columns }: ColumnsProps) {
 
   const { schema } = useDiagramContext();
 
-  const enterNameEdit = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    column: ERDColumn,
-    name: string,
-  ) => {
+  const enterNameEdit = (e: React.KeyboardEvent<HTMLInputElement>, column: ERDColumn, name: string) => {
     if (schema === undefined) return;
 
     if (e.key === 'Enter') {
@@ -27,11 +23,7 @@ export function Columns({ table, columns }: ColumnsProps) {
     }
   };
 
-  const enterTypeEdit = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    column: ERDColumn,
-    type: string,
-  ) => {
+  const enterTypeEdit = (e: React.KeyboardEvent<HTMLInputElement>, column: ERDColumn, type: string) => {
     if (schema === undefined) return;
 
     if (e.key === 'Enter') {
@@ -82,9 +74,7 @@ export function Columns({ table, columns }: ColumnsProps) {
       <styles.notNullText onClick={() => nullableClick(column)}>
         {column.nullable ? 'null' : 'not null'}
       </styles.notNullText>
-      <styles.deleteButton onClick={() => deleteColumnClick(column)}>
-        🗑
-      </styles.deleteButton>
+      <styles.deleteButton onClick={() => deleteColumnClick(column)}>🗑</styles.deleteButton>
     </styles.columnRow>
   ));
 }

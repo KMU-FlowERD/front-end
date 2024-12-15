@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useEffect, useState } from 'react';
 
 interface Position {
@@ -9,10 +10,7 @@ export function useDrag(onPositionChange: (pos: Position) => void) {
   const [dragging, setDragging] = useState(false);
   const [offset, setOffset] = useState<Position>({ left: 0, top: 0 });
 
-  const handleMouseDown = (
-    e: React.MouseEvent,
-    ref: React.RefObject<HTMLDivElement>,
-  ) => {
+  const handleMouseDown = (e: React.MouseEvent, ref: React.RefObject<HTMLDivElement>) => {
     if (ref.current) {
       const rect = ref.current.getBoundingClientRect();
       setDragging(true);
@@ -56,11 +54,14 @@ export function useDrag(onPositionChange: (pos: Position) => void) {
 
 export function useOutsideClick(
   refs: React.RefObject<HTMLElement | SVGElement>[],
+  excludeRefs: React.RefObject<HTMLElement | SVGElement>[],
   callback: () => void,
   active: boolean,
 ) {
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
+      if (excludeRefs.some((ref) => ref.current?.contains(e.target as Node))) return;
+
       if (!refs.some((ref) => ref.current?.contains(e.target as Node))) {
         callback();
       }
@@ -75,7 +76,35 @@ export function useOutsideClick(
     return () => {
       window.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [refs, callback, active]);
+  }, [refs, callback, active, excludeRefs]);
+}
+
+export function useInsideClick(
+  refs: React.RefObject<HTMLElement | SVGElement>[],
+  exceptionRefs: React.RefObject<HTMLElement | SVGElement>[],
+  callback: () => void,
+  active: boolean,
+) {
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        refs.some((ref) => ref.current?.contains(e.target as Node)) &&
+        !exceptionRefs.some((ref) => ref.current?.contains(e.target as Node))
+      ) {
+        callback();
+      }
+    };
+
+    if (active) {
+      window.addEventListener('mousedown', handleClickOutside);
+    } else {
+      window.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      window.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [refs, callback, active, exceptionRefs]);
 }
 
 export function useIconOutsideClick(

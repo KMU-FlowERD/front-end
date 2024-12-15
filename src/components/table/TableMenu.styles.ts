@@ -9,7 +9,7 @@ export const styles = {
     border: 1px solid #444;
     border-radius: 4px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-    z-index: 1;
+    z-index: 3;
   `,
 
   menuItem: styled.div`

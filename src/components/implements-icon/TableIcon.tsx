@@ -6,7 +6,6 @@ import { useRef } from 'react';
 import { styles } from './icon.styles';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { useOutsideClick } from '@/features/erd-page/erd-page.table.hook';
 
 export function TableIcon() {
   const iconRef = useRef<SVGSVGElement | null>(null);
@@ -15,14 +14,6 @@ export function TableIcon() {
   const setEntity = useDrawToolsStore((state) => state.setEntity);
 
   const fill = entity === 'TABLE' ? '#ddd' : '#aaa';
-
-  // useOutsideClick(
-  //   [iconRef],
-  //   () => {
-  //     setEntity('NONE');
-  //   },
-  //   true,
-  // );
 
   return (
     <styles.container
@@ -35,22 +26,9 @@ export function TableIcon() {
   );
 }
 
-function Icon({
-  fill,
-  iconRef,
-}: {
-  fill: string;
-  iconRef: MutableRefObject<SVGSVGElement | null>;
-}) {
+function Icon({ fill, iconRef }: { fill: string; iconRef: MutableRefObject<SVGSVGElement | null> }) {
   return (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      width='24'
-      height='24'
-      viewBox='0 0 475 475'
-      fill='none'
-      ref={iconRef}
-    >
+    <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 475 475' fill='none' ref={iconRef}>
       <g>
         <styles.pathStyle
           d='M461.667,49.963c-8.949-8.947-19.698-13.418-32.265-13.418H45.682c-12.562,0-23.317,4.471-32.264,13.418

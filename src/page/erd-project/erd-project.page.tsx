@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { useRef, useState } from 'react';
 
 import { styles } from './erd-project.page.styles';
 
@@ -50,6 +49,8 @@ function ErdProjectPageProvider() {
 
   const notation = useDrawToolsStore((state) => state.notation);
 
+  const relationshipInformationRef = useRef<HTMLDivElement | null>(null);
+
   const projectMaxDistance = 300;
 
   const childTables = new Set<string>();
@@ -57,11 +58,12 @@ function ErdProjectPageProvider() {
   if (projectWidth === undefined || projectHeight === undefined)
     return (
       <styles.displayWrapper>
-        <Relationship />
+        <Relationship relationRef={relationshipInformationRef} />
         {tables?.map((table) => (
           <Table
             key={table.id}
             table={table}
+            highlight={lastTable?.id === table.id}
             child={childTables.has(table.id)}
             onClick={TableClick}
             onPositionChange={onPositionChange}
@@ -70,7 +72,7 @@ function ErdProjectPageProvider() {
         <styles.container>
           <TableInformation />
           <ErdDrawTools />
-          <RelationshipInformation />
+          <RelationshipInformation relationshipRef={relationshipInformationRef} />
         </styles.container>
       </styles.displayWrapper>
     );
@@ -157,11 +159,11 @@ function ErdProjectPageProvider() {
     setLastTable(undefined);
     setMapping(undefined);
 
-    // const duplicationLength = table.relations.filter((relation) =>
-    //   relation.constraintName.includes(`FK_${table.title}_${lastTable.title}`),
-    // ).length;
+    const duplicationLength = table.relations.filter((relation) =>
+      relation.constraintName.includes(`FK_${table.title}_${lastTable.title}`),
+    ).length;
 
-    const constraintName = `FK_${table.title}_${lastTable.title}_${uuidv4()}`;
+    const constraintName = `FK_${table.title}_${lastTable.title}${duplicationLength > 0 ? `_${duplicationLength.toString()}` : ''}`;
 
     if (notation === 'IDEF1X') {
       createRelation(schema.name, {
@@ -207,6 +209,17 @@ function ErdProjectPageProvider() {
       left: (lastTable.left + table.left) / 2,
     });
 
+    const duplicationLengthFirst = table.relations.filter((relation) =>
+      relation.constraintName.includes(`FK_${mappingTable.title}_${lastTable.title}`),
+    ).length;
+
+    const duplicationLengthLast = table.relations.filter((relation) =>
+      relation.constraintName.includes(`FK_${mappingTable.title}_${table.title}`),
+    ).length;
+
+    const firstConstraint = `FK_${mappingTable.title}_${lastTable.title}${duplicationLength > 0 ? `_${duplicationLengthFirst.toString()}` : ''}`;
+    const lastConstraint = `FK_${mappingTable.title}_${table.title}${duplicationLength > 0 ? `_${duplicationLengthLast.toString()}` : ''}`;
+
     createRelation(schema.name, {
       id: Math.random().toString(36).slice(2),
       from: lastTable.id,
@@ -214,7 +227,7 @@ function ErdProjectPageProvider() {
       cardinality: { from: 'ONE', to: 'MANY' },
       identify: lastTable.id === table.id ? false : mapping.identify,
       participation: { from: 'FULL', to: 'FULL' },
-      constraintName,
+      constraintName: firstConstraint,
     });
 
     createRelation(schema.name, {
@@ -224,17 +237,18 @@ function ErdProjectPageProvider() {
       cardinality: { from: 'ONE', to: 'MANY' },
       identify: lastTable.id === table.id ? false : mapping.identify,
       participation: { from: 'FULL', to: 'FULL' },
-      constraintName,
+      constraintName: lastConstraint,
     });
   };
 
   return (
     <styles.displayWrapper onClick={displayClicked} $pos={{ width: projectWidth, height: projectHeight }}>
-      <Relationship />
+      <Relationship relationRef={relationshipInformationRef} />
       {tables?.map((table) => (
         <Table
           key={table.id}
           table={table}
+          highlight={lastTable?.id === table.id}
           child={childTables.has(table.id)}
           onClick={TableClick}
           onPositionChange={onPositionChange}
@@ -243,7 +257,7 @@ function ErdProjectPageProvider() {
       <styles.container>
         <TableInformation />
         <ErdDrawTools />
-        <RelationshipInformation />
+        <RelationshipInformation relationshipRef={relationshipInformationRef} />
       </styles.container>
     </styles.displayWrapper>
   );

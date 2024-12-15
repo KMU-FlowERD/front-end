@@ -12,21 +12,12 @@ import { NonIdentifyOneToOneIcon } from './NonIdentifyOneToOneIcon';
 
 import type { MappingType } from '@/features/draw-tools';
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { useOutsideClick } from '@/features/erd-page/erd-page.table.hook';
 
 export function RelationshipIcons({ type }: { type: MappingType }) {
   const iconRef = useRef<SVGRectElement | null>(null);
 
   const mapping = useDrawToolsStore((state) => state.mapping);
   const setMapping = useDrawToolsStore((state) => state.setMapping);
-
-  // useOutsideClick(
-  //   [iconRef],
-  //   () => {
-  //     setMapping(undefined);
-  //   },
-  //   true,
-  // );
 
   const fill =
     mapping?.identify === type.identify &&
@@ -50,10 +41,8 @@ export function RelationshipIcons({ type }: { type: MappingType }) {
 function Icon({ mapping, fill }: { mapping: MappingType; fill: string }) {
   const { identify, cardinality } = mapping;
 
-  if (identify && cardinality.from === 'ONE' && cardinality.to === 'ONE')
-    return <IdentifyOneToOneIcon fill={fill} />;
-  if (identify && cardinality.from === 'ONE' && cardinality.to === 'MANY')
-    return <IdentifyOneToManyIcon fill={fill} />;
+  if (identify && cardinality.from === 'ONE' && cardinality.to === 'ONE') return <IdentifyOneToOneIcon fill={fill} />;
+  if (identify && cardinality.from === 'ONE' && cardinality.to === 'MANY') return <IdentifyOneToManyIcon fill={fill} />;
   if (identify && cardinality.from === 'MANY' && cardinality.to === 'MANY')
     return <IdentifyManyToManyIcon fill={fill} />;
   if (!identify && cardinality.from === 'ONE' && cardinality.to === 'ONE')

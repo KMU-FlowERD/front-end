@@ -20,7 +20,7 @@ export const styles = {
     flex-direction: row;
   `,
 
-  container: styled.div<{ $child: boolean }>`
+  container: styled.div<{ $child: boolean; $highlight: boolean }>`
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -28,6 +28,7 @@ export const styles = {
     min-height: 30px;
     border: 0.5px solid #606060;
     border-radius: ${({ $child }) => ($child ? `4px` : `0px`)};
+    border: ${({ $highlight }) => ($highlight ? '1px solid #eee' : 'none')};
     background: rgba(34, 34, 34, 0.7);
     padding: 10px;
     cursor: pointer;
