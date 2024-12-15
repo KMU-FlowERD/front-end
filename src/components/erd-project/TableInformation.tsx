@@ -11,7 +11,13 @@ import { useInsideClick } from '@/features/erd-page/erd-page.table.hook';
 import { useERDProjectStore } from '@/providers';
 import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 
-export function TableInformation() {
+export function TableInformation({
+  tableId,
+  setHighlightTableId,
+}: {
+  tableId: string;
+  setHighlightTableId: (id: string) => void;
+}) {
   const boxRef = useRef<HTMLDivElement | null>(null);
 
   const schemas = useERDProjectStore((state) => state.schemas);
@@ -126,7 +132,16 @@ export function TableInformation() {
             >
               <styles.childMargin>
                 {diagram.tables.map((table) => (
-                  <div key={table.id + table.id}>{table.title}</div>
+                  // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+                  <div
+                    key={table.id + table.id}
+                    onClick={() => {
+                      setHighlightTableId(table.id);
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {tableId === table.id ? <strong>{table.title}</strong> : table.title}
+                  </div>
                 ))}
               </styles.childMargin>
             </Expand>

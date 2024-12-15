@@ -9,6 +9,7 @@ import { Relationship } from '@/components/erd-project/Relationship';
 import { Table } from '@/components/table';
 import { useDrawToolsStore } from '@/features/draw-tools';
 import { useCanvasSize, usePageMove } from '@/features/erd-page';
+import { useOutsideClick } from '@/features/erd-page/erd-page.table.hook';
 import type { ERDTable, WithPosition } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 import { DiagramChooseProvider, useDiagramContext } from '@/providers/DiagramChooseProvider';
@@ -55,6 +56,10 @@ function ErdProjectPageProvider() {
 
   const childTables = new Set<string>();
 
+  const [hightlightTableId, setHighlightTableId] = useState<string>('');
+
+  useOutsideClick([], [], () => setHighlightTableId(''), true);
+
   if (projectWidth === undefined || projectHeight === undefined)
     return (
       <styles.displayWrapper>
@@ -63,14 +68,14 @@ function ErdProjectPageProvider() {
           <Table
             key={table.id}
             table={table}
-            highlight={lastTable?.id === table.id}
+            highlight={lastTable?.id === table.id || hightlightTableId === table.id}
             child={childTables.has(table.id)}
             onClick={TableClick}
             onPositionChange={onPositionChange}
           />
         ))}
         <styles.container>
-          <TableInformation />
+          <TableInformation tableId={hightlightTableId} setHighlightTableId={setHighlightTableId} />
           <ErdDrawTools />
           <RelationshipInformation relationshipRef={relationshipInformationRef} />
         </styles.container>
@@ -248,14 +253,14 @@ function ErdProjectPageProvider() {
         <Table
           key={table.id}
           table={table}
-          highlight={lastTable?.id === table.id}
+          highlight={lastTable?.id === table.id || hightlightTableId === table.id}
           child={childTables.has(table.id)}
           onClick={TableClick}
           onPositionChange={onPositionChange}
         />
       ))}
       <styles.container>
-        <TableInformation />
+        <TableInformation tableId={hightlightTableId} setHighlightTableId={setHighlightTableId} />
         <ErdDrawTools />
         <RelationshipInformation relationshipRef={relationshipInformationRef} />
       </styles.container>
