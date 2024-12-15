@@ -414,7 +414,12 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
 
               rel.participation.to = column.nullable ? 'PARTIAL' : 'FULL';
             }
+          } else {
+            target.columns = target.columns.map((c) =>
+              c.id === column.id && c.constraintName === column.constraintName ? column : c,
+            );
           }
+
           get().updateTableInDiagram(schema);
           saveToLocalStorage(state.id, state);
         }),
