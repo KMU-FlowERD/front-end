@@ -14,7 +14,6 @@ import type {
 } from './erd-project.type';
 
 import { loadFromLocalStorage, saveToLocalStorage } from '@/shared/storage';
-import { totalmem } from 'os';
 
 export type ERDProjectState = ERDProject;
 
@@ -342,27 +341,29 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
             if (visited[curr.id]) return;
             visited[curr.id] = true;
 
+            const columnCount: Record<string, number> = {};
             curr.relations
               .filter((relation) => relation.from === curr.id)
               .forEach((relation) => {
                 const toTable = schema.tables.find((t) => t.id === relation.to);
                 if (!toTable) return;
 
-                toTable.columns = toTable.columns.map((c) => ({
-                  ...(c.id === column.id ? column : c),
-                  keyType:
-                    c.constraintName === relation.constraintName &&
-                    c.path.join('').startsWith(column.path.join('')) &&
-                    relation.identify
-                      ? 'PK/FK'
-                      : 'FK',
-                  nullable:
-                    c.constraintName === relation.constraintName &&
-                    c.path.join('').startsWith(column.path.join('')) &&
-                    relation.identify
-                      ? false
-                      : column.nullable,
-                }));
+                toTable.columns = toTable.columns
+                  .map((c) =>
+                    c.id === column.id && c.constraintName === relation.constraintName
+                      ? { ...c, ...column, keyType: c.keyType }
+                      : c,
+                  )
+                  .map((c) => {
+                    const count = columnCount[c.name] ?? 0;
+                    columnCount[c.name] = count + 1;
+                    return c.id === column.id && c.constraintName === relation.constraintName
+                      ? {
+                          ...c,
+                          name: `${c.name}${count ? `_${count + 1}` : ''}`,
+                        }
+                      : c;
+                  });
                 dfs(toTable);
               });
           };
@@ -468,11 +469,12 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
                   return;
 
                 let columnName = fromCol.name;
-                while (toTable.columns.find((c) => c.name === columnName)) {
+                const existingColumnNames = new Set(toTable.columns.map((c) => c.name));
+                while (existingColumnNames.has(columnName)) {
                   const regex = /_(\d+)$/;
                   const match = columnName.match(regex);
                   const duplicatedNameCount = match ? parseInt(match[1], 10) + 1 : 1;
-                  columnName = columnName.replace(/_\d+$/, '') + `_${duplicatedNameCount}`;
+                  columnName = `${columnName.replace(/_\d+$/, '')}_${duplicatedNameCount}`;
                 }
 
                 toTable.columns.push({
@@ -502,11 +504,12 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
               )
               .forEach((fromCol) => {
                 let columnName = fromCol.name;
-                while (to.columns.find((c) => c.name === columnName)) {
+                const existingColumnNames = new Set(to.columns.map((c) => c.name));
+                while (existingColumnNames.has(columnName)) {
                   const regex = /_(\d+)$/;
                   const match = columnName.match(regex);
                   const duplicatedNameCount = match ? parseInt(match[1], 10) + 1 : 1;
-                  columnName = columnName.replace(/_\d+$/, '') + `_${duplicatedNameCount}`;
+                  columnName = `${columnName.replace(/_\d+$/, '')}_${duplicatedNameCount}`;
                 }
 
                 to.columns.push({
@@ -750,41 +753,28 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
           ddl += `CREATE TABLE ${table.title} (\n`;
           table.columns.forEach((column, index) => {
             ddl += `  ${column.name} ${column.type ?? 'TEXT'}${column.nullable ? '' : ' NOT NULL'}`;
-            if (index < table.columns.length - 1) ddl += ',\n';
+            if (index < table.columns.length - 1 || table.relations.length > 0) ddl += ',\n';
           });
-          ddl += `\n);\n\n`;
-        });
 
-        const countConstraintName: Record<string, number> = {};
-
-        schema.tables.forEach((table) => {
           table.relations
             .filter((relation) => relation.from === table.id)
-            .map((relation) => ({ ...relation, ddlConstraintName: relation.constraintName.replace(/_\(\w+\)$/, '') }))
-            .map((relation) => {
-              const count = countConstraintName[relation.ddlConstraintName] ?? 0;
-              if (count) countConstraintName[relation.ddlConstraintName] = count + 1;
-              else countConstraintName[relation.ddlConstraintName] = 1;
-              return {
-                ...relation,
-                ddlConstraintName: `${relation.ddlConstraintName}${count ? `_${count + 1}` : ''}`,
-              };
-            })
-            .forEach((relation) => {
-              const fromTable = schema.tables.find((t) => t.id === relation.from);
+            .forEach((relation, index) => {
               const toTable = schema.tables.find((t) => t.id === relation.to);
-              const columns: { from: string; to: string }[] = [];
-
-              if (fromTable && toTable) {
+              if (toTable) {
+                const columns: { from: string; to: string }[] = [];
                 toTable.columns
                   .filter((c) => c.constraintName === relation.constraintName)
                   .forEach((toColumn) => {
-                    const fromColumn = fromTable.columns.find((c) => c.id === toColumn.id);
+                    const fromColumn = table.columns.find((c) => c.id === toColumn.id);
                     if (fromColumn) columns.push({ from: fromColumn.name, to: toColumn.name });
                   });
-                ddl += `ALTER TABLE ${toTable.title} ADD CONSTRAINT ${relation.ddlConstraintName} FOREIGN KEY (${columns.map((c) => c.to).join(', ')}) REFERENCES ${fromTable.title}(${columns.map((c) => c.from).join(', ')});\n`;
+
+                ddl += `  CONSTRAINT ${relation.constraintName} FOREIGN KEY (${columns.map((c) => c.to).join(', ')}) REFERENCES ${table.title}(${columns.map((c) => c.from).join(', ')})`;
+                if (index < table.relations.length - 1) ddl += ',\n';
               }
             });
+
+          ddl += `\n);\n\n`;
         });
 
         return ddl;
