@@ -109,7 +109,7 @@ export function useOutsideClickTag(
     return () => {
       window.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [refs, callback, active, excludeRefs]);
+  }, [refs, callback, active, excludeRefs, excludedTagNames]);
 }
 
 export function useInsideClick(
