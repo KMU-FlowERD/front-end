@@ -319,7 +319,7 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
             const to = schema.tables.find((t) => t.id === curr.to);
             if (!to) return;
 
-            const columnCount = target.columns.filter((col) => col.name.startsWith(column.name));
+            const columnCount = to.columns.filter((col) => col.name.startsWith(column.name));
             to.columns.push({
               ...column,
               name: columnCount.length ? `${column.name}_${columnCount.length}` : column.name,
