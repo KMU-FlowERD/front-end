@@ -26,11 +26,15 @@ export interface ERDProjectAction {
 
   updateSchema: (schema: ERDSchema) => void;
 
+  changeSchemaName: (schema: ERDSchema, name: string) => void;
+
   deleteSchema: (schemaName: ERDSchema['name']) => void;
 
   createDiagram: (schemaName: ERDSchema['name'], diagram: ERDDiagram) => void;
 
   updateDiagram: (schemaName: ERDSchema['name'], diagram: ERDDiagram) => void;
+
+  changeDiagramName: (schemaName: ERDSchema['name'], diagram: ERDDiagram, name: string) => void;
 
   deleteDiagram: (schemaName: ERDSchema['name'], diagramName: ERDDiagram['name']) => void;
 
@@ -148,6 +152,12 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
           saveToLocalStorage(state.id, state);
         }),
 
+      changeSchemaName: (schema, name) =>
+        set((state) => {
+          state.schemas = state.schemas.map((s) => (s.name === schema.name ? { ...s, name } : s));
+          saveToLocalStorage(state.id, state);
+        }),
+
       deleteSchema: (schemaName) =>
         set((state) => {
           state.schemas = state.schemas.filter((s) => s.name !== schemaName);
@@ -165,6 +175,13 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
         set((state) => {
           const schema = state.schemas.find((s) => s.name === schemaName);
           if (schema) schema.diagrams = schema.diagrams.map((d) => (d.name === diagram.name ? diagram : d));
+          saveToLocalStorage(state.id, state);
+        }),
+
+      changeDiagramName: (schemaName, diagram, name) =>
+        set((state) => {
+          const schema = state.schemas.find((s) => s.name === schemaName);
+          if (schema) schema.diagrams = schema.diagrams.map((d) => (d.name === diagram.name ? { ...d, name } : d));
           saveToLocalStorage(state.id, state);
         }),
 

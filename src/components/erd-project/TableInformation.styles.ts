@@ -66,4 +66,13 @@ export const styles = {
     gap: 0.75rem;
     margin-bottom: 1.5rem;
   `,
+
+  editInput: styled.input`
+    all: unset;
+    font-size: 14px;
+    background-color: #444;
+    width: 100%;
+    padding: 0 0.5rem;
+    border-radius: 4px;
+  `,
 };

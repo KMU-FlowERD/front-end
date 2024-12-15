@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { styles } from './Expand.styles';
 
 interface ExpandProps {
-  text: string;
+  text: string | ReactNode;
   children: undefined | ReactNode;
   deleteIcon: boolean;
   highlight: boolean;
@@ -29,7 +29,7 @@ export function Expand({ text, children, deleteIcon, highlight, onClick, onDelet
     <styles.displayWrapper>
       <styles.mainNode onClick={handleClick} $highlight={highlight}>
         <ExpandIcon open={open} />
-        <span>{text}</span>
+        {text}
         {deleteIcon && <styles.deleteButton onClick={onDelete}>🗑</styles.deleteButton>}
       </styles.mainNode>
       <styles.childNode>{open && children}</styles.childNode>

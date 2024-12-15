@@ -8,6 +8,7 @@ import { Expand } from '../expand/Expand';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
 import { useInsideClick } from '@/features/erd-page/erd-page.table.hook';
+import type { ERDDiagram, ERDSchema } from '@/features/erd-project';
 import { useERDProjectStore } from '@/providers';
 import { useDiagramContext } from '@/providers/DiagramChooseProvider';
 
@@ -24,12 +25,20 @@ export function TableInformation({
 
   const createSchema = useERDProjectStore((state) => state.createSchema);
   const deleteSchema = useERDProjectStore((state) => state.deleteSchema);
+  const changeSchemaName = useERDProjectStore((state) => state.changeSchemaName);
 
   const createDiagram = useERDProjectStore((state) => state.createDiagram);
   const deleteDiagram = useERDProjectStore((state) => state.deleteDiagram);
+  const changeDiagramName = useERDProjectStore((state) => state.changeDiagramName);
 
   const setEntity = useDrawToolsStore((state) => state.setEntity);
   const setMapping = useDrawToolsStore((state) => state.setMapping);
+
+  const [chooseEditDiagram, setChooseEditDiagram] = useState<string>('');
+  const [changedDiagramName, setChangedDiagramName] = useState<string>('');
+
+  const [chooseEditSchema, setChooseEditSchema] = useState<string>('');
+  const [changedSchemaName, setChangedSchemaName] = useState<string>('');
 
   useInsideClick(
     [boxRef],
@@ -77,6 +86,30 @@ export function TableInformation({
     setDiagramName(diagrmaName);
   };
 
+  const blurSchemaName = (schema: ERDSchema) => {
+    changeSchemaName(schema, changedSchemaName);
+    setChooseEditSchema('');
+  };
+
+  const enterSchemaName = (schema: ERDSchema, key: string) => {
+    if (key === 'Enter') {
+      changeSchemaName(schema, changedSchemaName);
+      setChooseEditSchema('');
+    }
+  };
+
+  const blurDiagramName = (schema: ERDSchema, diagram: ERDDiagram) => {
+    changeDiagramName(schema.name, diagram, changedDiagramName);
+    setChooseEditDiagram('');
+  };
+
+  const enterDiagramName = (schema: ERDSchema, diagram: ERDDiagram, key: string) => {
+    if (key === 'Enter') {
+      changeDiagramName(schema.name, diagram, changedDiagramName);
+      setChooseEditDiagram('');
+    }
+  };
+
   return (
     <styles.container ref={boxRef}>
       <styles.buttonWrapper>
@@ -92,7 +125,28 @@ export function TableInformation({
       {schemas.map((schema) => (
         <Expand
           key={schema.name}
-          text={schema.name}
+          text={
+            chooseEditSchema === schema.name ? (
+              <styles.editInput
+                type='text'
+                onChange={(e) => {
+                  setChangedSchemaName(e.target.value);
+                }}
+                defaultValue={schema.name}
+                onKeyDown={(e) => enterSchemaName(schema, e.key)}
+                onBlur={() => blurSchemaName(schema)}
+              />
+            ) : (
+              <span
+                onDoubleClick={() => {
+                  setChangedSchemaName(schema.name);
+                  setChooseEditSchema(schema.name);
+                }}
+              >
+                {schema.name}
+              </span>
+            )
+          }
           deleteIcon
           highlight={schema.name === chooseSchemaName}
           onClick={() => {
@@ -119,7 +173,28 @@ export function TableInformation({
           {schema.diagrams.map((diagram) => (
             <Expand
               key={diagram.name}
-              text={diagram.name}
+              text={
+                chooseEditDiagram === diagram.name ? (
+                  <styles.editInput
+                    type='text'
+                    onChange={(e) => {
+                      setChangedDiagramName(e.target.value);
+                    }}
+                    defaultValue={diagram.name}
+                    onKeyDown={(e) => enterDiagramName(schema, diagram, e.key)}
+                    onBlur={() => blurDiagramName(schema, diagram)}
+                  />
+                ) : (
+                  <span
+                    onDoubleClick={() => {
+                      setChangedDiagramName(diagram.name);
+                      setChooseEditDiagram(diagram.name);
+                    }}
+                  >
+                    {diagram.name}
+                  </span>
+                )
+              }
               deleteIcon
               highlight={diagram.name === chooseDiagram?.name}
               onClick={() => {
