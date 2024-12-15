@@ -5,7 +5,6 @@ export const styles = {
     display: flex;
     align-items: center;
     padding-bottom: 8px;
-    gap: 5px;
   `,
 
   input: styled.input`
@@ -34,9 +33,11 @@ export const styles = {
   `,
 
   notNullText: styled.div`
+    white-space: nowrap;
     margin-left: auto;
     color: #ededed;
     font-size: 14px;
     margin-right: 5px;
+    cursor: pointer;
   `,
 };

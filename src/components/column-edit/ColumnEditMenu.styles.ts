@@ -11,6 +11,7 @@ export const styles = {
     z-index: 3;
     left: ${({ $left }) => `${$left}px`};
     top: ${({ $top }) => `${$top}px`};
+    width: fit-content;
   `,
 
   title: styled.input`

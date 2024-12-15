@@ -26,5 +26,6 @@ export const styles = {
     color: #ededed;
     font-size: 14px;
     margin-right: 5px;
+    cursor: pointer;
   `,
 };
