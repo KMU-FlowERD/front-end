@@ -13,6 +13,8 @@ import type {
   WithPosition,
 } from './erd-project.type';
 
+import { loadFromLocalStorage, saveToLocalStorage } from '@/shared/storage';
+
 export type ERDProjectState = ERDProject;
 
 export interface ERDProjectAction {
@@ -471,6 +473,15 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
                 )
                   return;
 
+                let columnName = fromCol.name;
+                const existingColumnNames = new Set(toTable.columns.map((c) => c.name));
+                while (existingColumnNames.has(columnName)) {
+                  const regex = /_(\d+)$/;
+                  const match = columnName.match(regex);
+                  const duplicatedNameCount = match ? parseInt(match[1], 10) + 1 : 1;
+                  columnName = `${columnName.replace(/_\d+$/, '')}_${duplicatedNameCount}`;
+                }
+
                 toTable.columns.push({
                   ...fromCol,
                   name: columnName,
@@ -497,6 +508,15 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
                   ),
               )
               .forEach((fromCol) => {
+                let columnName = fromCol.name;
+                const existingColumnNames = new Set(to.columns.map((c) => c.name));
+                while (existingColumnNames.has(columnName)) {
+                  const regex = /_(\d+)$/;
+                  const match = columnName.match(regex);
+                  const duplicatedNameCount = match ? parseInt(match[1], 10) + 1 : 1;
+                  columnName = `${columnName.replace(/_\d+$/, '')}_${duplicatedNameCount}`;
+                }
+
                 to.columns.push({
                   ...fromCol,
                   name: columnName,
@@ -724,7 +744,45 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
         //   );2
         // });
 
-        get().setProject(project);
+        get().setProject({ ...initState, id: projectId, name: projectName, ...project });
+      },
+
+      generateDDL: (schemaName) => {
+        const state = get();
+        const schema = state.schemas.find((s) => s.name === schemaName);
+        if (!schema) return '';
+
+        let ddl = `CREATE SCHEMA ${schema.name};\n\n`;
+
+        schema.tables.forEach((table) => {
+          ddl += `CREATE TABLE ${table.title} (\n`;
+          table.columns.forEach((column, index) => {
+            ddl += `  ${column.name} ${column.type ?? 'TEXT'}${column.nullable ? '' : ' NOT NULL'}`;
+            if (index < table.columns.length - 1 || table.relations.length > 0) ddl += ',\n';
+          });
+
+          table.relations
+            .filter((relation) => relation.from === table.id)
+            .forEach((relation, index) => {
+              const toTable = schema.tables.find((t) => t.id === relation.to);
+              if (toTable) {
+                const columns: { from: string; to: string }[] = [];
+                toTable.columns
+                  .filter((c) => c.constraintName === relation.constraintName)
+                  .forEach((toColumn) => {
+                    const fromColumn = table.columns.find((c) => c.id === toColumn.id);
+                    if (fromColumn) columns.push({ from: fromColumn.name, to: toColumn.name });
+                  });
+
+                ddl += `  CONSTRAINT ${relation.constraintName} FOREIGN KEY (${columns.map((c) => c.to).join(', ')}) REFERENCES ${table.title}(${columns.map((c) => c.from).join(', ')})`;
+                if (index < table.relations.length - 1) ddl += ',\n';
+              }
+            });
+
+          ddl += `\n);\n\n`;
+        });
+
+        return ddl;
       },
     })),
   );
