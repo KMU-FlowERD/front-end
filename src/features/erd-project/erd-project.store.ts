@@ -654,96 +654,6 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
         const response = await getProjectAll({ projectId });
         const { projectName } = response.data.projectReturns[0];
 
-        // const keyTypeMap: Record<string, ERDColumn['keyType']> = {
-        //   PRIMARY_KEY: 'PK',
-        //   PRIMARY_KEY_AND_FOREIGN_KEY: 'PK/FK',
-        //   FOREIGN_KEY: 'FK',
-        //   NORMAL: undefined,
-        // };
-
-        // const project: ERDProject = {
-        //   id: projectData.projectReturns[0].id,
-        //   name: projectData.projectReturns[0].projectName,
-        //   schemas: projectData.projectReturns[0].schemaReturns.map((schema) => ({
-        //     name: schema.schemaName,
-        //     tables: schema.tableReturns.map((table) => ({
-        //       id: table.id,
-        //       title: table.tableName,
-        //       width: 0,
-        //       height: 0,
-        //       columns: table.columns.map((column) => ({
-        //         id: column.id,
-        //         name: column.columnName,
-        //         nullable: column.nullable,
-        //         keyType: keyTypeMap[column.isKey],
-        //         type: column.dataType,
-        //         constraintName: column.constraintName,
-        //         path: JSON.parse(column.path),
-        //       })),
-        //       relations: table.constraints.map((constraint) => ({
-        //         id: constraint.id,
-        //         from: constraint.parentTableId,
-        //         to: constraint.childTableId,
-        //         cardinality: {
-        //           from: constraint.parentCardinality as Cardinality,
-        //           to: constraint.childCardinality as Cardinality,
-        //         },
-        //         identify: constraint.relType === 'IDENTIFYING',
-        //         participation: {
-        //           from: constraint.parentParticipation as Participation,
-        //           to: constraint.childParticipation as Participation,
-        //         },
-        //         constraintName: constraint.id,
-        //       })),
-        //     })),
-        //     diagrams: [],
-        //   })),
-        // };
-
-        // const diagrams = projectData.projectDrawReturns[0].diagramReturns.map((draw) => ({
-        //   name: draw.id,
-        //   width: draw.pixel_x,
-        //   height: draw.pixel_y,
-        //   tables: draw.tables.map((table) => ({
-        //     id: table.id,
-        //     title: table.tableName,
-        //     width: 0,
-        //     height: 0,
-        //     top: table.pos_x,
-        //     left: table.pos_y,
-        //     columns: table.columns.map((column) => ({
-        //       id: column.id,
-        //       name: column.columnName,
-        //       nullable: column.nullable,
-        //       keyType: keyTypeMap[column.isKey],
-        //       type: column.dataType,
-        //       constraintName: column.constraintName,
-        //       path: JSON.parse(column.path),
-        //     })),
-        //     relations: table.constraints.map((constraint) => ({
-        //       id: constraint.id,
-        //       from: constraint.parentTableId,
-        //       to: constraint.childTableId,
-        //       cardinality: {
-        //         from: constraint.parentCardinality as Cardinality,
-        //         to: constraint.childCardinality as Cardinality,
-        //       },
-        //       identify: constraint.relType === 'IDENTIFYING',
-        //       participation: {
-        //         from: constraint.parentParticipation as Participation,
-        //         to: constraint.childParticipation as Participation,
-        //       },
-        //       constraintName: constraint.id,
-        //     })),
-        //   })),
-        // }));
-
-        // project.schemas.forEach((schema) => {
-        //   schema.diagrams = diagrams.filter((diagram) =>
-        //     diagram.tables.some((table) => schema.tables.some((t) => t.id === table.id)),
-        //   );2
-        // });
-
         get().setProject({ ...initState, id: projectId, name: projectName, ...project });
       },
 
@@ -755,17 +665,24 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
         let ddl = `CREATE SCHEMA ${schema.name};\n\n`;
 
         schema.tables.forEach((table) => {
-          ddl += `CREATE TABLE ${table.title} (\n`;
+          ddl += `-- ${table.title} 테이블\n`;
+          ddl += `CREATE TABLE ${schema.name}.${table.title} (\n`;
           table.columns.forEach((column, index) => {
-            ddl += `  ${column.name} ${column.type ?? 'TEXT'}${column.nullable ? '' : ' NOT NULL'}`;
-            if (index < table.columns.length - 1 || table.relations.length > 0) ddl += ',\n';
+            ddl += `    ${column.name} ${column.type ?? 'TEXT'}${column.nullable ? '' : ' NOT NULL'}`;
+            if (index < table.columns.length - 1) ddl += ',\n';
           });
 
-          table.relations
-            .filter((relation) => relation.from === table.id)
-            .forEach((relation, index) => {
+          const primaryKeys = table.columns.filter((column) => column.keyType === 'PK' || column.keyType === 'PK/FK');
+          if (primaryKeys.length > 0) {
+            ddl += `,\n    PRIMARY KEY (${primaryKeys.map((pk) => pk.name).join(', ')})`;
+          }
+
+          const foreignKeys = table.relations
+            .filter((relation) => relation.to === table.id)
+            .map((relation) => {
+              const fromTable = schema.tables.find((t) => t.id === relation.from);
               const toTable = schema.tables.find((t) => t.id === relation.to);
-              if (toTable) {
+              if (fromTable && toTable) {
                 const columns: { from: string; to: string }[] = [];
                 toTable.columns
                   .filter((c) => c.constraintName === relation.constraintName)
@@ -774,10 +691,15 @@ export const createERDProjectStore = (initState: ERDProject = defaultInitState) 
                     if (fromColumn) columns.push({ from: fromColumn.name, to: toColumn.name });
                   });
 
-                ddl += `  CONSTRAINT ${relation.constraintName} FOREIGN KEY (${columns.map((c) => c.to).join(', ')}) REFERENCES ${table.title}(${columns.map((c) => c.from).join(', ')})`;
-                if (index < table.relations.length - 1) ddl += ',\n';
+                return `    CONSTRAINT ${relation.constraintName} FOREIGN KEY (${columns.map((c) => c.to).join(', ')}) REFERENCES ${schema.name}.${fromTable.title}(${columns.map((c) => c.from).join(', ')})`;
               }
-            });
+              return '';
+            })
+            .filter((fk) => fk !== '');
+
+          if (foreignKeys.length > 0) {
+            ddl += `,\n${foreignKeys.join(',\n')}`;
+          }
 
           ddl += `\n);\n\n`;
         });
