@@ -79,6 +79,39 @@ export function useOutsideClick(
   }, [refs, callback, active, excludeRefs]);
 }
 
+export function useOutsideClickTag(
+  refs: React.RefObject<HTMLElement | SVGElement>[],
+  excludeRefs: React.RefObject<HTMLElement | SVGElement>[],
+  callback: () => void,
+  active: boolean,
+  excludedTagNames: string[] = [],
+) {
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      const targetTagName = (e.target as HTMLElement).tagName.toLowerCase();
+
+      if (excludedTagNames.includes(targetTagName)) return;
+
+      if (excludeRefs.some((ref) => ref.current?.contains(target))) return;
+
+      if (!refs.some((ref) => ref.current?.contains(target))) {
+        callback();
+      }
+    };
+
+    if (active) {
+      window.addEventListener('mousedown', handleClickOutside);
+    } else {
+      window.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      window.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [refs, callback, active, excludeRefs]);
+}
+
 export function useInsideClick(
   refs: React.RefObject<HTMLElement | SVGElement>[],
   exceptionRefs: React.RefObject<HTMLElement | SVGElement>[],

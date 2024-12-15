@@ -4,7 +4,7 @@ import type { JSX, RefObject } from 'react';
 import React, { useRef } from 'react';
 
 import { useDrawToolsStore } from '@/features/draw-tools';
-import { useOutsideClick } from '@/features/erd-page/erd-page.table.hook';
+import { useOutsideClickTag } from '@/features/erd-page/erd-page.table.hook';
 import type { ERDRelation } from '@/features/erd-project';
 import {
   getDrawLines,
@@ -41,13 +41,14 @@ function SvgComponent({ relation, relationRef }: ConnectLineProps) {
 
   const ref = useRef<SVGLineElement | null>(null);
 
-  useOutsideClick(
+  useOutsideClickTag(
     [ref],
     [relationRef],
     () => {
       setMappingId(undefined);
     },
     true,
+    ['line'],
   );
 
   if (diagram === undefined) return null;
