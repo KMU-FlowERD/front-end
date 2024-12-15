@@ -65,11 +65,11 @@ function TableConsumer({ table, child, highlight, onClick, onPositionChange }: T
     .sort((a, b) => (a.constraintName || '').localeCompare(b.constraintName || ''));
   const pkfkColumns = table.columns
     .filter((val) => val.keyType === 'PK/FK')
-    .filter((column, index, self) => index === self.findIndex((c) => c.id === column.id && c.name === column.name))
+    // .filter((column, index, self) => index === self.findIndex((c) => c.id === column.id && c.name === column.name))
     .sort((a, b) => (a.constraintName || '').localeCompare(b.constraintName || ''));
   const fkColumns = table.columns
     .filter((val) => val.keyType === 'FK')
-    .filter((column, index, self) => index === self.findIndex((c) => c.id === column.id && c.name === column.name))
+    // .filter((column, index, self) => index === self.findIndex((c) => c.id === column.id && c.name === column.name))
     .sort((a, b) => (a.constraintName || '').localeCompare(b.constraintName || ''));
   const columns = table.columns
     .filter((val) => val.keyType === undefined)
